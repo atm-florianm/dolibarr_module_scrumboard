@@ -12,7 +12,7 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status']));
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status')));
 
 			break;
 		case 'task' :
@@ -23,7 +23,7 @@ function _get(&$db, $case) {
 			
 		case 'velocity':
 			
-			print json_encode(_velocity($db, (int)$_REQUEST['id_project']));
+			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
 	}
@@ -297,22 +297,26 @@ function _tasks(&$db, $id_project, $status) {
 		
 	if($status=='ideas') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 AND datee IS NULL
-		ORDER BY rang";
+		WHERE progress=0 AND datee IS NULL";
+		
 	}	
 	else if($status=='todo') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 ORDER BY rang";
+		WHERE progress=0";
 	}
 	else if($status=='inprogress') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress>0 AND progress<100 ORDER BY rang";
+		WHERE progress>0 AND progress<100";
 	}
 	else if($status=='finish') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=100 
-		ORDER BY rang";
+		WHERE progress=100 
+		";
 	}
+	
+	if($id_project) $sql.=" AND fk_projet=".$id_project; 
+		
+	$sql.=" ORDER BY rang";	
 		
 	$res = $db->query($sql);	
 		

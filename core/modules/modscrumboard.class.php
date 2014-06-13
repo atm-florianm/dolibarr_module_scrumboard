@@ -250,85 +250,20 @@ class modscrumboard extends DolibarrModules
         $this->menus = array(); // List of menus to add
         $r = 0;
 
-        // Add here entries to declare new menus
-        //
-        // Example to declare a new Top Menu entry and its Left menu entry:
-        //$this->menu[$r]=array(
-        //	// Put 0 if this is a top menu
-        //	'fk_menu'=>0,
-        //	// This is a Top menu entry
-        //	'type'=>'top',
-        //	'titre'=>'scrumboard top menu',
-        //	'mainmenu'=>'scrumboard',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagetop.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
-        //$this->menu[$r]=array(
-        //	// Use r=value where r is index key used for the parent menu entry
-        //	// (higher parent must be a top menu entry)
-        //	'fk_menu'=>'r=0',
-        //	// This is a Left menu entry
-        //	'type'=>'left',
-        //	'titre'=>'scrumboard left menu',
-        //	'mainmenu'=>'scrumboard',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagelevel1.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
-        //
-        // Example to declare a Left Menu entry into an existing Top menu entry:
-        //$this->menu[$r]=array(
-        //	// Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy'
-        //	'fk_menu'=>'fk_mainmenu=mainmenucode',
-        //	// This is a Left menu entry
-        //	'type'=>'left',
-        //	'titre'=>'scrumboard left menu',
-        //	'mainmenu'=>'mainmenucode',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagelevel2.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	// Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
+       $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'Scrumboard',
+								'mainmenu'=>'project',
+								'leftmenu'=>'Scrumboard',
+								'url'=>'/scrumboard/scrumboard.php',
+								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+	   
+	   
         // Exports
         $r = 1;
 

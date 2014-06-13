@@ -36,7 +36,8 @@
     dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
-
+	if($id_projet) {
+		
 	/*
 		 *   Projet synthese pour rappel
 		 */
@@ -78,6 +79,9 @@
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
 
 		print "</table>";
+		
+	}
+		
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 
@@ -132,7 +136,7 @@
 		
 	}
 
-	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
+	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
 	{
 		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
 		{
@@ -143,7 +147,7 @@
 			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddTask').'</a>';
 		}
 	}
-	else
+	elseif( $id_projet)
 	{
 		print '<a class="butActionRefused" href="#" title="'.$langs->trans("NoPermission").'">'.$langs->trans('AddTask').'</a>';
 	}
