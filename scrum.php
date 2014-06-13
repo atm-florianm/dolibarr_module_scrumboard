@@ -24,7 +24,7 @@
  
 	require('config.php');
 
-	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'));
+	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/js/scrum.js.php'));
 	
 	$id_projet = (int)GETPOST('id');
 
