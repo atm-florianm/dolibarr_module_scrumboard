@@ -122,21 +122,11 @@ class modscrumboard extends DolibarrModules
         // (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
         // Example:
         $this->const = array(
-            //	0=>array(
-            //		'MYMODULE_MYNEWCONST1',
-            //		'chaine',
-            //		'myvalue',
-            //		'This is a constant to add',
-            //		1
-            //	),
-            //	1=>array(
-            //		'MYMODULE_MYNEWCONST2',
-            //		'chaine',
-            //		'myvalue',
-            //		'This is another constant to add',
-            //		0
-            //	)
-        );
+       		array('SCRUM_DEFAULT_VELOCITY','chaine', 7,'Vélocité par défaut d\'un projet',0)
+			,array('SCRUM_VELOCITY_NUMBER_OF_DAY','chaine', 14,'Vélocité calculée sur ce nombre de jour',0)
+			,array('SCRUM_SEE_DELIVERYDATE_PER_DAY','chaine', 1,'Ajoute des titres par jour',0)
+			,array('SCRUM_SEE_DELIVERYDATE_PER_WEEK','chaine', 1,'Ajoute des titres par semaine',0)
+		);
 
         // Array to add new pages in new tabs
         // Example:
@@ -255,7 +245,7 @@ class modscrumboard extends DolibarrModules
 								'titre'=>'Scrumboard',
 								'mainmenu'=>'project',
 								'leftmenu'=>'Scrumboard',
-								'url'=>'/scrumboard/scrumboard.php',
+								'url'=>'/scrumboard/scrum.php',
 								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
 								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
@@ -373,17 +363,7 @@ class modscrumboard extends DolibarrModules
 
         $result = $this->loadTables();
 
-		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
-		dolibarr_set_const($this->db, 'SCRUM_VELOCITY_NUMBER_OF_DAY', 14,'chaine',1,'Vélocité calculée sur ce nombre de jour',0);
-		
-		dolibarr_set_const($this->db, 'SCRUM_SEE_DELIVERYDATE_PER_DAY', 7,'chaine',1,'Ajoute des titres par jour',0);
-		dolibarr_set_const($this->db, 'SCRUM_SEE_DELIVERYDATE_PER_WEEK', 7,'chaine',0,'Ajoute des titres par semaine',0);
-
-		dolibarr_set_const($this->db, 'SCRUM_SEE_DELIVERYDATE_PER_WEEK', 1,'chaine',1,'',0);
-	
-
-
-        return $this->_init($sql, $options);
+		return $this->_init($sql, $options);
     }
 
     /**
