@@ -15,7 +15,7 @@ function project_velocity(id_project) {
 	.done(function (data) {
 		
 		if(data.current) {
-			$('td[rel=currentVelocity]').html(data.current);
+			$('[rel=currentVelocity]').html(data.current);
 		}
 		if(data.inprogress) {
 			$('span[rel=velocityInProgress]').html(data.inprogress);

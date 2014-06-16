@@ -87,6 +87,9 @@
 		print "</table>";
 		
 	}
+	else{
+		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
+	}
 		
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
