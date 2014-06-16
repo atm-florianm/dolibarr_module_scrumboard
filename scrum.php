@@ -32,11 +32,18 @@
 	$object->fetch($id_projet);
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	$head=project_prepare_head($object);
-    dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
+	if($id_projet>0) {
+		$head=project_prepare_head($object);
+	}
+	else{
+		$head=array(0=>array('#', $langs->trans("Scrumboard"), 'scrumboard'));
+	}
+	
+	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
-
+	if($id_projet) {
+		
 	/*
 		 *   Projet synthese pour rappel
 		 */
@@ -78,6 +85,12 @@
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
 
 		print "</table>";
+		
+	}
+	else{
+		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
+	}
+		
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 
@@ -132,7 +145,7 @@
 		
 	}
 
-	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
+	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
 	{
 		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
 		{
@@ -143,7 +156,7 @@
 			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddTask').'</a>';
 		}
 	}
-	else
+	elseif( $id_projet)
 	{
 		print '<a class="butActionRefused" href="#" title="'.$langs->trans("NoPermission").'">'.$langs->trans('AddTask').'</a>';
 	}
@@ -178,7 +191,7 @@
 				<span rel="time"></span>
 				</div>
 				
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
 			</li>
 			</ul>
 			

@@ -12,7 +12,7 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status']));
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status')));
 
 			break;
 		case 'task' :
@@ -23,7 +23,7 @@ function _get(&$db, $case) {
 			
 		case 'velocity':
 			
-			print json_encode(_velocity($db, (int)$_REQUEST['id_project']));
+			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
 	}
@@ -201,6 +201,9 @@ global $user, $langs;
 	
 	$task->long_description.=$task->description;
 
+	$task->project = new Project($db);
+	$task->project->fetch($task->fk_project);
+
 	return _as_array($task);
 }
 
@@ -296,23 +299,32 @@ global $user;
 function _tasks(&$db, $id_project, $status) {
 		
 	if($status=='ideas') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 AND datee IS NULL
-		ORDER BY rang";
+		$sql = "SELECT t.rowid 
+		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
+		WHERE t.progress=0 AND t.datee IS NULL";
+		
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 ORDER BY rang";
+		$sql = "SELECT t.rowid 
+		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
+		WHERE t.progress=0";
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress>0 AND progress<100 ORDER BY rang";
+		$sql = "SELECT t.rowid 
+		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
+		WHERE t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=100 
-		ORDER BY rang";
+		$sql = "SELECT t.rowid 
+		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
+		WHERE t.progress=100 
+		";
 	}
+	
+	if($id_project) $sql.=" AND t.fk_projet=".$id_project; 
+	else $sql.=" AND p.fk_statut IN (0,1)";	
+		
+	$sql.=" ORDER BY rang";	
 		
 	$res = $db->query($sql);	
 		

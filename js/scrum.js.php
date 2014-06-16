@@ -15,7 +15,7 @@ function project_velocity(id_project) {
 	.done(function (data) {
 		
 		if(data.current) {
-			$('td[rel=currentVelocity]').html(data.current);
+			$('[rel=currentVelocity]').html(data.current);
 		}
 		if(data.inprogress) {
 			$('span[rel=velocityInProgress]').html(data.inprogress);
@@ -90,7 +90,6 @@ function project_refresh_task(id_project, task) {
 	
 	$item = $('#task-'+task.id);
 	
-	
 	$item.attr('task-id', task.id);
 	
 	$item.removeClass('idea todo inprogress finish');
@@ -108,6 +107,14 @@ function project_refresh_task(id_project, task) {
 		
 		
 	});
+	
+	
+	$item.find('[rel=project]').html(task.project.title);
+	
+	if(id_project>0) {
+		$item.find('[rel=project]').hide();
+	}
+	
 	$item.find('[rel=label]').html(task.label).attr("title", task.long_description).tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 	$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	
