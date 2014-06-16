@@ -32,8 +32,14 @@
 	$object->fetch($id_projet);
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	$head=project_prepare_head($object);
-    dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
+	if($id_projet>0) {
+		$head=project_prepare_head($object);
+	}
+	else{
+		$head=array(0=>array('#', $langs->trans("Scrumboard"), 'scrumboard'));
+	}
+	
+	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
 	if($id_projet) {
@@ -182,7 +188,7 @@
 				<span rel="time"></span>
 				</div>
 				
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
 			</li>
 			</ul>
 			

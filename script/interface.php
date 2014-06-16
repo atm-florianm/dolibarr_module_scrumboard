@@ -201,6 +201,9 @@ global $user, $langs;
 	
 	$task->long_description.=$task->description;
 
+	$task->project = new Project($db);
+	$task->project->fetch($task->fk_project);
+
 	return _as_array($task);
 }
 
