@@ -363,6 +363,12 @@ class modscrumboard extends DolibarrModules
 
         $result = $this->loadTables();
 
+		global $db;
+		
+		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task` 
+					ADD `grid_col` INT NOT NULL DEFAULT '1',
+					ADD `grid_row` INT NOT NULL DEFAULT '1'");		
+
 		return $this->_init($sql, $options);
     }
 

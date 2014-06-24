@@ -117,3 +117,10 @@ td.projectDrag {
 div.bodyline {
 	z-index:1050;
 }
+
+#scrum ul li div[rel=time-end] {
+	position:absolute;
+	bottom:1px;
+	right:1px;
+	font-weight: normal;
+}

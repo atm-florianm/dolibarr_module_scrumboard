@@ -12,7 +12,14 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status')));
+			
+			$var = explode('|',GETPOST('status'));
+			$Tab=array();
+			foreach($var as $statut) {
+				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut));	
+			}
+			
+			print json_encode($Tab);
 
 			break;
 		case 'task' :
@@ -49,10 +56,26 @@ function _put(&$db, $case) {
 			
 			break;
 
+		case 'coord':
+			_coord($db, $_POST['coord']);
+			
+			break;
+
 	}
 
 }
-
+function _coord(&$db, $TCoord) {
+	
+	foreach($TCoord as $coord) {
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+			grid_col=".(int)$coord['col']."
+			,grid_row=".(int)$coord['row']." 
+		WHERE rowid = ".(int)$coord['id'];
+		$db->query($sql);
+		
+	}
+	
+}
 function _velocity(&$db, $id_project) {
 global $langs;
 	
@@ -299,23 +322,23 @@ global $user;
 function _tasks(&$db, $id_project, $status) {
 		
 	if($status=='ideas') {
-		$sql = "SELECT t.rowid 
+		$sql = "SELECT t.rowid, t.grid_col,t.grid_row
 		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
 		WHERE t.progress=0 AND t.datee IS NULL";
 		
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT t.rowid 
+		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
 		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
 		WHERE t.progress=0";
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT t.rowid 
+		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
 		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
 		WHERE t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql = "SELECT t.rowid 
+		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
 		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
 		WHERE t.progress=100 
 		";
@@ -331,7 +354,7 @@ function _tasks(&$db, $id_project, $status) {
 		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status));
+		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status, 'grid_col'=>$obj->grid_col, 'grid_row'=>$obj->grid_row));
 	}
 	
 	return $TTask;
