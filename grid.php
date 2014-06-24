@@ -121,10 +121,15 @@ $(document).ready(function(){
 
 
 				var duration = task.planned_workload;
-				if(duration<task.duration_effective) duration = task.duration_effective;
-				else duration-=task.duration_effective;
-			
-				height = Math.ceil( duration / 3600 );
+				if(duration>0) {
+					
+					if(duration<task.duration_effective) duration = task.duration_effective;
+					else duration-=task.duration_effective;
+				
+					height = Math.ceil( duration / 3600 );
+					
+				}
+				
 				if(height<1) height = 1;
 			
 				date=new Date(task.time_date_end * 1000);
