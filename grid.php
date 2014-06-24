@@ -24,7 +24,8 @@
  
 	require('config.php');
 
-	$number_of_columns = 4;
+	$number_of_ressource = 3;
+	$number_of_columns = $number_of_ressource +1 ;
 	$day_height = 25; 
 
 	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php','/scrumboard/js/jquery.gridster.js'));
@@ -32,184 +33,6 @@
 	$form = new Form($db);
 
 ?>
-	<style type="text/css">
-		
-		/*! gridster.js - v0.5.2 - 2014-06-16
-		* http://gridster.net/
-		* Copyright (c) 2014 ducksboard; Licensed MIT */
-		
-		.gridster {
-		    position:relative;
-		}
-		
-		.gridster > * {
-		    margin: 0 auto;
-		    -webkit-transition: height .4s, width .4s;
-		    -moz-transition: height .4s, width .4s;
-		    -o-transition: height .4s, width .4s;
-		    -ms-transition: height .4s, width .4s;
-		    transition: height .4s, width .4s;
-		}
-		
-		.gridster .gs-w {
-		    z-index: 2;
-		    position: absolute;
-		    text-align: left;
-		}
-		
-		.ready .gs-w:not(.preview-holder) {
-		    -webkit-transition: opacity .3s, left .3s, top .3s;
-		    -moz-transition: opacity .3s, left .3s, top .3s;
-		    -o-transition: opacity .3s, left .3s, top .3s;
-		    transition: opacity .3s, left .3s, top .3s;
-		}
-		
-		.ready .gs-w:not(.preview-holder),
-		.ready .resize-preview-holder {
-		    -webkit-transition: opacity .3s, left .3s, top .3s, width .3s, height .3s;
-		    -moz-transition: opacity .3s, left .3s, top .3s, width .3s, height .3s;
-		    -o-transition: opacity .3s, left .3s, top .3s, width .3s, height .3s;
-		    transition: opacity .3s, left .3s, top .3s, width .3s, height .3s;
-		}
-		
-		.gridster .preview-holder {
-		    z-index: 1;
-		    position: absolute;
-		    background-color: #fff;
-		    border-color: #fff;
-		    opacity: 0.3;
-		}
-		
-		.gridster .player-revert {
-		    z-index: 10!important;
-		    -webkit-transition: left .3s, top .3s!important;
-		    -moz-transition: left .3s, top .3s!important;
-		    -o-transition: left .3s, top .3s!important;
-		    transition:  left .3s, top .3s!important;
-		}
-		
-		.gridster .dragging,
-		.gridster .resizing {
-		    z-index: 10!important;
-		    -webkit-transition: all 0s !important;
-		    -moz-transition: all 0s !important;
-		    -o-transition: all 0s !important;
-		    transition: all 0s !important;
-		}
-		
-		
-		.gs-resize-handle {
-		    position: absolute;
-		    z-index: 1;
-		}
-		
-		.gs-resize-handle-both {
-		    width: 20px;
-		    height: 20px;
-		    bottom: -8px;
-		    right: -8px;
-		    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pg08IS0tIEdlbmVyYXRvcjogQWRvYmUgRmlyZXdvcmtzIENTNiwgRXhwb3J0IFNWRyBFeHRlbnNpb24gYnkgQWFyb24gQmVhbGwgKGh0dHA6Ly9maXJld29ya3MuYWJlYWxsLmNvbSkgLiBWZXJzaW9uOiAwLjYuMSAgLS0+DTwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DTxzdmcgaWQ9IlVudGl0bGVkLVBhZ2UlMjAxIiB2aWV3Qm94PSIwIDAgNiA2IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZmZmZmZmMDAiIHZlcnNpb249IjEuMSINCXhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiDQl4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjZweCIgaGVpZ2h0PSI2cHgiDT4NCTxnIG9wYWNpdHk9IjAuMzAyIj4NCQk8cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iIzAwMDAwMCIvPg0JPC9nPg08L3N2Zz4=');
-		    background-position: top left;
-		    background-repeat: no-repeat;
-		    cursor: se-resize;
-		    z-index: 20;
-		}
-		
-		.gs-resize-handle-x {
-		    top: 0;
-		    bottom: 13px;
-		    right: -5px;
-		    width: 10px;
-		    cursor: e-resize;
-		}
-		
-		.gs-resize-handle-y {
-		    left: 0;
-		    right: 13px;
-		    bottom: -5px;
-		    height: 10px;
-		    cursor: s-resize;
-		}
-		
-		.gs-w:hover .gs-resize-handle,
-		.resizing .gs-resize-handle {
-		    opacity: 1;
-		}
-		
-		.gs-resize-handle,
-		.gs-w.dragging .gs-resize-handle {
-		    opacity: 0;
-		}
-		
-		.gs-resize-disabled .gs-resize-handle {
-		    display: none!important;
-		}
-		
-		[data-max-sizex="1"] .gs-resize-handle-x,
-		[data-max-sizey="1"] .gs-resize-handle-y,
-		[data-max-sizey="1"][data-max-sizex="1"] .gs-resize-handle {
-		    display: none !important;
-		}
-		.gridster * {
-  margin:0;
-  padding:0;
-}
-
-ul {
-  list-style-type: none;
-}
-
-
-
-.controls {
-    margin-bottom: 20px;
-}
-
-/*/
-/* gridster
-/*/
-
-.gridster ul {
-    background-color: #EFEFEF;
-}
-
-.gridster li {
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    line-height: 100%;
-}
-
-
-.gridster {
-    margin: 0 auto;
-
-    opacity: .8;
-
-    -webkit-transition: opacity .6s;
-    -moz-transition: opacity .6s;
-    -o-transition: opacity .6s;
-    -ms-transition: opacity .6s;
-    transition: opacity .6s;
-}
-
-.gridster .gs-w {
-    background: #DDD;
-    cursor: pointer;
-}
-
-.gridster .player {
-    background: #BBB;
-}
-
-
-.gridster .preview-holder {
-    border: none!important;
-    background: red!important;
-}
-
-
-	</style>
 	
 
 	<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
@@ -218,10 +41,11 @@ ul {
 	
 			<table id="scrum">
 				<tr>
-					<td><?=$langs->trans('WorkStation') ?> - <?php echo $number_of_columns.' ressources availables'; ?></td>
+					<td style="width: 200px;"><?php echo $langs->trans('Garage') ?></td>
+					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?></td>
 				</tr>
 				<tr>
-					<td class="gridster" id="tasks">
+					<td class="gridster" id="tasks" colspan="2">
 						<ul id="list-task" class="task-list" rel="all-task">
 						
 						</ul>
@@ -285,8 +109,11 @@ $(document).ready(function(){
 			gridster.remove_all_widgets();
             
 			$.each(tasks, function(i, task) {
-			//	size_x, size_y, col, row
+			
 				$item = $('li#task-blank');
+				
+				$item.attr('task-id', task.id);
+				
 				$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
 				$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 				$item.find('[rel=project]').html(task.project.title);
@@ -303,7 +130,12 @@ $(document).ready(function(){
 				date=new Date(task.time_date_end * 1000);
 				$item.find('[rel=time-end]').html(date.toLocaleDateString());
 			
-			    gridster.add_widget('<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
+				gridster.add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
+				
+				if(task.grid_col==1) {
+					$('li[task-id='+task.id+']').addClass('garage');
+				}
+				
             });
 
 
