@@ -289,6 +289,9 @@ $(document).ready(function(){
 				$item = $('li#task-blank');
 				$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
 				$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+				$item.find('[rel=project]').html(task.project.title);
+
+
 
 				var duration = task.planned_workload;
 				if(duration<task.duration_effective) duration = task.duration_effective;
@@ -325,7 +328,7 @@ $(document).ready(function(){
 			
 			<ul>
 			<li id="task-blank">
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> <span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
 				<div rel="time-end"></div> 
 			</li>
 			</ul>
