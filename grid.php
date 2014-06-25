@@ -123,8 +123,7 @@ $(document).ready(function(){
 				
 				if(duration>0) {
 					
-					if(duration<task.duration_effective) duration = task.duration_effective;
-					else duration-=task.duration_effective;
+					duration-=task.duration_effective;
 				
 					height = Math.ceil( duration / 3600 );
 					
@@ -136,6 +135,12 @@ $(document).ready(function(){
 				$item.find('[rel=time-end]').html(date.toLocaleDateString());
 			
 				gridster.add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
+				
+				if(duration < task.duration_effective) {
+					
+					$('li[task-id='+task.id+']').css('background-color','red');
+					
+				}
 				
             });
 
