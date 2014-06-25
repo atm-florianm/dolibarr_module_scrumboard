@@ -252,6 +252,19 @@ class modscrumboard extends DolibarrModules
 								'target'=>'',
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
+		
+      $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'The Grid',
+								'mainmenu'=>'Scrumboard',
+								'leftmenu'=>'grid',
+								'url'=>'/scrumboard/grid.php',
+								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
 	   
 	   
         // Exports
@@ -359,17 +372,19 @@ class modscrumboard extends DolibarrModules
      */
     public function init($options = '')
     {
-        $sql = array();
+    	global $db;
+	
+	    $sql = array();
 
         $result = $this->loadTables();
-
-		global $db;
 		
 		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task` 
 					ADD `grid_col` INT NOT NULL DEFAULT '1',
-					ADD `grid_row` INT NOT NULL DEFAULT '1',
-					ADD `grid_garage` INT NOT NULL DEFAULT '0',
-					ADD INDEX ( `grid_garage` )");		
+					ADD `grid_row` INT NOT NULL DEFAULT '1'");		
+	
+		dol_include_once('/core/class/extrafields.class.php');
+        $extrafields=new ExtraFields($this->db);
+		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
 
 		return $this->_init($sql, $options);
     }

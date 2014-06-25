@@ -12,11 +12,12 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
+			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 ? true : false;
 			
 			$var = explode('|',GETPOST('status'));
 			$Tab=array();
 			foreach($var as $statut) {
-				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut, GETPOST('garage')));	
+				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut, $onlyUseGrid));	
 			}
 			
 			print json_encode($Tab);
@@ -319,35 +320,31 @@ global $user;
 
 }
 
-function _tasks(&$db, $id_project, $status,$garage='') {
+function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
+	
+	$sql = "SELECT t.rowid, t.grid_col,t.grid_row
+		FROM ".MAIN_DB_PREFIX."projet_task t 
+		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
+		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
 		
 	if($status=='ideas') {
-		$sql = "SELECT t.rowid, t.grid_col,t.grid_row
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=0 AND t.datee IS NULL";
-		
+		$sql.=" WHERE t.progress=0 AND t.datee IS NULL";
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=0";
+		$sql.=" WHERE t.progress=0";
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress>0 AND t.progress<100";
+		$sql.=" WHERE t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql = "SELECT t.rowid , t.grid_col,t.grid_row
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=100 
+		$sql.=" WHERE t.progress=100 
 		";
 	}
 	
 	if($id_project) $sql.=" AND t.fk_projet=".$id_project; 
 	else $sql.=" AND p.fk_statut IN (0,1)";	
 		
-	if($garage!=='') $sql.=" AND grid_garage=".(int)$garage;	
+	if($onlyUseGrid) $sql.=" AND ex.grid_use=1 ";	
 		
 	$sql.=" ORDER BY rang";	
 		
