@@ -367,7 +367,9 @@ class modscrumboard extends DolibarrModules
 		
 		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task` 
 					ADD `grid_col` INT NOT NULL DEFAULT '1',
-					ADD `grid_row` INT NOT NULL DEFAULT '1'");		
+					ADD `grid_row` INT NOT NULL DEFAULT '1',
+					ADD `grid_garage` INT NOT NULL DEFAULT '0',
+					ADD INDEX ( `grid_garage` )");		
 
 		return $this->_init($sql, $options);
     }

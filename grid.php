@@ -25,7 +25,7 @@
 	require('config.php');
 
 	$number_of_ressource = 3;
-	$number_of_columns = $number_of_ressource +1 ;
+	$number_of_columns = $number_of_ressource ;
 	$day_height = 25; 
 
 	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php','/scrumboard/js/jquery.gridster.js'));
@@ -45,7 +45,12 @@
 					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?></td>
 				</tr>
 				<tr>
-					<td class="gridster" id="tasks" colspan="2">
+					<td class="gridster" id="tasks-garage" valign="top">
+						<ul id="list-task-garage" class="task-list" rel="all-task">
+						
+						</ul>
+					</td>
+					<td class="gridster" id="tasks" valign="top">
 						<ul id="list-task" class="task-list" rel="all-task">
 						
 						</ul>
@@ -53,13 +58,12 @@
 				</tr>
 			</table>
 <script type="text/javascript">
-var gridster;
+var gridster = [];
 
 
 $(document).ready(function(){
 	
-	
-	  gridster = $("ul#list-task").gridster({
+	  gridster[0] = $("ul#list-task").gridster({
           widget_base_dimensions: [200, <?php echo $day_height ?>]
           ,widget_margins: [5, 5]
           ,max_cols:<?php echo $number_of_columns; ?>
@@ -77,7 +81,41 @@ $(document).ready(function(){
           ,draggable: {
           	stop:function(e,ui,$widget) {
           	
-	          	var s = gridster.serialize();
+	          	var s = gridster[0].serialize();
+		
+				$.post("./script/interface.php"
+					,{
+						json:1
+						,put : 'coord'
+						,coord : s
+					}
+					
+				);
+	          	
+	          }
+          }
+        }).data('gridster');
+	
+	
+	  gridster[1] = $("ul#list-task-garage").gridster({
+          widget_base_dimensions: [200, <?php echo $day_height ?>]
+          ,widget_margins: [5, 5]
+          ,max_cols:1
+          ,min_cols:1
+          ,serialize_params: function($w, wgd) { 
+          	    
+          		return { 
+          			id:$w.attr('task-id'), 
+          			col: wgd.col, 
+          			row: wgd.row, 
+          			size_x: wgd.size_x, 
+          			size_y: wgd.size_y 
+          		} 
+          }
+          ,draggable: {
+          	stop:function(e,ui,$widget) {
+          	
+	          	var s = gridster[1].serialize();
 		
 				$.post("./script/interface.php"
 					,{
@@ -99,6 +137,7 @@ $(document).ready(function(){
 				json:1
 				,get : 'tasks'
 				,status : 'inprogress|todo'
+				,garage : 0
 				,id_project : 0
 				,async:false
 			}
@@ -106,7 +145,7 @@ $(document).ready(function(){
 		})
 		.done(function (tasks) {
 			
-			gridster.remove_all_widgets();
+			gridster[0].remove_all_widgets();
             
 			$.each(tasks, function(i, task) {
 			
@@ -121,6 +160,8 @@ $(document).ready(function(){
 
 
 				var duration = task.planned_workload;
+				var height = 1;
+				
 				if(duration>0) {
 					
 					if(duration<task.duration_effective) duration = task.duration_effective;
@@ -135,11 +176,8 @@ $(document).ready(function(){
 				date=new Date(task.time_date_end * 1000);
 				$item.find('[rel=time-end]').html(date.toLocaleDateString());
 			
-				gridster.add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
+				gridster[0].add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
 				
-				if(task.grid_col==1) {
-					$('li[task-id='+task.id+']').addClass('garage');
-				}
 				
             });
 
@@ -147,6 +185,65 @@ $(document).ready(function(){
 			$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
 
 		}); 
+        
+         
+       $.ajax({
+			url : "./script/interface.php"
+			,data: {
+				json:1
+				,get : 'tasks'
+				,status : 'inprogress|todo'
+				,garage : 1
+				,id_project : 0
+				,async:false
+			}
+			,dataType: 'json'
+		})
+		.done(function (tasks) {
+			
+			gridster[1].remove_all_widgets();
+            
+			$.each(tasks, function(i, task) {
+			
+				$item = $('li#task-blank');
+				
+				$item.attr('task-id', task.id);
+				
+				$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
+				$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+				$item.find('[rel=project]').html(task.project.title);
+
+
+
+				var duration = task.planned_workload;
+				var height = 1;
+				
+				if(duration>0) {
+					
+					if(duration<task.duration_effective) duration = task.duration_effective;
+					else duration-=task.duration_effective;
+				
+					height = Math.ceil( duration / 3600 );
+					
+				}
+				
+				if(height<1) height = 1;
+			
+				date=new Date(task.time_date_end * 1000);
+				$item.find('[rel=time-end]').html(date.toLocaleDateString());
+			
+				gridster[1].add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
+				
+				$('li[task-id='+task.id+']').addClass('garage');
+				
+				
+            });
+
+
+			$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
+
+		}); 
+        
         
 });
 </script>

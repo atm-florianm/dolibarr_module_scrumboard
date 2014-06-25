@@ -16,7 +16,7 @@ function _get(&$db, $case) {
 			$var = explode('|',GETPOST('status'));
 			$Tab=array();
 			foreach($var as $statut) {
-				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut));	
+				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut, GETPOST('garage')));	
 			}
 			
 			print json_encode($Tab);
@@ -319,7 +319,7 @@ global $user;
 
 }
 
-function _tasks(&$db, $id_project, $status) {
+function _tasks(&$db, $id_project, $status,$garage='') {
 		
 	if($status=='ideas') {
 		$sql = "SELECT t.rowid, t.grid_col,t.grid_row
@@ -346,6 +346,8 @@ function _tasks(&$db, $id_project, $status) {
 	
 	if($id_project) $sql.=" AND t.fk_projet=".$id_project; 
 	else $sql.=" AND p.fk_statut IN (0,1)";	
+		
+	if($garage!=='') $sql.=" AND grid_garage=".(int)$garage;	
 		
 	$sql.=" ORDER BY rang";	
 		
