@@ -122,12 +122,11 @@ $(document).ready(function(){
 				var height = 1;
 				
 				if(duration>0) {
-					
-					duration-=task.duration_effective;
-				
+					//duration-=task.duration_effective;
 					height = Math.ceil( duration / 3600 );
-					
 				}
+
+				
 				
 				if(height<1) height = 1;
 			

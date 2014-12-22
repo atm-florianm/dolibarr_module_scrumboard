@@ -333,6 +333,9 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	else if($status=='todo') {
 		$sql.=" WHERE t.progress=0";
 	}
+	else if($status=='inprogress|todo') {
+		$sql.=" WHERE t.progress>=0 AND t.progress<100";
+	}
 	else if($status=='inprogress') {
 		$sql.=" WHERE t.progress>0 AND t.progress<100";
 	}
@@ -349,7 +352,6 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	$sql.=" ORDER BY rang";	
 		
 	$res = $db->query($sql);	
-		
 		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
