@@ -24,9 +24,26 @@
  
 	require('config.php');
 
+	$TWorkstation = array(
+	
+		0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+		,1=>array('nb_ressource'=>2, 'velocity'=>(5/7), 'background'=>'linear-gradient(to right,white, #660000)', 'name'=>'Stagiaire') // base de 7h par jour
+		,2=>array('nb_ressource'=>2, 'velocity'=>(5.5/7), 'background'=>'linear-gradient(to right,white, #cccc00)', 'name'=>'devconfirme')
+		,3=>array('nb_ressource'=>1, 'velocity'=>(2/7), 'background'=>'linear-gradient(to right,white,#00cc00)', 'name'=>'DSI')
+	);
+
+	$number_of_columns = 1 ;
+	foreach($TWorkstation as $w_name=>$w_param) {
+		$number_of_columns+=$w_param['nb_ressource'];
+		
+		
+	}
+
 	$number_of_ressource = 3;
-	$number_of_columns = $number_of_ressource ;
-	$day_height = 25; 
+	
+	$hour_height = 1;
+	
+	$day_height =  $hour_height * 7;
 
 	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php','/scrumboard/js/jquery.gridster.js'));
 
@@ -41,116 +58,193 @@
 	
 			<table id="scrum">
 				<tr>
-					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?></td>
+					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?><br /><br /><br /></td>
 				</tr>
 				<tr>
-					<td class="gridster" id="tasks" >
-						<ul id="list-task" class="task-list" rel="all-task">
+					<td class="gridster" id="tasks" style="position:relative; width:100%">
+						<table><tr>
+						<?php
+						$column_width = 200;
 						
-						</ul>
+						_draw_grid($TWorkstation, $column_width);
+						
+						
+						
+						?></tr></table>
 					</td>
 				</tr>
 			</table>
-<script type="text/javascript">
-var gridster;
+<?php
 
+_js_grid($TWorkstation, $day_height, $column_width);
 
-$(document).ready(function(){
+function _js_grid(&$TWorkstation, $day_height, $column_width) {
+		?>		
+				<script type="text/javascript">
+				var gridster = [];
+				var TVelocity = [];
+				
+				$(document).ready(function(){
+					
+					 <?php
+					 	foreach($TWorkstation as $w_name=>$w_param) {
+					 		?>
+					 		TVelocity[<?php echo $w_name; ?>] = <?php echo $w_param['velocity']; ?>
+					 		
+						 		gridster["<?php echo $w_name; ?>"] = $("ul#list-task-<?php echo $w_name; ?>").gridster({
+							          widget_base_dimensions: [<?php echo $column_width.','. $day_height ?>]
+							          ,widget_margins: [5, 5]
+							          ,max_cols:<?php echo $w_param['nb_ressource']; ?>
+							          ,min_cols:<?php echo $w_param['nb_ressource']; ?>
+							          ,serialize_params: function($w, wgd) { 
+							          	    
+							          	    $w.find('header').html(wgd.size_y+'h')
+							          	    
+							          		return { 
+							          			id:$w.attr('task-id'), 
+							          			col: wgd.col, 
+							          			row: wgd.row, 
+							          			size_x: wgd.size_x, 
+							          			size_y: wgd.size_y, 
+							          			fk_workstation: '<?php echo $w_name; ?>'
+							          		} 
+							          }
+							          ,draggable: {
+							          	handle: 'header'
+							          	,stop:function(e,ui,$widget) {
+							          	
+								          	var s = gridster["<?php echo $w_name; ?>"].serialize();
+									
+											$.post("./script/interface.php"
+												,{
+													json:1
+													,put : 'coord'
+													,coord : s
+												}
+												
+											);
+								          	
+								          }
+							          }
+							          ,resize: {
+							            enabled: true,
+							            resize: function(e, ui, $widget) {
+							              var s = gridster["<?php echo $w_name; ?>"].serialize();
+							            },
+							            stop: function(e, ui, $widget) {
+							              var s = gridster["<?php echo $w_name; ?>"].serialize();
+									
+											$.post("./script/interface.php"
+												,{
+													json:1
+													,put : 'resize'
+													,coord : s
+												}
+												
+											);
+							            }
+							          }
+							        }).data('gridster');
+							
+								
+					 		<?php
+						}
+					 ?>
+					  
+				  		 $.ajax({
+									url : "./script/interface.php"
+									,data: {
+										json:1
+										,get : 'tasks'
+										,status : 'inprogress|todo'
+										,gridMode : 1 
+										,id_project : 0
+										,async:false
+									}
+									,dataType: 'json'
+								})
+								.done(function (tasks) {
+									
+									$.each(tasks, function(i, task) {
+									
+										$item = $('li#task-blank');
+										
+										$item.attr('task-id', task.id);
+										
+										$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
+										$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+										$item.find('[rel=project]').html(task.project.title);
+						
+										var duration = task.planned_workload;
+										var height = 1;
+										
+										if(duration>0) {
+											//duration-=task.duration_effective;
+											height = Math.ceil( duration / 3600 );
+										}
+						
+										
+										
+										if(height<1) height = 1;
+									
+										date=new Date(task.time_date_end * 1000);
+										$item.find('[rel=time-end]').html(date.toLocaleDateString());
+									
+										$item.find('header').html(height+'h');
+									
+										gridster[task.fk_workstation].add_widget( '<li task-id="'+task.id+'" class="draggable">'+$item.html()+'</li>', task.needed_ressource, height, task.grid_col, task.grid_row);
+										
+										if(duration < task.duration_effective) {
+											
+											$('li[task-id='+task.id+']').css('background-color','red');
+											
+										}
+										
+						            });
+						
+									$( ".draggable" ).draggable();
+						
+									$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
+						
+								}); 
+					 		  
+				        
+					    $( ".task-list" ).droppable({
+					        drop: function( event, ui ) {
+					            $( ".draggable" ).removeAttr("style");
+					            gridster.add_widget('<li class="new"></li>', 1, 1);                 
+					        }
+					    });       
+				        
+				});
+				</script><?php	
+	
+}
+
+function _draw_grid(&$TWorkstation, $column_width) {
 	
 	
-	  gridster = $("ul#list-task").gridster({
-          widget_base_dimensions: [200, <?php echo $day_height ?>]
-          ,widget_margins: [5, 5]
-          ,max_cols:<?php echo $number_of_columns; ?>
-          ,min_cols:<?php echo $number_of_columns; ?>
-          ,serialize_params: function($w, wgd) { 
-          	    
-          		return { 
-          			id:$w.attr('task-id'), 
-          			col: wgd.col, 
-          			row: wgd.row, 
-          			size_x: wgd.size_x, 
-          			size_y: wgd.size_y 
-          		} 
-          }
-          ,draggable: {
-          	stop:function(e,ui,$widget) {
-          	
-	          	var s = gridster.serialize();
+	foreach($TWorkstation as $w_name=>$w_param) {
+		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
+		$w_column = $column_width*$w_param['nb_ressource'];
 		
-				$.post("./script/interface.php"
-					,{
-						json:1
-						,put : 'coord'
-						,coord : s
-					}
-					
-				);
-	          	
-	          }
-          }
-        }).data('gridster');
-
-     
-       $.ajax({
-			url : "./script/interface.php"
-			,data: {
-				json:1
-				,get : 'tasks'
-				,status : 'inprogress|todo'
-				,gridMode : 1 
-				,id_project : 0
-				,async:false
-			}
-			,dataType: 'json'
-		})
-		.done(function (tasks) {
-			
-			gridster.remove_all_widgets();
-            
-			$.each(tasks, function(i, task) {
-			
-				$item = $('li#task-blank');
-				
-				$item.attr('task-id', task.id);
-				
-				$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
-				$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
-				$item.find('[rel=project]').html(task.project.title);
-
-				var duration = task.planned_workload;
-				var height = 1;
-				
-				if(duration>0) {
-					//duration-=task.duration_effective;
-					height = Math.ceil( duration / 3600 );
-				}
-
+		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
+		
+				<ul id="list-task-<?php echo $w_name; ?>" class="task-list" rel="all-task">
+						
+				</ul>
 				
 				
-				if(height<1) height = 1;
-			
-				date=new Date(task.time_date_end * 1000);
-				$item.find('[rel=time-end]').html(date.toLocaleDateString());
-			
-				gridster.add_widget( '<li task-id="'+task.id+'">'+$item.html()+'</li>', 1, height, task.grid_col, task.grid_row);
 				
-				if(duration < task.duration_effective) {
-					
-					$('li[task-id='+task.id+']').css('background-color','red');
-					
-				}
-				
-            });
-
-
-			$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
-
-		}); 
-        
-});
-</script>
-
+		</td><?php 
+		
+	}
+		
+							
+}
+	
+	
+	?>
 <div>
 	<span style="background-color:red;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskWontfinishInTime'); ?><br />
 	<span style="background-color:orange;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskMightNotfinishInTime'); ?><br />
@@ -165,6 +259,7 @@ $(document).ready(function(){
 			
 			<ul>
 			<li id="task-blank">
+				<header>|||</header>
 				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> <span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
 				<div rel="time-end"></div> 
 			</li>

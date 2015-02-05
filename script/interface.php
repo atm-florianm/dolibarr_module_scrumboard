@@ -61,7 +61,12 @@ function _put(&$db, $case) {
 			_coord($db, $_POST['coord']);
 			
 			break;
-
+			
+		case 'resize':
+			_resize($db, $_POST['coord']);
+			
+			break;
+		
 	}
 
 }
@@ -74,9 +79,32 @@ function _coord(&$db, $TCoord) {
 		WHERE rowid = ".(int)$coord['id'];
 		$db->query($sql);
 		
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
+			fk_workstation=".(int)$coord['fk_workstation']."
+		WHERE fk_object = ".(int)$coord['id'];
+		$db->query($sql);
+		
 	}
 	
 }
+
+function _resize(&$db, $TCoord) {
+	
+	foreach($TCoord as $coord) {
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+			planned_workload=".((int)$coord['size_y']*3600)."
+		WHERE rowid = ".(int)$coord['id'];
+		$db->query($sql);
+		
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
+			needed_ressource=".(int)$coord['size_x']."
+		WHERE fk_object = ".(int)$coord['id'];
+		$db->query($sql);
+		
+	}
+	
+}
+
 function _velocity(&$db, $id_project) {
 global $langs;
 	
@@ -322,7 +350,7 @@ global $user;
 
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	
-	$sql = "SELECT t.rowid, t.grid_col,t.grid_row
+	$sql = "SELECT t.rowid, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
 		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
@@ -355,7 +383,16 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status, 'grid_col'=>$obj->grid_col, 'grid_row'=>$obj->grid_row));
+		$TTask[] = array_merge( 
+			_task($db, $obj->rowid)
+		 	, array(
+		 		'status'=>$status
+		 		, 'grid_col'=>$obj->grid_col
+		 		, 'grid_row'=>$obj->grid_row
+		 		,'fk_workstation'=>(int)$obj->fk_workstation
+		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
+			)
+		 );
 	}
 	
 	return $TTask;
