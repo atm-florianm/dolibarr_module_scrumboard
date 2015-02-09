@@ -45,7 +45,7 @@
 	
 	$day_height =  $hour_height * 7;
 
-	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php','/scrumboard/js/jquery.gridster.js'));
+	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php'));
 
 	$form = new Form($db);
 
@@ -80,16 +80,25 @@ _js_grid($TWorkstation, $day_height, $column_width);
 
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		?>		
+		        <script type="text/javascript" src="./js/ordo.js.php"></script>
 				<script type="text/javascript">
-				var gridster = [];
 				var TVelocity = [];
 				
 				$(document).ready(function(){
-					
+				
+				     var ordo = new TOrdonnancement();
+					 
 					 <?php
 					 	foreach($TWorkstation as $w_name=>$w_param) {
 					 		?>
 					 		TVelocity[<?php echo $w_name; ?>] = <?php echo $w_param['velocity']; ?>
+					 		
+					 		var w = new TWorkstation();
+                            w.nb_ressource = <?php echo $w_param['nb_ressource']; ?>;
+                            w.velocity = <?php echo $w_param['velocity']; ?>;
+                            w.id = "<?php echo $w_name; ?>";
+					 		
+					 		ordo.addWorkstation(w);
 					 		
 						 		gridster["<?php echo $w_name; ?>"] = $("ul#list-task-<?php echo $w_name; ?>").gridster({
 							          widget_base_dimensions: [<?php echo $column_width.','.$day_height  ?>]
