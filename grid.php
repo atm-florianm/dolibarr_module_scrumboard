@@ -92,7 +92,7 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 					 		TVelocity[<?php echo $w_name; ?>] = <?php echo $w_param['velocity']; ?>
 					 		
 						 		gridster["<?php echo $w_name; ?>"] = $("ul#list-task-<?php echo $w_name; ?>").gridster({
-							          widget_base_dimensions: [<?php echo $column_width.','. $day_height ?>]
+							          widget_base_dimensions: [<?php echo $column_width.','.$day_height  ?>]
 							          ,widget_margins: [5, 5]
 							          ,max_cols:<?php echo $w_param['nb_ressource']; ?>
 							          ,min_cols:<?php echo $w_param['nb_ressource']; ?>
@@ -191,8 +191,19 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 										$item.find('[rel=time-end]').html(date.toLocaleDateString());
 									
 										$item.find('header').html(height+'h');
+									   
+									    $w = gridster[task.fk_workstation].add_widget( '<li task-id="'+task.id+'" class="draggable">'+$item.html()+'</li>', task.needed_ressource, height, task.grid_col, task.grid_row);
 									
-										gridster[task.fk_workstation].add_widget( '<li task-id="'+task.id+'" class="draggable">'+$item.html()+'</li>', task.needed_ressource, height, task.grid_col, task.grid_row);
+									    
+									    if(task.fk_task_parent>0) {
+                                           var rowparent = $('li[task-id='+task.fk_task_parent+']').attr('data-row');
+                                           if(rowparent>=task.grid_row) {
+                                               task.grid_row = rowparent+1;
+                                               gridster[task.fk_workstation].move_widget_up($w, task.grid_row);
+                                           }    
+                                        }
+									
+										$('li[task-id='+task.id+'] select[name=fk_workstation]').val(task.fk_workstation);
 										
 										if(duration < task.duration_effective) {
 											
@@ -202,19 +213,14 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 										
 						            });
 						
-									$( ".draggable" ).draggable();
+									
 						
 									$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
 						
 								}); 
 					 		  
 				        
-					    $( ".task-list" ).droppable({
-					        drop: function( event, ui ) {
-					            $( ".draggable" ).removeAttr("style");
-					            gridster.add_widget('<li class="new"></li>', 1, 1);                 
-					        }
-					    });       
+					    
 				        
 				});
 				</script><?php	
@@ -260,7 +266,12 @@ function _draw_grid(&$TWorkstation, $column_width) {
 			<ul>
 			<li id="task-blank">
 				<header>|||</header>
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?> <span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<span rel="fk_workstation"><select name="fk_workstation"><?php
+					foreach($TWorkstation as $w_id=>$w_param) {
+							?><option value="<?php echo $w_id; ?>"><?php echo $w_param['name']; ?></option><?php
+					}
+				?></select></span>
 				<div rel="time-end"></div> 
 			</li>
 			</ul>

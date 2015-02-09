@@ -350,7 +350,7 @@ global $user;
 
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	
-	$sql = "SELECT t.rowid, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
+	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
 		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
@@ -390,6 +390,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		 		, 'grid_col'=>$obj->grid_col
 		 		, 'grid_row'=>$obj->grid_row
 		 		,'fk_workstation'=>(int)$obj->fk_workstation
+		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
 		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
 			)
 		 );
