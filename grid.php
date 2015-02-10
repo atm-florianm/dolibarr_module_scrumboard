@@ -80,7 +80,11 @@ _js_grid($TWorkstation, $day_height, $column_width);
 
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		?>		
-		        <script type="text/javascript" src="./js/ordo.js.php"></script>
+		        <script type="text/javascript">
+		            var http = "<?php echo DOL_URL_ROOT; ?>";
+		            var w_column = <?php echo $column_width; ?>;
+		        </script>
+		        <script type="text/javascript" src="./js/ordo.js"></script>
 				<script type="text/javascript">
 				var TVelocity = [];
 				
@@ -99,135 +103,13 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
                             w.id = "<?php echo $w_name; ?>";
 					 		
 					 		ordo.addWorkstation(w);
-					 		
-						 		gridster["<?php echo $w_name; ?>"] = $("ul#list-task-<?php echo $w_name; ?>").gridster({
-							          widget_base_dimensions: [<?php echo $column_width.','.$day_height  ?>]
-							          ,widget_margins: [5, 5]
-							          ,max_cols:<?php echo $w_param['nb_ressource']; ?>
-							          ,min_cols:<?php echo $w_param['nb_ressource']; ?>
-							          ,serialize_params: function($w, wgd) { 
-							          	    
-							          	    $w.find('header').html(wgd.size_y+'h')
-							          	    
-							          		return { 
-							          			id:$w.attr('task-id'), 
-							          			col: wgd.col, 
-							          			row: wgd.row, 
-							          			size_x: wgd.size_x, 
-							          			size_y: wgd.size_y, 
-							          			fk_workstation: '<?php echo $w_name; ?>'
-							          		} 
-							          }
-							          ,draggable: {
-							          	handle: 'header'
-							          	,stop:function(e,ui,$widget) {
-							          	
-								          	var s = gridster["<?php echo $w_name; ?>"].serialize();
-									
-											$.post("./script/interface.php"
-												,{
-													json:1
-													,put : 'coord'
-													,coord : s
-												}
-												
-											);
-								          	
-								          }
-							          }
-							          ,resize: {
-							            enabled: true,
-							            resize: function(e, ui, $widget) {
-							              var s = gridster["<?php echo $w_name; ?>"].serialize();
-							            },
-							            stop: function(e, ui, $widget) {
-							              var s = gridster["<?php echo $w_name; ?>"].serialize();
-									
-											$.post("./script/interface.php"
-												,{
-													json:1
-													,put : 'resize'
-													,coord : s
-												}
-												
-											);
-							            }
-							          }
-							        }).data('gridster');
-							
-								
+	
 					 		<?php
 						}
 					 ?>
 					  
-				  		 $.ajax({
-									url : "./script/interface.php"
-									,data: {
-										json:1
-										,get : 'tasks'
-										,status : 'inprogress|todo'
-										,gridMode : 1 
-										,id_project : 0
-										,async:false
-									}
-									,dataType: 'json'
-								})
-								.done(function (tasks) {
-									
-									$.each(tasks, function(i, task) {
-									
-										$item = $('li#task-blank');
-										
-										$item.attr('task-id', task.id);
-										
-										$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
-										$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
-										$item.find('[rel=project]').html(task.project.title);
-						
-										var duration = task.planned_workload;
-										var height = 1;
-										
-										if(duration>0) {
-											//duration-=task.duration_effective;
-											height = Math.ceil( duration / 3600 );
-										}
-						
-										
-										
-										if(height<1) height = 1;
-									
-										date=new Date(task.time_date_end * 1000);
-										$item.find('[rel=time-end]').html(date.toLocaleDateString());
-									
-										$item.find('header').html(height+'h');
-									   
-									    $w = gridster[task.fk_workstation].add_widget( '<li task-id="'+task.id+'" class="draggable">'+$item.html()+'</li>', task.needed_ressource, height, task.grid_col, task.grid_row);
-									
-									    
-									    if(task.fk_task_parent>0) {
-                                           var rowparent = $('li[task-id='+task.fk_task_parent+']').attr('data-row');
-                                           if(rowparent>=task.grid_row) {
-                                               task.grid_row = rowparent+1;
-                                               gridster[task.fk_workstation].move_widget_up($w, task.grid_row);
-                                           }    
-                                        }
-									
-										$('li[task-id='+task.id+'] select[name=fk_workstation]').val(task.fk_workstation);
-										
-										if(duration < task.duration_effective) {
-											
-											$('li[task-id='+task.id+']').css('background-color','red');
-											
-										}
-										
-						            });
-						
-									
-						
-									$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50})
-						
-								}); 
-					 		  
+				  		
+					ordo.init(); 		  
 				        
 					    
 				        
@@ -245,7 +127,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
 		
-				<ul id="list-task-<?php echo $w_name; ?>" class="task-list" rel="all-task">
+				<ul id="list-task-<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
 				
@@ -276,11 +158,11 @@ function _draw_grid(&$TWorkstation, $column_width) {
 			<li id="task-blank">
 				<header>|||</header>
 				<span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
-				<span rel="fk_workstation"><select name="fk_workstation"><?php
+				<!-- <span rel="fk_workstation"><select name="fk_workstation"><?php
 					foreach($TWorkstation as $w_id=>$w_param) {
 							?><option value="<?php echo $w_id; ?>"><?php echo $w_param['name']; ?></option><?php
 					}
-				?></select></span>
+				?></select></span> -->
 				<div rel="time-end"></div> 
 			</li>
 			</ul>

@@ -88,10 +88,11 @@ td.projectDrag {
 }
 
 
-.projectDrag ul .ui-state-highlight {
+.projectDrag ul .ui-state-highlight, ul.task-list .ui-state-highlight {
 	background: #fff;
 	height:30px;
 	border:1px solid yellow;
+	clear:both;
 }
 
 .projectDrag ul li div.view {
@@ -263,6 +264,7 @@ ul {
 
 .gridster ul {
    /* background-color: #EFEFEF;*/
+  padding:10px 0 10px 0; 
 }
 
 .gridster li {
@@ -270,6 +272,9 @@ ul {
     font-weight: bold;
     text-align: center;
     line-height: 100%;
+    float:left;
+    width:200px;
+    border:1px solid black;
 }
 
 
@@ -334,7 +339,7 @@ ul {
 
 .gridster li {
 	overflow:hidden;
-	
+	background-color: white;
 }
 .gridster li.gs-w:hover {
 	overflow:visible;
