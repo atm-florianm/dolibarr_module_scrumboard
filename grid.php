@@ -40,8 +40,11 @@
 	}
 
 	$number_of_ressource = 3;
+    
+   $hh =  GETPOST('hour_height');
+    if(!empty($hh)) $_SESSION['hour_height'] = (int)$hh;
 	
-	$hour_height = 1;
+	$hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
 	
 	$day_height =  $hour_height * 7;
 
@@ -83,6 +86,7 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		        <script type="text/javascript">
 		            var http = "<?php echo DOL_URL_ROOT; ?>";
 		            var w_column = <?php echo $column_width; ?>;
+		            var h_day = <?php echo $day_height; ?>;
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js"></script>
 				<script type="text/javascript">
@@ -95,7 +99,6 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 					 <?php
 					 	foreach($TWorkstation as $w_name=>$w_param) {
 					 		?>
-					 		TVelocity[<?php echo $w_name; ?>] = <?php echo $w_param['velocity']; ?>
 					 		
 					 		var w = new TWorkstation();
                             w.nb_ressource = <?php echo $w_param['nb_ressource']; ?>;
@@ -109,10 +112,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 					 ?>
 					  
 				  		
-					ordo.init(); 		  
-				        
-					    
-				        
+					ordo.init(w_column, h_day,0.08); 		  
+					ordo.order();
 				});
 				</script><?php	
 	
@@ -127,12 +128,10 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
 		
-				<ul id="list-task-<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
+				<ul style="position:relative;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
-				
-				
-				
+
 		</td><?php 
 		
 	}

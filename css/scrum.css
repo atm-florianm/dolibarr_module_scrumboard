@@ -275,6 +275,8 @@ ul {
     float:left;
     width:200px;
     border:1px solid black;
+    position: relative;
+    margin-bottom:5px;
 }
 
 
