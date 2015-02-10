@@ -111,7 +111,6 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 						}
 					 ?>
 					  
-				  		
 					ordo.init(w_column, h_day,0.08); 		  
 					ordo.order();
 				});

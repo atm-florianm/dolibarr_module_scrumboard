@@ -79,3 +79,38 @@ function scrum_getVelocity(&$db, $id_project) {
 
 	return $velocity;	
 }
+
+function ordonnanceur($TTaskToOrder) {
+    
+    $Tab = $TTaskOrdered = array();
+    foreach($TTaskToOrder as $task) {
+        
+        $Tab[$task['fk_workstation']][] = $task;
+        
+    } 
+    
+    foreach($Tab as $fk_worstation=>$TTask) {
+        $row = $col = 0;
+
+        foreach($TTask as $task) {
+            
+           $task['grid_col'] = $col;
+           $task['grid_row'] = $row;
+           $TTaskOrdered[] = $task;
+           
+           list($col, $row) = _ordonnanceur_get_next_coord($task, $col, $row);  
+        }
+    }
+    
+    
+    
+    return $TTaskOrdered;
+}
+function _ordonnanceur_get_next_coord($task, $col, $row) {
+         
+    $next_row = $row;
+    
+    $next_row+=$task['planned_workload'];
+            
+    return array($next_col, $next_row);
+}

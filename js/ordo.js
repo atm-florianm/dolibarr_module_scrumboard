@@ -92,7 +92,7 @@ TOrdonnancement = function() {
 		
 		if(duration>0) {
 			//duration-=task.duration_effective;
-			height = Math.ceil( duration / 3600 );
+			height = duration / 3600 ;
 		}
 
 		
@@ -102,15 +102,21 @@ TOrdonnancement = function() {
 		date=new Date(task.time_date_end * 1000);
 		$item.find('[rel=time-end]').html(date.toLocaleDateString());
 	
-		$item.find('header').html(height+'h');
+		$item.find('header').html((Math.round(height*100)/100)+'h');
 	   
 	    $ul = $('#list-task-'+task.fk_workstation); 	
 	   
-	    $ul.append('<li style="width:'+(width_column*task.needed_ressource-2)+'px; height:'+(height_day*TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  )+'px" task-id="'+task.id+'" id="task-'+task.id+'" ordo-needed-ressource="'+task.needed_ressource+'" ordo-col="'+task.grid_col+'" ordo-row="'+task.grid_row+'" class="draggable" >'+$item.html()+'</li>');
+	    $ul.append('<li task-id="'+task.id+'" id="task-'+task.id+'" class="draggable" >'+$item.html()+'</li>');
 	   
 		/*$('li[task-id='+task.id+'] select[name=fk_workstation]').val(task.fk_workstation);*/
 		$li = $('li[task-id='+task.id+']');
 		$li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
+		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
+		$li.css('height', Math.round( height_day*TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  ));
+		$li.attr('ordo-nb-hour', height);
+		$li.attr('ordo-needed-ressource',task.needed_ressource); 
+		$li.attr('ordo-col',task.grid_col); 
+		$li.attr('ordo-row',task.grid_row); 
 		
 		if(duration < task.duration_effective) {
 			
@@ -149,7 +155,7 @@ TOrdonnancement = function() {
 				$li = $('li[task-id='+task.id+']');
 				$li.css('position','absolute');
 				$li.css('top', task_top );
-				$li.css('left', width_column * (task.grid_col-1) );
+				$li.css('left', width_column * task.grid_col );
 				
 				if(max_height<task_top + parseInt($li.css('height'))) {
 					max_height=task_top+ parseInt($li.css('height'))+200;
