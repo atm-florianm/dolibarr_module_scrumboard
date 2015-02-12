@@ -89,7 +89,7 @@ TOrdonnancement = function() {
 			
 			t = parseInt( $(item).css('top') ) / (height_day / nb_hour_per_day);
 			TTaskID.push( $(item).attr('task-id')+'-'+t);
-			$(item).find('header').html(t);
+			
 		});
 			
 		$.ajax({
