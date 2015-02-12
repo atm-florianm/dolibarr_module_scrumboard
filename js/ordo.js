@@ -55,6 +55,8 @@ TOrdonnancement = function() {
 					
 					item = ui.draggable;
 					taskid = $(item).attr('task-id');
+					wsid = $(this).attr('ws-id');
+					old_wsid = $(item).attr('ordo-ws-id');
 					
 					$(item).attr('ordo-ws-id', $(this).attr('ws-id'));
 					$(item).appendTo($(this));
@@ -70,9 +72,12 @@ TOrdonnancement = function() {
 							
 						}
 						,dataType: 'json'
+					}).done(function() {
+						sortTask(wsid);
+						if(wsid!=old_wsid)order(old_wsid);	
 					});
 						
-					sortTask($(this).attr('ws-id'));
+					
 					
 					
 				}
@@ -86,10 +91,8 @@ TOrdonnancement = function() {
     var sortTask = function(wsid) {
     	var TTaskID=[];
 		$('ul li[ordo-ws-id='+wsid+']').each(function(i,item){
-			
 			t = parseInt( $(item).css('top') ) / (height_day / nb_hour_per_day);
 			TTaskID.push( $(item).attr('task-id')+'-'+t);
-			
 		});
 			
 		$.ajax({
@@ -102,7 +105,7 @@ TOrdonnancement = function() {
 			}
 			,dataType: 'json'
 		}).done(function() {
-			order();
+			order(wsid, $('ul[ws-id='+wsid+']').attr('ws-nb-ressource'));
 		});
     };
     
@@ -163,7 +166,7 @@ TOrdonnancement = function() {
         
     };
     
-    var order = function() {
+    var order = function(wsid, nb_ressource) {
     	
     	$.ajax({
 			url : "./script/interface.php"
@@ -172,6 +175,8 @@ TOrdonnancement = function() {
 				,get : 'tasks-ordo'
 				,status : 'inprogress|todo'
 				,gridMode : 1 
+				,fk_workstation:wsid
+				,nb_ressource:nb_ressource
 			}
 			,dataType: 'json'
 		})

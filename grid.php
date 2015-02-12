@@ -59,12 +59,12 @@
 
 		<div class="content">
 	
-			<table id="scrum">
+			<table id="scrum" style="width: inherit;">
 				<tr>
 					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?><br /><br /><br /></td>
 				</tr>
 				<tr>
-					<td class="gridster" id="tasks" style="position:relative; width:100%">
+					<td class="gridster" id="tasks" style="position:relative;">
 						<table><tr>
 						<?php
 						$column_width = 200;
@@ -120,11 +120,12 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 
 function _draw_grid(&$TWorkstation, $column_width) {
 	
-	
+	$width_table = 0;
 	foreach($TWorkstation as $w_name=>$w_param) {
 		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
+		$width_table+=$w_column;	
 		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
 		
 				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
@@ -135,6 +136,13 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 	}
 		
+	?>
+	<script type="text/javascript">
+		$('table#scrum').css('min-width', <?php echo $width_table+50 ?>);
+		
+		
+	</script>
+	<?php
 							
 }
 	

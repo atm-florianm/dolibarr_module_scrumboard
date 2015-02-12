@@ -80,37 +80,97 @@ function scrum_getVelocity(&$db, $id_project) {
 	return $velocity;	
 }
 
-function ordonnanceur($TTaskToOrder) {
+function ordonnanceur($TTaskToOrder, $available_ressource=1 ,$fk_workstation=0) {
     $Tab = $TTaskOrdered = array();
     
-    $TCol = $TRow = array();
+    $TCol = $TRow = $TPlan = array();
     
+	if($available_ressource<1)$available_ressource=1;
+	
     foreach($TTaskToOrder as $task) {
-            
+         /*   
        if(!isset($TCol[$task['fk_workstation']]))$TCol[$task['fk_workstation']]=0;
        if(!isset($TRow[$task['fk_workstation']]))$TRow[$task['fk_workstation']]=0;
-        
+	   */
+	   if(!isset($TPlan[$task['fk_workstation']])) {
+	   		$TPlan[$task['fk_workstation']]=array(
+				'@param'=>array(
+					'available_ressource'=>$available_ressource
+				)
+				,'@plan'=>array(
+				
+				)
+			);
+	   }
+      /*  
        $col = &$TCol[$task['fk_workstation']];
        $row = &$TRow[$task['fk_workstation']];
-       
-       $task['grid_col'] = $col;
-       $task['grid_row'] = $row;
-       $TTaskOrdered[] = $task;
-       
-       list($col, $row) = _ordonnanceur_get_next_coord($task, $col, $row);  
+       */
+       if(empty($fk_workstation) || $fk_workstation>0) {
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TPlan[$task['fk_workstation']], $task);  
+	  
+	  		   $task['grid_col'] = $col;
+       		   $task['grid_row'] = $row;
+	  
+	   	       $TTaskOrdered[] = $task;
+       }
     }
      
 //var_dump($TTaskOrdered);
     
     return $TTaskOrdered;
 }
-function _ordonnanceur_get_next_coord(&$task, $col, $row) {
+function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
+
+	$available_ressource = $TPlan['@param']['available_ressource'];
+	$TPlanned = &$TPlan['@plan'];
+
+	$needed_ressource = $task['needed_ressource'];
+	$height = $task['planned_workload'];
+	$col = 0;
+	
+	$top_dispo = 9999999999999999;
+	
+	$new_row=array();
+	
+	foreach($TPlanned as $row) {
+		for($i=0;$i<$available_ressource;$i++) {
+			
+			if($i+$needed_ressource<=$available_ressource) {
+
+				for($j=0;$j<$needed_ressource;$j++) {
+	//		print "$col, $top_dispo<br />";
+					if($top_dispo>$row[$i+$j] && $row[$i+$j]>0) {
+						$top_dispo=$row[$i+$j];
+						if($top_dispo>0)$top_dispo+=0.01;
+						$col = $i;
+					}		
+					
+				}
+				
+			}
+			
+			
+		}	
+		
+	}
+
+	if($top_dispo == 9999999999999999) $top_dispo = 0;
+
+	for($m=0;$m<$available_ressource;$m++) {
+		$new_row[$m]=0;
+	}
+	
+	for($k=$col;$k<$col+$needed_ressource;$k++) {
+		$new_row[$k] = $top_dispo+$height; 	
+	}
+//var_dump($new_row, $col,$top_dispo,'<br>');
+	$TPlanned[] = $new_row; 
+		/*
     $next_col = $col;    
     $next_row = $row;
-    
-    $next_row+=$task['planned_workload'];
-         
+    $next_row+=$height;
     if($row == $next_row) $next_row++;  
-//  var_dump($task['id'],'pw:'.$task['planned_workload'],'ws:'.$task['fk_workstation'], $row, $next_row,'----');          
-    return array($next_col, $next_row);
+*/
+    return array($col, $top_dispo);
 }

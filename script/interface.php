@@ -26,8 +26,11 @@ function _get(&$db, $case) {
             
         case 'tasks-ordo':
                 
-            
-            $Tab = ordonnanceur( _tasks_ordo($db, GETPOST('status')));
+            $Tab = ordonnanceur( 
+            			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
+            			, (int)GETPOST('nb_ressource')
+            			, (int)GETPOST('fk_workstation')
+					);
             
             print json_encode($Tab);
 
@@ -393,7 +396,7 @@ global $user;
 	$project->update($user);
 
 }
-function _tasks_ordo(&$db, $status) {
+function _tasks_ordo(&$db, $status, $fk_workstation=0) {
     
         
     $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload
@@ -420,6 +423,8 @@ function _tasks_ordo(&$db, $status) {
     
     $sql.=" AND p.fk_statut IN (0,1)"; 
         
+	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
+		
     $sql.=" AND ex.grid_use=1 
         ORDER BY t.grid_row";
         
