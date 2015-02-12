@@ -95,12 +95,15 @@ function _put(&$db, $case) {
 
 function _sort_task_ws(&$db, &$TTaskId) {
      
-     foreach($TTaskId as $k=>$id) {
+     foreach($TTaskId as $data) {
+         
+         list($id,$top)=explode('-',$data);
+         
          $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
-            grid_row=".$k." 
+            grid_row=".$top." 
             WHERE rowid = ".$id;
          $db->query($sql);
-         var_dump($db);
+       
      } 
      
     

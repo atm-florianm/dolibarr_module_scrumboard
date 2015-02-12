@@ -37,45 +37,73 @@ TOrdonnancement = function() {
 
 			$('*.classfortooltip').tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 			
+			$('.connectedSortable>li').draggable({ 
+				snap: true
+				,containment: "table#scrum td#tasks table"
+				,handle: "header"
+				,snapTolerance: 30
+				, distance: 10
+				,stop:function(event,ui) {
+					
+					/*sortTask($(this).attr('ordo-ws-id'));*/
+					
+				}
+			 });
+			
+			$('ul.droppable').droppable({
+				drop:function(event,ui) {
+					
+					item = ui.draggable;
+					taskid = $(item).attr('task-id');
+					
+					$(item).attr('ordo-ws-id', $(this).attr('ws-id'));
+					$(item).appendTo($(this));
+					$(item).css('left',0);
+					
+					$.ajax({
+						url : "./script/interface.php"
+						,data: {
+							json:1
+							,put : 'ws'
+							,taskid:taskid
+							,fk_workstation:$(this).attr('ws-id')
+							
+						}
+						,dataType: 'json'
+					});
+						
+					sortTask($(this).attr('ws-id'));
+					
+					
+				}
+			});
+			
+			order();
 		}); 
        
-       
-        $('.connectedSortable').sortable({
-			connectWith: ".connectedSortable"
-			,placeholder: "ui-state-highlight"
-			,handle: "header"
-			,receive: function(event, ui) { 
+    };
+    
+    var sortTask = function(wsid) {
+    	var TTaskID=[];
+		$('ul li[ordo-ws-id='+wsid+']').each(function(i,item){
+			
+			t = parseInt( $(item).css('top') ) / (height_day / nb_hour_per_day);
+			TTaskID.push( $(item).attr('task-id')+'-'+t);
+			
+		});
+			
+		$.ajax({
+			url : "./script/interface.php"
+			,data: {
+				json:1
+				,put : 'sort-task-ws'
+				,TTaskID : TTaskID
 				
-				$.ajax({
-					url : "./script/interface.php"
-					,data: {
-						json:1
-						,put : 'ws'
-						,taskid:$(ui.item).attr('task-id')
-						,fk_workstation:$(this).attr('ws-id')
-						
-					}
-					,dataType: 'json'
-				});
-					
-		    }
-		    ,update:function(event, ui) {
-		    	
-		    	$.ajax({
-					url : "./script/interface.php"
-					,data: {
-						json:1
-						,put : 'sort-task-ws'
-						,taskid:$(ui.item).attr('task-id')
-						,TTaskID : $(this).sortable('toArray', {attribute:"task-id"})
-						
-					}
-					,dataType: 'json'
-				});
-		    	
-		    }
-		});/*.disableSelection();*/
-       
+			}
+			,dataType: 'json'
+		}).done(function() {
+			order();
+		});
     };
     
     var addTask = function(task) {
@@ -117,6 +145,9 @@ TOrdonnancement = function() {
 		$li.attr('ordo-needed-ressource',task.needed_ressource); 
 		$li.attr('ordo-col',task.grid_col); 
 		$li.attr('ordo-row',task.grid_row); 
+		$li.attr('ordo-ws-id',task.fk_workstation); 
+		
+		
 		
 		if(duration < task.duration_effective) {
 			
@@ -132,7 +163,7 @@ TOrdonnancement = function() {
         
     };
     
-    this.order = function() {
+    var order = function() {
     	
     	$.ajax({
 			url : "./script/interface.php"
@@ -146,7 +177,7 @@ TOrdonnancement = function() {
 		})
 		.done(function (tasks) {
 			
-			var max_height=0;
+			
 			
 			$.each(tasks, function(i, task) {
 			
@@ -154,15 +185,13 @@ TOrdonnancement = function() {
 			
 				$li = $('li[task-id='+task.id+']');
 				$li.css('position','absolute');
-				$li.css('top', task_top );
-				$li.css('left', width_column * task.grid_col );
 				
-				if(max_height<task_top + parseInt($li.css('height'))) {
-					max_height=task_top+ parseInt($li.css('height'))+200;
-					$('ul[ws-id='+task.fk_workstation+']').css('height', max_height);
-				}
+				$li.animate({
+					top:task_top
+					,left:(width_column * task.grid_col)
+				}, 'fast','', resizeUL);
 				
-				
+				$li.find('header').html(task.grid_row);
 				
 			/*	width_column = 200;
 			    var height_day = 50;
@@ -172,7 +201,27 @@ TOrdonnancement = function() {
     
             });
 
+			
+
 		}); 
+    	
+    };
+    
+    var resizeUL = function() {
+    	var max_height=0;
+    	
+    	$('li[task-id]').each(function(i,item) {
+    		$li = $(item);
+    		
+    		h = parseInt($li.css('top') )+ parseInt($li.css('height'));
+    		
+    		if(max_height<h) {
+				max_height=h+200;
+			
+			}
+    	});
+    	
+    	$('ul[ws-id]').css('height', max_height);
     	
     };
     

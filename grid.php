@@ -112,7 +112,7 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 					 ?>
 					  
 					ordo.init(w_column, h_day,0.08); 		  
-					ordo.order();
+					
 				});
 				</script><?php	
 	
@@ -127,7 +127,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
 		
-				<ul style="position:relative;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
+				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
 
