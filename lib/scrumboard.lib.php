@@ -81,36 +81,36 @@ function scrum_getVelocity(&$db, $id_project) {
 }
 
 function ordonnanceur($TTaskToOrder) {
-    
     $Tab = $TTaskOrdered = array();
+    
+    $TCol = $TRow = array();
+    
     foreach($TTaskToOrder as $task) {
-        
-        $Tab[$task['fk_workstation']][] = $task;
-        
-    } 
-    
-    foreach($Tab as $fk_worstation=>$TTask) {
-        $row = $col = 0;
-
-        foreach($TTask as $task) {
             
-           $task['grid_col'] = $col;
-           $task['grid_row'] = $row;
-           $TTaskOrdered[] = $task;
-           
-           list($col, $row) = _ordonnanceur_get_next_coord($task, $col, $row);  
-        }
+       if(!isset($TCol[$task['fk_workstation']]))$TCol[$task['fk_workstation']]=0;
+       if(!isset($TRow[$task['fk_workstation']]))$TRow[$task['fk_workstation']]=0;
+        
+       $col = &$TCol[$task['fk_workstation']];
+       $row = &$TRow[$task['fk_workstation']];
+       
+       $task['grid_col'] = $col;
+       $task['grid_row'] = $row;
+       $TTaskOrdered[] = $task;
+       
+       list($col, $row) = _ordonnanceur_get_next_coord($task, $col, $row);  
     }
-    
-    
+     
+//var_dump($TTaskOrdered);
     
     return $TTaskOrdered;
 }
-function _ordonnanceur_get_next_coord($task, $col, $row) {
-         
+function _ordonnanceur_get_next_coord(&$task, $col, $row) {
+    $next_col = $col;    
     $next_row = $row;
     
     $next_row+=$task['planned_workload'];
-            
+         
+    if($row == $next_row) $next_row++;  
+//  var_dump($task['id'],'pw:'.$task['planned_workload'],'ws:'.$task['fk_workstation'], $row, $next_row,'----');          
     return array($next_col, $next_row);
 }

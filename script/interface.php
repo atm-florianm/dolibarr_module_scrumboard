@@ -25,11 +25,9 @@ function _get(&$db, $case) {
 			break;
             
         case 'tasks-ordo':
-            $var = explode('|',GETPOST('status'));
-            $Tab=array();
-            foreach($var as $statut) {
-                $Tab=array_merge($Tab, _tasks_ordo($db, $statut)); 
-            }
+                
+            
+            $Tab = ordonnanceur( _tasks_ordo($db, GETPOST('status')));
             
             print json_encode($Tab);
 
@@ -441,7 +439,7 @@ function _tasks_ordo(&$db, $status) {
          );
     }
     
-    $TTask = ordonnanceur($TTask);
+   
     
     return $TTask;
     
