@@ -182,7 +182,7 @@ function _orgo_gnc_get_free(&$TFree,$available_ressource, $needed_ressource, $he
 function _orgo_gnc_add_free($TFree, $available_ressource,$needed_ressource, $height) {
     /* A priori complètement useless puisque c'est _orgo_gnc_cut_free qui doit perpettuer le truc mais pris dans mon élan j'ai codé, je verrai plus tard si suppression */
     $topMax = 0;
-    exit('_orgo_gnc_add_free');
+    
     foreach($TFree as $free) {
         
         if($topMax < $free[0] + $free[2]) $topMax = $free[0] + $free[2];
@@ -206,7 +206,12 @@ function _orgo_gnc_cut_free($TFree, $k, $available_ressource, $needed_ressource,
         
     }
     
-    if($free1[2]==-1 || $free1[2] > 0 ) $TFree[] = $free1;
+    if($free1[2]==-1 || $free1[2] > 0 ) {
+        $TFree = _orgo_gnc_cut_bad_top($TFree, $free1);
+     
+        $TFree[] = $free1;
+        
+    }
     
     
     if($free2[3]>$needed_ressource) { // la case à côté du bloc ajouté 
@@ -214,10 +219,38 @@ function _orgo_gnc_cut_free($TFree, $k, $available_ressource, $needed_ressource,
         $free2[1]+=$needed_ressource;
         $free2[3]-=$needed_ressource;
         
+        $TFree = _orgo_gnc_cut_bad_top($TFree, $free2);
         $TFree[] = $free2;
     }
     
     usort($TFree, '_ordo_sort_on_top');
+    
+    return $TFree;
+}
+
+function _orgo_gnc_cut_bad_top($TFree, $newFree) {
+    
+    foreach($TFree as $k=>$free) {
+        list($y,$x,$h,$w) = $free;
+        
+        if($y<$newFree[0]) {
+            // possible recut
+            
+            if($x+$w>$newFree[1]) {
+                $TFree[] = array($y,$x, $h,$newFree[1] - $x );
+                
+                $ny = $newFree[0];
+                
+                if($h==-1)$nh = -1;
+                else $nh = $h-($ny - $y);
+                  
+                $TFree[$k]= array($ny,$x, $nh,$w );
+            }
+            
+        }
+        
+        
+    }
     
     return $TFree;
 }
