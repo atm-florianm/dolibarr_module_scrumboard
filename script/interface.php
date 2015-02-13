@@ -25,10 +25,17 @@ function _get(&$db, $case) {
 			break;
             
         case 'tasks-ordo':
+             
+             $TWorkstation = array(
+                0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+                ,1=>array('nb_ressource'=>2, 'velocity'=>(5/7), 'background'=>'linear-gradient(to right,white, #660000)', 'name'=>'Stagiaire') // base de 7h par jour
+                ,2=>array('nb_ressource'=>2, 'velocity'=>(5.5/7), 'background'=>'linear-gradient(to right,white, #cccc00)', 'name'=>'devconfirme')
+                ,3=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white,#00cc00)', 'name'=>'DSI')
+            );
                 
             $Tab = ordonnanceur( 
             			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
-            			, (int)GETPOST('nb_ressource')
+            			, $TWorkstation
             			, (int)GETPOST('fk_workstation')
 					);
             

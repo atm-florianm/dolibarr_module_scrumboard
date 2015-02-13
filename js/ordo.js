@@ -43,10 +43,22 @@ TOrdonnancement = function() {
 				,handle: "header"
 				,snapTolerance: 30
 				, distance: 10
-				,stop:function(event,ui) {
+				,drag:function(event, ui) {
 					
+					$(this).css({
+						border:'10px solid grey'
+						/*,'box-shadow': '1px 5px 5px #000'*/
+						,'z-index' : '999'
+					});
+				}
+				,stop:function(event, ui) {
 					/*sortTask($(this).attr('ordo-ws-id'));*/
 					
+					$(this).css({
+						border:'1px solid black'
+						,'box-shadow': 'none'
+						
+					});
 				}
 			 });
 			
@@ -54,6 +66,8 @@ TOrdonnancement = function() {
 				drop:function(event,ui) {
 					
 					item = ui.draggable;
+					$(item).find('header').css('background', 'lightblue'/* 'white url(./img/where.png) center'*/);
+					
 					taskid = $(item).attr('task-id');
 					wsid = $(this).attr('ws-id');
 					old_wsid = $(item).attr('ordo-ws-id');
@@ -133,7 +147,7 @@ TOrdonnancement = function() {
 		date=new Date(task.time_date_end * 1000);
 		$item.find('[rel=time-end]').html(date.toLocaleDateString());
 	
-		$item.find('header').html((Math.round(height*100)/100)+'h');
+		$item.find('header').html(( '('+task.id+') '+ Math.round(height*100)/100)+'h');
 	   
 	    $ul = $('#list-task-'+task.fk_workstation); 	
 	   
@@ -149,7 +163,7 @@ TOrdonnancement = function() {
 		$li.attr('ordo-col',task.grid_col); 
 		$li.attr('ordo-row',task.grid_row); 
 		$li.attr('ordo-ws-id',task.fk_workstation); 
-		$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);
+		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
 		
 		
 		if(duration < task.duration_effective) {
@@ -181,7 +195,7 @@ TOrdonnancement = function() {
 			,dataType: 'json'
 		})
 		.done(function (tasks) {
-			
+			/*console.log(tasks);*/
 			$.each(tasks, function(i, task) {
 			
 				coef_time = height_day / nb_hour_per_day;
@@ -204,7 +218,12 @@ TOrdonnancement = function() {
 					,height: height
 				}, 'fast','', resizeUL);
 				
-			
+				$li.find('header').css({
+					background:'#d9ffd2'
+				});
+				
+				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);
+				 			
 			/*	width_column = 200;
 			    var height_day = 50;
 			    var swap_time = 0.08;
