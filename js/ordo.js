@@ -211,18 +211,29 @@ TOrdonnancement = function() {
 				if(duration>0) {
 					height = Math.round( duration/TVelocity[task.fk_workstation]*coef_time  );
 				}
-				 
-				$li.animate({
-					top:task_top
-					,left:(width_column * task.grid_col)
-					,height: height
-				}, 'fast','', resizeUL);
+			
+				if(i>20) {
+					 $li.css({
+                                        	top:task_top
+                                        	,left:(width_column * task.grid_col)
+                                        	,height: height
+                                	 });
+
+				}
+				else {
+					 $li.animate({
+                                        	top:task_top
+                                        	,left:(width_column * task.grid_col)
+                                        	,height: height
+                                	}, 'fast','', resizeUL);
+
+				}	 
 				
 				$li.find('header').css({
 					background:'#d9ffd2'
 				});
 				
-				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);
+/*				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);*/
 				 			
 			/*	width_column = 200;
 			    var height_day = 50;
@@ -252,6 +263,12 @@ TOrdonnancement = function() {
     	});
     	
     	$('ul[ws-id]').css('height', max_height);
+
+	$('.day_delim').remove();
+	for(i=0;i<max_height;i+=height_day) {
+		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black;" class="day_delim"></div>');
+	}	
+
     	
     };
     
