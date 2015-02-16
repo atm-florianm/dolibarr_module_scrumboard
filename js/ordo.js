@@ -66,7 +66,6 @@ TOrdonnancement = function() {
 				drop:function(event,ui) {
 					
 					item = ui.draggable;
-					$(item).find('header').css('background', 'lightblue'/* 'white url(./img/where.png) center'*/);
 					
 					taskid = $(item).attr('task-id');
 					wsid = $(this).attr('ws-id');
@@ -78,6 +77,8 @@ TOrdonnancement = function() {
 						return false;
 					}
 					
+					/*$(item).find('header').css('background', 'lightblue');*/
+					$(item).addClass('loading');
 					
 					$(item).attr('ordo-ws-id', $(this).attr('ws-id'));
 					$(item).appendTo($(this));
@@ -236,9 +237,11 @@ TOrdonnancement = function() {
 
 				}	 
 				
-				$li.find('header').css({
+				/*$li.find('header').css({
 					background:'#d9ffd2'
 				});
+				*/
+				$(item).removeClass('loading');
 				
 /*				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);*/
 				 			

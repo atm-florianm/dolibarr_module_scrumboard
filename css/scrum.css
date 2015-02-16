@@ -342,6 +342,16 @@ ul {
 	overflow:hidden;
 	background-color: white;
 }
+.gridster li.loading {
+	background-image: url("../img/loading.gif");
+	background-repeat: no-repeat;
+	background-position: center;
+					    
+}
+.gridster li.loading div {
+	display:none;	
+} 
+
 .gridster li.gs-w:hover {
 	overflow:visible;
 	background-color: white;

@@ -163,13 +163,12 @@ function _draw_grid(&$TWorkstation, $column_width) {
 			<ul>
 			<li id="task-blank">
 				<header>|||</header>
-				<span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
-				<!-- <span rel="fk_workstation"><select name="fk_workstation"><?php
-					foreach($TWorkstation as $w_id=>$w_param) {
-							?><option value="<?php echo $w_id; ?>"><?php echo $w_param['name']; ?></option><?php
-					}
-				?></select></span> -->
-				<div rel="time-end"></div> 
+				<div rel="content">
+    				<span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+    				<div rel="time-end"></div>
+    				
+				</div> 
+				<div class="loading"></div>
 			</li>
 			</ul>
 			
