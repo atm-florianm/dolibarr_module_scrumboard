@@ -72,6 +72,13 @@ TOrdonnancement = function() {
 					wsid = $(this).attr('ws-id');
 					old_wsid = $(item).attr('ordo-ws-id');
 					
+					if($(this).attr('ws-nb-ressource')< $(item).attr('ordo-needed-ressource')) {
+						alert("Il n'y a pas assez de ressource sur ce poste pour poser cette tâche.");
+						
+						return false;
+					}
+					
+					
 					$(item).attr('ordo-ws-id', $(this).attr('ws-id'));
 					$(item).appendTo($(this));
 					$(item).css('left',0);
@@ -265,8 +272,14 @@ TOrdonnancement = function() {
     	$('ul[ws-id]').css('height', max_height);
 
 	$('.day_delim').remove();
+	
+	date=new Date();
+	
 	for(i=0;i<max_height;i+=height_day) {
-		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black;" class="day_delim"></div>');
+			
+		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black;" class="day_delim">'+date.toLocaleDateString()+'</div>');
+	
+		date.setDate(date.getDate() + 1);
 	}	
 
     	

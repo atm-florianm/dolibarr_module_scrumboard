@@ -108,7 +108,7 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
        $row = &$TRow[$task['fk_workstation']];
        */
        if(empty($fk_workstation) || $fk_workstation == $task['fk_workstation']) {
-	   		   list($col, $row) = _ordonnanceur_get_next_coord2($TPlan[$task['fk_workstation']], $task);  
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TPlan[$task['fk_workstation']], $task);  
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
@@ -117,12 +117,15 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
        }
     }
      
-  //  print '<pre>';print_r($TPlan);
+    if(isset($_REQUEST['DEBUG'])) {
+        print '<pre>';
+        print_r($TPlan[1]['@free']);
+   }
     
     return $TTaskOrdered;
 }
 
-function _ordonnanceur_get_next_coord2(&$TPlan,&$task) {
+function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
     $available_ressource = $TPlan['@param']['available_ressource'];
     
     if($available_ressource<1) return array(0,0); // cas impossible :-|
@@ -138,7 +141,7 @@ function _ordonnanceur_get_next_coord2(&$TPlan,&$task) {
     }
     
     list($col, $top) = _orgo_gnc_get_free($TFree,$available_ressource, $needed_ressource, $height,$task);
-    
+    $TPlan['@plan'][]=array($top,$col,$height,$needed_ressource); // probalbmenet inutile mais bon
     
     return array($col, $top);
 }
@@ -151,50 +154,78 @@ function _orgo_gnc_get_free(&$TFree,$available_ressource, $needed_ressource, $he
     foreach($TFree as $k=>$free) {
         
       // print "$k {$free[3]}>=$needed_ressource && ({$free[2]}==-1 || {$free[2]}>=$height ) && ($top==0 || {$free[0]}<$top<br>";
-        
-        if($free[3]>=$needed_ressource && ($free[2]==-1 || $free[2]>=$height ) && ($top===false || $free[0]<$top) ) {
+      list($y,$x,$h,$w) = $free;
+      
+      if($w>=$needed_ressource && ($h==-1 || $h>=$height ) && ($top===false || $y<$top) ) {
                 // recherche du casier vide le plus prometteur
             $fKey = $k;
-            $left = $free[1]; 
-            $top  = $free[0];
+            $left = $x; 
+            $top  = $y;
             
-        }
+      }
     }
     
   //  var_dump($fKey, $left, $top,$available_ressource,$needed_ressource, $height,$TFree,'----');
     
     if($fKey!==false) {
-        
-     //   var_dump($TFree,$task,'*********');
-       $TFree= _orgo_gnc_cut_free($TFree, $fKey,$available_ressource, $needed_ressource, $height); 
-        
-         
-       // var_dump($TFree,$task,'------------------');
-        
+       if(isset($_REQUEST['DEBUG'])) {
+         print " {$task[id]} $fKey,$available_ressource, $needed_ressource, $height >> $top, $left<br />";
+       }
+       $TFree= _orgo_gnc_cut_free($TFree, $fKey,$available_ressource, $needed_ressource, $height, $top, $left); 
+       if(isset($_REQUEST['DEBUG'])) {
+            var_dump($TFree);   
+       }
     }
     else{
-       $TFree= _orgo_gnc_add_free($TFree, $available_ressource,$needed_ressource, $height);
+       exit('aucune solution ?! pas possible');
     }
     
     return array($left,$top);
 }
-
-function _orgo_gnc_add_free($TFree, $available_ressource,$needed_ressource, $height) {
-    /* A priori complètement useless puisque c'est _orgo_gnc_cut_free qui doit perpettuer le truc mais pris dans mon élan j'ai codé, je verrai plus tard si suppression */
-    $topMax = 0;
-    
-    foreach($TFree as $free) {
+function _orgo_gnc_cut_free($TFree, $k1, $available_ressource, $needed_ressource, $height, $top, $left) {
+            
+       list($y1,$x1,$h1,$w1) = $TFree[$k1];
+       if(isset($_REQUEST['DEBUG'])) {
+           print "_orgo_gnc_cut_free2($needed_ressource, $height, $top, $left) : $y1,$x1,$h1,$w1<br />";
+           
+       }
+       $TFree[$k1] = array($top+$height,$x1, ($h1===-1) ? $h1 : $h1 - $height  ,$w1); 
+       $TFree[] = array($y1,$x1, $top - $y1  ,$w1);
+       $TFree[] = array($y1,$x1 + $left + $needed_ressource, $h1  ,$w1 - $needed_ressource); 
+       $TFree[] = array($y1,$x1 , $h1,$left-$x1); 
+       
+       foreach($TFree as $k=>&$free) {
+           
+           list($y,$x,$h,$w) = $TFree[$k];
+           if(isset($_REQUEST['DEBUG'])) {
+                print "$y,$x,$h,$w :: $height, $top, $left !!<br />$y<$top && ($h===-1 || $y + $h > $top) && $x<$left && $x+$w > $left<br>";
+           }
+           
+           if($y<$top && ($h===-1 || $y + $h > $top) && $x+$w >= $left) {
+               _orgo_gnc_purge($TFree, $available_ressource);
+               $TFree = _orgo_gnc_cut_free($TFree, $k, $available_ressource, $needed_ressource,$height,$top,$left);
+           }
+           
+       }
         
-        if($topMax < $free[0] + $free[2]) $topMax = $free[0] + $free[2];
+       _orgo_gnc_purge($TFree, $available_ressource);
+       
+       return $TFree;
+}
+function _orgo_gnc_purge(&$TFree, $available_ressource) {
+    
+    foreach($TFree as $k=>$free) {
+        list($y,$x,$h,$w) = $free;
+        
+        if( ($h!=-1 && $h<=0) || $w<=0 || $x>=$available_ressource) unset($TFree[$k]);
         
     }
-    
-    $TFree[] = array($topMax, 0, -1, $available_ressource);
-    
-    return $TFree;
-}
 
-function _orgo_gnc_cut_free($TFree, $k, $available_ressource, $needed_ressource, $height) {
+}   
+    
+
+// TODO DELETE
+function _orgo_gnc_cut_free1($TFree, $k, $available_ressource, $needed_ressource, $height) {
    // print "$available_ressource, $needed_ressource, $height";
     $free1 = $free2 = $TFree[$k];
    // var_dump($TFree,$k, $available_ressource, $needed_ressource, $height);
@@ -203,7 +234,6 @@ function _orgo_gnc_cut_free($TFree, $k, $available_ressource, $needed_ressource,
     $free1[0] += $height; // la case après le bloc ajouté
     if($free1[2]!=-1) {
         $free1[2] -= $height;
-        
     }
     
     if($free1[2]==-1 || $free1[2] > 0 ) {
@@ -237,7 +267,7 @@ function _orgo_gnc_cut_bad_top($TFree, $newFree) {
             // possible recut
             
             if($x+$w>$newFree[1]) {
-                $TFree[] = array($y,$x, $h,$newFree[1] - $x );
+                $TFree[]=array($y,$x, $h,$newFree[1] - $x );
                 
                 $ny = $newFree[0];
                 
@@ -260,59 +290,4 @@ function _ordo_sort_on_top(&$a, $b) {
     if($a[0]<$b[0]) return -1;
     elseif($a[0]>$b[0]) return 1;
     else return 0;
-}
-
-function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
-
-	$available_ressource = $TPlan['@param']['available_ressource'];
-	$TPlanned = &$TPlan['@plan'];
-
-	$needed_ressource = $task['needed_ressource'];
-	$height = $task['planned_workload'];
-	$col = 0;
-	
-	$top_dispo = 9999999999999999;
-	
-	$new_row=array();
-	
-	foreach($TPlanned as $row) {
-		for($i=0;$i<$available_ressource;$i++) {
-			
-			if($i+$needed_ressource<=$available_ressource) {
-
-				for($j=0;$j<$needed_ressource;$j++) {
-	//		print "$col, $top_dispo<br />";
-					if($top_dispo>$row[$i+$j] && $row[$i+$j]>0) {
-						$top_dispo=$row[$i+$j];
-						if($top_dispo>0)$top_dispo+=0.01;
-						$col = $i;
-					}		
-					
-				}
-				
-			}
-			
-			
-		}	
-		
-	}
-
-	if($top_dispo == 9999999999999999) $top_dispo = 0;
-
-	for($m=0;$m<$available_ressource;$m++) {
-		$new_row[$m]=0;
-	}
-	
-	for($k=$col;$k<$col+$needed_ressource;$k++) {
-		$new_row[$k] = $top_dispo+$height; 	
-	}
-//var_dump($new_row, $col,$top_dispo,'<br>');
-	$TPlanned[] = $new_row; 
-		/*
-    $next_col = $col;    
-    $next_row = $row;
-    $next_row+=$height;
-    if($row == $next_row) $next_row++;  
-*/
-    return array($col, $top_dispo);
 }
