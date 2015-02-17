@@ -110,7 +110,7 @@ TOrdonnancement = function() {
        
     };
     
-    var sortTask = function(wsid) {
+    var sortTask = function(wsid, notReOrderAfter) {
     	var TTaskID=[];
 		$('ul li[ordo-ws-id='+wsid+']').each(function(i,item){
 			t = parseInt( $(item).css('top') ) / (height_day / nb_hour_per_day);
@@ -127,7 +127,10 @@ TOrdonnancement = function() {
 			}
 			,dataType: 'json'
 		}).done(function() {
-			order(wsid, $('ul[ws-id='+wsid+']').attr('ws-nb-ressource'));
+			if(!notReOrderAfter) {
+				order(wsid, $('ul[ws-id='+wsid+']').attr('ws-nb-ressource'));	
+			}
+			
 		});
     };
     
@@ -201,6 +204,8 @@ TOrdonnancement = function() {
 		})
 		.done(function (tasks) {
 			/*console.log(tasks);*/
+			var nb_tasks = tasks.length;
+			
 			$.each(tasks, function(i, task) {
 			
 				coef_time = height_day / nb_hour_per_day;
@@ -208,8 +213,9 @@ TOrdonnancement = function() {
 				task_top = coef_time * task.grid_row / TVelocity[task.fk_workstation];
 			
 				$li = $('li[task-id='+task.id+']');
+				wsid = $li.attr('ordo-ws-id');
 				$li.css('position','absolute');
-				
+				$li.attr('ordo-fktaskparent', task.fk_task_parent);
 				
 				var duration = task.planned_workload;
 				var height = 1;
@@ -217,32 +223,85 @@ TOrdonnancement = function() {
 					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
 				}
 			
-				if(i>20) {
+				if(i>10) {
+					 
 					 $li.css({
                         	top:task_top
                         	,left:(width_column * task.grid_col)
                         	,height: height
                 	 });
-
+					 
+					 if(i+1 == nb_tasks) {
+					 	afterAnimationOrder();
+					 }
+					 
 				}
 				else {
-					 $li.animate({
+					
+					$li.animate({
                         	top:task_top
                         	,left:(width_column * task.grid_col)
                         	,height: height
-                	}, 'slow','', resizeUL);
+                    }
+                    ,{	
+                    	complete : function() {
+                    		if(i+1 == nb_tasks) {
+                    			afterAnimationOrder();
+                    		}
+                    	}
+                    	
+                	});
 
 				}	 
 				
 				$li.removeClass('loading');				
     
-            });
-
-			
+           });
+           
+            	
+           
 
 		}); 
     	
     };
+    
+    var afterAnimationOrder=function() {
+    	resizeUL();
+    	reOrderTaskWithConstraint();	
+        
+    };
+    
+    var reOrderTaskWithConstraint = function() {
+    	
+    	TWorkstationToOrder=[];
+    	
+    	$('li[ordo-ws-id]').each(function(i,item) {
+				var fk_task_parent = $(item).attr('ordo-fktaskparent');
+				if(fk_task_parent>0) {
+					
+					$li = $('li[task-id='+fk_task_parent+']');
+					if($li.length>0) {
+						
+						top1 = parseFloat($(item).css('top'));
+						top2 = parseFloat( $li.css('top') )+parseFloat($li.css('height'));
+						
+						if(top1<top2) {
+							$(item).css({
+								top:top2
+							});
+							
+							TWorkstationToOrder[$(item).attr('ordo-ws-id')]= 1;
+						}
+						
+					}
+					
+				}
+    	});
+    	
+    	for(wsid in TWorkstationToOrder) {
+    		sortTask(wsid, true);	
+    	}
+    }; 
     
     var resizeUL = function() {
     	var max_height=0;

@@ -138,26 +138,42 @@ function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
     return array($col, $top);
 }
 
+function _ordo_get_parent_coord(&$TPlanned, $fk_task_parent) {
+    
+    if($fk_task_parent>0) {
+        foreach($TPlanned as $planned) {
+            if($planned[4] == $fk_task_parent) return array($planned[0] + $planned[2] ,0);
+        }
+            
+    }
+    
+    return array(0,0);
+}
+
 function _orgo_gnc_get_free(&$TFree, &$TPlanned,$available_ressource, $needed_ressource, $height, &$task) {
     
     $left = $top = false;
     
     $fKey = false;
+    
+    $fk_task_parent = (int)$task['fk_task_parent'];
+  //  list($yParent) = _ordo_get_parent_coord($TPlanned, $fk_task_parent);
+    
     foreach($TFree as $k=>$free) {
         
       list($y,$x,$h,$w) = $free;
       
-      if($w>=$needed_ressource && ($h===false || $h>=$height ) && ($top===false || $y<$top) ) {
+      if($w>=$needed_ressource && ($h===false || $h>=$height ) && ($top===false || $y<$top) && $y>=$yParent ) {
                 // recherche du casier vide le plus prometteur
             $fKey = $k;
             $left = $x; 
             $top  = $y;
-            
       }
+      
     }
     
     if($fKey!==false) {
-       $TPlanned[]=array($top,$left,$height,$needed_ressource);  
+       $TPlanned[]=array($top,$left,$height,$needed_ressource, $task['id'], $fk_task_parent);  
         
        if(isset($_REQUEST['DEBUG'])) {
          print "{$task[id]} :: $fKey,$available_ressource || $needed_ressource, $height >> $top, $left<br />";
