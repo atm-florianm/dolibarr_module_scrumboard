@@ -131,6 +131,7 @@ function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
     if($available_ressource<1) return array(0,0); // cas impossible :-|
     
     $TFree = &$TPlan['@free'];
+    $TPlanned = &$TPlan['@plan'];
 
     $needed_ressource = $task['needed_ressource'];
     $height = $task['planned_workload'];
@@ -140,20 +141,18 @@ function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
         $TFree[] = array(0, 0, -1, $available_ressource); // y,x,h,w de largeur tous à partir de 0 à gauche et 0 en haut et d'une hauteur infinie
     }
     
-    list($col, $top) = _orgo_gnc_get_free($TFree,$available_ressource, $needed_ressource, $height,$task);
-    $TPlan['@plan'][]=array($top,$col,$height,$needed_ressource); // probalbmenet inutile mais bon
+    list($col, $top) = _orgo_gnc_get_free($TFree, $TPlanned,$available_ressource, $needed_ressource, $height, $task);
     
     return array($col, $top);
 }
 
-function _orgo_gnc_get_free(&$TFree,$available_ressource, $needed_ressource, $height,$task) {
+function _orgo_gnc_get_free(&$TFree, &$TPlanned,$available_ressource, $needed_ressource, $height, &$task) {
     
     $left = $top = false;
     
     $fKey = false;
     foreach($TFree as $k=>$free) {
         
-      // print "$k {$free[3]}>=$needed_ressource && ({$free[2]}==-1 || {$free[2]}>=$height ) && ($top==0 || {$free[0]}<$top<br>";
       list($y,$x,$h,$w) = $free;
       
       if($w>=$needed_ressource && ($h==-1 || $h>=$height ) && ($top===false || $y<$top) ) {
@@ -165,15 +164,15 @@ function _orgo_gnc_get_free(&$TFree,$available_ressource, $needed_ressource, $he
       }
     }
     
-  //  var_dump($fKey, $left, $top,$available_ressource,$needed_ressource, $height,$TFree,'----');
-    
     if($fKey!==false) {
+       $TPlanned[]=array($top,$left,$height,$needed_ressource);  
+        
        if(isset($_REQUEST['DEBUG'])) {
-         print " {$task[id]} $fKey,$available_ressource, $needed_ressource, $height >> $top, $left<br />";
+         print "{$task[id]} :: $fKey,$available_ressource || $needed_ressource, $height >> $top, $left<br />";
        }
-       $TFree= _orgo_gnc_cut_free($TFree, $fKey,$available_ressource, $needed_ressource, $height, $top, $left); 
+       $TFree= _orgo_gnc_get_free_place($TPlanned, $available_ressource); 
        if(isset($_REQUEST['DEBUG'])) {
-            var_dump($TFree);   
+            var_dump('TFree',$TFree);   
        }
     }
     else{
@@ -182,6 +181,101 @@ function _orgo_gnc_get_free(&$TFree,$available_ressource, $needed_ressource, $he
     
     return array($left,$top);
 }
+
+function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
+        /*
+         * Reconstruit $TFree sur la base du plannifié
+         * $TFree[] = array($y, $x, $h, $w);
+         */
+        $TFree = array(); 
+         
+        $free_after_all = array(0, 0, -1, $available_ressource);
+          
+        foreach($TPlanned as $planned) {
+            list($y,$x,$h,$w) = $planned;
+           
+            $free_before = array(0, $x, $y, $w);
+            $free_after = array($y+$h, $x, -1, $w);
+            
+            
+            $free_before_ext = array(0, $x, $y, $available_ressource - $x);
+            $free_after_ext = array($y+$h, $x, -1, $available_ressource - $x);
+            
+            $free_right = array(0, $x+$w, -1, $available_ressource - ($x+$w));
+            $free_left = array(0, 0, -1, $x);
+           
+            
+            foreach($TPlanned as $other_planned) {
+                
+               _orgo_gnc_get_free_place_correction($free_before, $other_planned);
+               _orgo_gnc_get_free_place_correction($free_after, $other_planned);
+               _orgo_gnc_get_free_place_correction($free_before_ext, $other_planned);
+               _orgo_gnc_get_free_place_correction($free_after_ext, $other_planned);
+               _orgo_gnc_get_free_place_correction($free_right, $other_planned);
+               _orgo_gnc_get_free_place_correction($free_left, $other_planned);    
+                
+            }
+             
+            if($free_after_all[0]<$y+$h)$free_after_all[0] = $y+$h; 
+             
+        } 
+        
+        $TFree[] = $free_after_all;
+        $TFree[] = $free_before;
+        $TFree[] = $free_after;
+        $TFree[] = $free_before_ext;
+        $TFree[] = $free_after_ext;
+        $TFree[] = $free_right;
+        $TFree[] = $free_left;
+        
+        _orgo_gnc_purge($TFree, $available_ressource);
+        
+        return $TFree;
+        
+}
+function _orgo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=false) {
+    list($other_y,$other_x,$other_h,$other_w) = $other_planned;
+    
+    if($other_x < $free[1] + $free[3] && $other_x + $other_w > $free[1]) { 
+    
+        if($debug) {
+            print "dedans($other_y,$other_x,$other_h,$other_w) <br />";
+            var_dump($free);
+        }
+        
+        if($other_y + $other_h > $free[0] && $other_y<=$free[0]) {
+            if($free[2]!=-1) $free[2] =  $free[2] - (($other_y + $other_h)- $free[0]);
+            $free[0] = $other_y + $other_h;
+
+            if($debug) {
+                print "... réduit le top <br />";
+            }
+
+        }
+         
+        if($other_y > $free[0] && ($free[0] + $free[2] > $other_y || $free[2] == -1 ) ) { // bloc après
+            $free[2] = $other_y - $free[0] ; // hauteur limitée à la hauteur du bloc d'après
+            
+           if($debug) { print "... réduit la hauteur <br />"; }
+        }
+    }
+}
+
+
+function _orgo_gnc_purge(&$TFree, $available_ressource) {
+    
+    foreach($TFree as $k=>$free) {
+        list($y,$x,$h,$w) = $free;
+        
+        if( ($h!=-1 && $h<=0) || $w<=0 || $x>=$available_ressource) unset($TFree[$k]);
+        
+    }
+
+}   
+    
+
+/*
+// TODO DELETE
 function _orgo_gnc_cut_free($TFree, $k1, $available_ressource, $needed_ressource, $height, $top, $left) {
             
        list($y1,$x1,$h1,$w1) = $TFree[$k1];
@@ -212,17 +306,7 @@ function _orgo_gnc_cut_free($TFree, $k1, $available_ressource, $needed_ressource
        
        return $TFree;
 }
-function _orgo_gnc_purge(&$TFree, $available_ressource) {
-    
-    foreach($TFree as $k=>$free) {
-        list($y,$x,$h,$w) = $free;
-        
-        if( ($h!=-1 && $h<=0) || $w<=0 || $x>=$available_ressource) unset($TFree[$k]);
-        
-    }
 
-}   
-    
 
 // TODO DELETE
 function _orgo_gnc_cut_free1($TFree, $k, $available_ressource, $needed_ressource, $height) {
@@ -257,7 +341,7 @@ function _orgo_gnc_cut_free1($TFree, $k, $available_ressource, $needed_ressource
     
     return $TFree;
 }
-
+// TODO DELETE
 function _orgo_gnc_cut_bad_top($TFree, $newFree) {
     
     foreach($TFree as $k=>$free) {
@@ -284,10 +368,11 @@ function _orgo_gnc_cut_bad_top($TFree, $newFree) {
     
     return $TFree;
 }
-
+// TODO DELETE
 function _ordo_sort_on_top(&$a, $b) {
     
     if($a[0]<$b[0]) return -1;
     elseif($a[0]>$b[0]) return 1;
     else return 0;
 }
+*/

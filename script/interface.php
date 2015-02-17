@@ -25,7 +25,7 @@ function _get(&$db, $case) {
 			break;
             
         case 'tasks-ordo':
-             
+             // TODO replace with real load workstation
              $TWorkstation = array(
                 0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
                 ,1=>array('nb_ressource'=>2, 'velocity'=>(5/7), 'background'=>'linear-gradient(to right,white, #660000)', 'name'=>'Stagiaire') // base de 7h par jour
