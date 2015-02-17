@@ -86,14 +86,14 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
     $TCol = $TRow = $TPlan = array();
     
 	foreach($TTaskToOrder as $task) {
-         /*   
-       if(!isset($TCol[$task['fk_workstation']]))$TCol[$task['fk_workstation']]=0;
-       if(!isset($TRow[$task['fk_workstation']]))$TRow[$task['fk_workstation']]=0;
-	   */
-	   if(!isset($TPlan[$task['fk_workstation']])) {
-	   		$TPlan[$task['fk_workstation']]=array(
+         
+       $fk_workstation = (int)$task['fk_workstation'];
+       if(!isset($TWorkstation[$fk_workstation]))$fk_workstation = 0;
+         
+	   if(!isset($TPlan[$fk_workstation])) {
+	   		$TPlan[$fk_workstation]=array(
 				'@param'=>array(
-					'available_ressource'=>(int)$TWorkstation[(int)$task['fk_workstation']]['nb_ressource']
+					'available_ressource'=>(int)$TWorkstation[$fk_workstation]['nb_ressource']
 				)
 				,'@plan'=>array(
 				
@@ -103,12 +103,9 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
                 )
 			);
 	   }
-      /*  
-       $col = &$TCol[$task['fk_workstation']];
-       $row = &$TRow[$task['fk_workstation']];
-       */
-       if(empty($fk_workstation) || $fk_workstation == $task['fk_workstation']) {
-	   		   list($col, $row) = _ordonnanceur_get_next_coord($TPlan[$task['fk_workstation']], $task);  
+      
+       if(empty($fk_workstation) || $fk_workstation == $fk_workstation) {
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TPlan[$fk_workstation], $task);  
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
@@ -117,11 +114,6 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
        }
     }
      
-    if(isset($_REQUEST['DEBUG'])) {
-        print '<pre>';
-        print_r($TPlan[1]['@free']);
-   }
-    
     return $TTaskOrdered;
 }
 
@@ -176,6 +168,7 @@ function _orgo_gnc_get_free(&$TFree, &$TPlanned,$available_ressource, $needed_re
        }
     }
     else{
+       var_dump('TFree',$TFree);   
        exit('aucune solution ?! pas possible');
     }
     

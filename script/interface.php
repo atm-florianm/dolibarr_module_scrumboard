@@ -9,6 +9,8 @@ _put($db, $put);
 _get($db, $get);
 
 function _get(&$db, $case) {
+global $conf;    
+    
 	switch ($case) {
 		case 'tasks' :
 			
@@ -25,14 +27,18 @@ function _get(&$db, $case) {
 			break;
             
         case 'tasks-ordo':
-             // TODO replace with real load workstation
-             $TWorkstation = array(
+           $TWorkstation = array(
                 0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
-                ,1=>array('nb_ressource'=>2, 'velocity'=>(5/7), 'background'=>'linear-gradient(to right,white, #660000)', 'name'=>'Stagiaire') // base de 7h par jour
-                ,2=>array('nb_ressource'=>2, 'velocity'=>(5.5/7), 'background'=>'linear-gradient(to right,white, #cccc00)', 'name'=>'devconfirme')
-                ,3=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white,#00cc00)', 'name'=>'DSI')
             );
+            
+            if($conf->workstation->enabled) {
+                define('INC_FROM_DOLIBARR',true);
+                dol_include_once('/workstation/config.php');
+                $ATMdb=new TPDOdb;
+                $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
                 
+            }
+           //     var_dump($TWorkstation);
             $Tab = ordonnanceur( 
             			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
             			, $TWorkstation

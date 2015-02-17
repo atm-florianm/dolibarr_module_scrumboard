@@ -24,24 +24,34 @@
  
 	require('config.php');
 
-	$TWorkstation = array(
+	/*$TWorkstation = array(
 	
 		0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
 		,1=>array('nb_ressource'=>2, 'velocity'=>(5/7), 'background'=>'linear-gradient(to right,white, #660000)', 'name'=>'Stagiaire') // base de 7h par jour
 		,2=>array('nb_ressource'=>2, 'velocity'=>(5.5/7), 'background'=>'linear-gradient(to right,white, #cccc00)', 'name'=>'devconfirme')
 		,3=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white,#00cc00)', 'name'=>'DSI')
-	);
+	);*/
+	
+	$TWorkstation = array(
+        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+    );
+	
+    if($conf->workstation->enabled) {
+        define('INC_FROM_DOLIBARR',true);
+        dol_include_once('/workstation/config.php');
+        $ATMdb=new TPDOdb;
+        $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
+        
+    }
 
 	$number_of_columns = 1 ;
 	foreach($TWorkstation as $w_name=>$w_param) {
 		$number_of_columns+=$w_param['nb_ressource'];
-		
-		
 	}
 
 	$number_of_ressource = 3;
     
-   $hh =  GETPOST('hour_height');
+    $hh =  GETPOST('hour_height');
     if(!empty($hh)) $_SESSION['hour_height'] = (int)$hh;
 	
 	$hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
@@ -62,7 +72,7 @@
 			<table id="scrum" style="width: inherit;">
 				<tr>
 					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?><br /><br /><br /></td>
-				</tr>
+				</tr>group.class.php
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
 						<table><tr>
