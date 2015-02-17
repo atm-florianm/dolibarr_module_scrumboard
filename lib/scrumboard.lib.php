@@ -126,7 +126,7 @@ function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
     $TPlanned = &$TPlan['@plan'];
 
     $needed_ressource = $task['needed_ressource'];
-    $height = $task['planned_workload'];
+    $height = $task['planned_workload'] * (1- ($task['progress'] / 100));
     $col = 0;
     
     if(empty($TFree)){

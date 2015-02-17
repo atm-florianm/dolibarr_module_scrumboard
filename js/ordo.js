@@ -144,18 +144,15 @@ TOrdonnancement = function() {
 		var height = 1;
 		
 		if(duration>0) {
-			//duration-=task.duration_effective;
-			height = duration / 3600 ;
+			height = duration * (1- (task.progress / 100)) / 3600;
 		}
-
-		
 		
 		if(height<1) height = 1;
 	
 		date=new Date(task.time_date_end * 1000);
 		$item.find('[rel=time-end]').html(date.toLocaleDateString());
 	
-		$item.find('header').html(( '('+task.id+') '+ Math.round(height*100)/100)+'h');
+		$item.find('header').html((Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
 	   
 	    $ul = $('#list-task-'+task.fk_workstation); 	
 	   
@@ -217,7 +214,7 @@ TOrdonnancement = function() {
 				var duration = task.planned_workload;
 				var height = 1;
 				if(duration>0) {
-					height = Math.round( duration/TVelocity[task.fk_workstation]*coef_time  );
+					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
 				}
 			
 				if(i>20) {

@@ -40,10 +40,10 @@ global $conf;
             }
            //     var_dump($TWorkstation);
             $Tab = ordonnanceur( 
-            			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
-            			, $TWorkstation
-            			, (int)GETPOST('fk_workstation')
-					);
+    			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
+    			, $TWorkstation
+    			, (int)GETPOST('fk_workstation')
+			);
             
             print json_encode($Tab);
 
@@ -412,7 +412,7 @@ global $user;
 function _tasks_ordo(&$db, $status, $fk_workstation=0) {
     
         
-    $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload
+    $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
@@ -454,6 +454,7 @@ function _tasks_ordo(&$db, $status, $fk_workstation=0) {
                 ,'fk_task_parent'=>(int)$obj->fk_task_parent
                 ,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
                 ,'planned_workload'=>$obj->planned_workload / 3600
+                ,'progress'=>$obj->progress
          );
     }
     
