@@ -49,7 +49,7 @@
 		$number_of_columns+=$w_param['nb_ressource'];
 	}
 
-	$number_of_ressource = 3;
+	
     
     $hh =  GETPOST('hour_height');
     if(!empty($hh)) $_SESSION['hour_height'] = (int)$hh;
@@ -71,7 +71,7 @@
 	
 			<table id="scrum" style="width: inherit;">
 				<tr>
-					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo $number_of_ressource.' ressources availables'; ?><br /><br /><br /></td>
+					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' ressource(s) available(s)'; ?><br /><br /><br /></td>
 				</tr>group.class.php
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
