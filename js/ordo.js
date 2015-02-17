@@ -241,7 +241,7 @@ TOrdonnancement = function() {
 					background:'#d9ffd2'
 				});
 				*/
-				$(item).removeClass('loading');
+				$li.removeClass('loading');
 				
 /*				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);*/
 				 			

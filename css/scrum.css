@@ -346,6 +346,7 @@ ul {
 	background-image: url("../img/loading.gif");
 	background-repeat: no-repeat;
 	background-position: center;
+	background-size: cover; 
 					    
 }
 .gridster li.loading div {
