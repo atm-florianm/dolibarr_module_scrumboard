@@ -338,6 +338,7 @@ ul {
     cursor: move;
     text-align: center;
 }
+
 .gridster li {
 	overflow:hidden;
 	background-color: white;
@@ -353,7 +354,10 @@ ul {
 	display:none;	
 } 
 
-.gridster li.gs-w:hover {
+.gridster li:hover {
 	overflow:visible;
+	z-index:999;
+}
+.gridster li:hover div[rel=content] {
 	background-color: white;
 }

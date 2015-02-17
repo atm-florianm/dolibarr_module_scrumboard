@@ -219,33 +219,22 @@ TOrdonnancement = function() {
 			
 				if(i>20) {
 					 $li.css({
-                                        	top:task_top
-                                        	,left:(width_column * task.grid_col)
-                                        	,height: height
-                                	 });
+                        	top:task_top
+                        	,left:(width_column * task.grid_col)
+                        	,height: height
+                	 });
 
 				}
 				else {
 					 $li.animate({
-                                        	top:task_top
-                                        	,left:(width_column * task.grid_col)
-                                        	,height: height
-                                	}, 'fast','', resizeUL);
+                        	top:task_top
+                        	,left:(width_column * task.grid_col)
+                        	,height: height
+                	}, 'slow','', resizeUL);
 
 				}	 
 				
-				/*$li.find('header').css({
-					background:'#d9ffd2'
-				});
-				*/
-				$li.removeClass('loading');
-				
-/*				$li.find('span[rel=project]').html(task.grid_col+','+task.grid_row);*/
-				 			
-			/*	width_column = 200;
-			    var height_day = 50;
-			    var swap_time = 0.08;
-			    var nb_hour_per_day*/
+				$li.removeClass('loading');				
     
             });
 
