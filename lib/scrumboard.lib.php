@@ -139,13 +139,28 @@ function _ordonnanceur_get_next_coord(&$TPlan,&$task) {
 }
 
 function _ordo_get_parent_coord(&$TPlanned, $fk_task_parent) {
+    global $db; 
     
     if($fk_task_parent>0) {
+        // dans la même file ? 
         foreach($TPlanned as $planned) {
             if($planned[4] == $fk_task_parent) return array($planned[0] + $planned[2] ,0);
         }
+    
+        $sql = "SELECT grid_row,planned_workload,progress FROM ".MAIN_DB_PREFIX."projet_task 
+            WHERE rowid = ".$fk_task_parent;
+        $res = $db->query($sql);    
+        $obj = $db->fetch_object($res);
+        if($obj) {
+            $height = $obj->planned_workload / 3600 * (1- ($obj->progress / 100));
+            $y = $obj->grid_row + $height;
+            
+            return array($y, 0);
+        }
+           
             
     }
+    
     
     return array(0,0);
 }
@@ -157,7 +172,7 @@ function _orgo_gnc_get_free(&$TFree, &$TPlanned,$available_ressource, $needed_re
     $fKey = false;
     
     $fk_task_parent = (int)$task['fk_task_parent'];
-  //  list($yParent) = _ordo_get_parent_coord($TPlanned, $fk_task_parent);
+    list($yParent) = _ordo_get_parent_coord($TPlanned, $fk_task_parent);
     
     foreach($TFree as $k=>$free) {
         
@@ -169,7 +184,13 @@ function _orgo_gnc_get_free(&$TFree, &$TPlanned,$available_ressource, $needed_re
             $left = $x; 
             $top  = $y;
       }
-      
+    }
+    
+    if($yParent>0 && $fKey===false) {
+        $fKey = 0;
+        $left=0;
+        $top=$yParent;
+        
     }
     
     if($fKey!==false) {

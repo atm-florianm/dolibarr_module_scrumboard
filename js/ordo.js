@@ -299,7 +299,7 @@ TOrdonnancement = function() {
     	});
     	
     	for(wsid in TWorkstationToOrder) {
-    		sortTask(wsid, true);	
+    		sortTask(wsid,true);	
     	}
     }; 
     
