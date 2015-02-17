@@ -121,10 +121,15 @@ function showParameters() {
 			<td><input type="text" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY ?>" name="TDivers[SCRUM_DEFAULT_VELOCITY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>				
 		</tr>
 
-		<tr>
-			<td><?php echo $langs->trans('NumberOfDayForVelocity') ?></td>
-			<td><input type="text" value="<?php echo $conf->global->SCRUM_VELOCITY_NUMBER_OF_DAY ?>" name="TDivers[SCRUM_VELOCITY_NUMBER_OF_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>				
-		</tr>
+        <tr>
+            <td><?php echo $langs->trans('NumberOfDayForVelocity') ?></td>
+            <td><input type="text" value="<?php echo $conf->global->SCRUM_VELOCITY_NUMBER_OF_DAY ?>" name="TDivers[SCRUM_VELOCITY_NUMBER_OF_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
+        </tr>
+
+        <tr>
+            <td><?php echo $langs->trans('NumberOfWorkingHourInDay') ?></td>
+            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY ?>" name="TDivers[TIMESHEET_WORKING_HOUR_PER_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
+        </tr>
 
 		
 	</table>
