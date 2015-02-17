@@ -43,6 +43,9 @@
         $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
         
     }
+    else {
+        setEventMessage($langs->trans("moduleWorkstationNeeded").' : <a href="https://github.com/ATM-Consulting/dolibarr_module_workstation" target="_blank">'.$langs->trans('DownloadModule').'</a>','errors');
+    }
 
 	$number_of_columns = 1 ;
 	foreach($TWorkstation as $w_name=>$w_param) {
