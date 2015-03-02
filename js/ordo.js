@@ -15,6 +15,9 @@ TOrdonnancement = function() {
        height_day = h_day;
        swap_time = sw_time;
        
+ 	   $('.fixedHeader').makeFixed();
+
+       
        $.ajax({
 			url : "./script/interface.php"
 			,data: {

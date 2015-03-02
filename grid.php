@@ -86,7 +86,7 @@
 						
 						?>
 						<td valign="top" class="projects">
-						    <?php echo $langs->trans('Projects') ?>
+						    <span class="fixedHeader"><?php echo $langs->trans('Projects') ?></span>
 						    <ul style="position:relative;width:200px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
@@ -107,7 +107,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		            var h_day = <?php echo $day_height; ?>;
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js"></script>
-				<script type="text/javascript">
+                <script type="text/javascript" src="./js/makefixed.js"></script>
+                <script type="text/javascript">
 				var TVelocity = [];
 				
 				$(document).ready(function(){
@@ -145,7 +146,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		$width_table+=$w_column;	
 		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
-		        <?php echo $w_param['name']; ?>
+		        <span class="fixedHeader"><?php echo $w_param['name']; ?></span>
 				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>

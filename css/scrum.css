@@ -400,3 +400,16 @@ ul {
 	background: linear-gradient(to bottom, #1e5799 0%,#2989d8 50%,#207cca 51%,#7db9e8 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#7db9e8',GradientType=0 ); /* IE6-9 */
 }
+
+.gridster table .fixedHeader {
+	
+	background: #a1d54f;
+	padding:10px;
+	border-radius: 10px;
+	display:block;
+	width:90px;
+	margin:1px 0 2px 2px; 
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+}
