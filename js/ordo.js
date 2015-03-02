@@ -258,7 +258,7 @@ TOrdonnancement = function() {
                 	});
 
 				}	 
-				$li.fadeTo(400,1);
+				
 				$li.removeClass('loading');				
     
            });
@@ -272,6 +272,7 @@ TOrdonnancement = function() {
     
     var afterAnimationOrder=function() {
     	resizeUL();
+    	ToggleProject(0,true);
     	/*reOrderTaskWithConstraint();*/	
         
     };
@@ -384,9 +385,9 @@ TWorkstation = function() {
     
 };
 
-ToggleProject = function(fk_project) {
+ToggleProject = function(fk_project, showAll) {
 	
-	if($('#project-'+fk_project).hasClass('justMe')) {
+	if($('#project-'+fk_project).hasClass('justMe') || showAll == true) {
 		$('#project-'+fk_project).removeClass('justMe');
 		
 		$('li[task-id]').each(function(i,item) {
