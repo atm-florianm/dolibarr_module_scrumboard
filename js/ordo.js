@@ -388,6 +388,19 @@ TWorkstation = function() {
     
 };
 
+toggleWorkStation = function (fk_ws) {
+	
+	if($('#columm-ws-'+fk_ws).is(':visible')) {
+		$('#columm-ws-'+fk_ws).hide();
+		$('#columm-header1-'+fk_ws).addClass('hiddenWS');
+	}
+	else{
+		$('#columm-ws-'+fk_ws).show();
+		$('#columm-header1-'+fk_ws).removeClass('hiddenWS');
+	}
+	
+};
+
 ToggleProject = function(fk_project, showAll) {
 	
 	if($('#project-'+fk_project).hasClass('justMe') || showAll == true) {

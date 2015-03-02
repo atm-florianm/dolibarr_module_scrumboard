@@ -74,6 +74,14 @@
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br />
 					    <?php echo $langs->trans('HourHeight') ?> : <a href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> <a href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> <a href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+					    <br />
+					    <?php
+					    foreach($TWorkstation as $w_id=>$w_param) {
+                            ?><span class="columnHeader" id="columm-header1-<?php echo $w_id; ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span><?php
+        
+                        }
+					    ?>
+					    
 					</td>
 				</tr>group.class.php
 				<tr>
@@ -86,7 +94,7 @@
 						
 						?>
 						<td valign="top" class="projects">
-						    <span class="fixedHeader"><?php echo $langs->trans('Projects') ?></span>
+						    <span class="fixedHeader columnHeader"><?php echo $langs->trans('Projects') ?></span>
 						    <ul style="position:relative;width:200px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
@@ -140,14 +148,14 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 function _draw_grid(&$TWorkstation, $column_width) {
 	
 	$width_table = 0;
-	foreach($TWorkstation as $w_name=>$w_param) {
+	foreach($TWorkstation as $w_id=>$w_param) {
 		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
-		        <span class="fixedHeader"><?php echo $w_param['name']; ?></span>
-				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
+		?><td id="columm-ws-<?php echo $w_id; ?>" valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
+		        <span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span>
+				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_id; ?>" ws-id="<?php echo $w_id; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
 

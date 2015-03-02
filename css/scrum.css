@@ -401,15 +401,18 @@ ul {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#7db9e8',GradientType=0 ); /* IE6-9 */
 }
 
-.gridster table .fixedHeader {
-	
+table .columnHeader {
 	background: #a1d54f;
 	padding:10px;
-	border-radius: 10px;
-	display:block;
+	/*border-radius: 10px;*/
+	display:inline-block;
 	width:90px;
 	margin:1px 0 2px 2px; 
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
+	box-shadow: 2px 2px 5px #656565;
 }
+table .columnHeader.hiddenWS {
+	background: #2989d8;
+} 
