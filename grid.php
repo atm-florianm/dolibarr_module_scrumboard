@@ -84,7 +84,14 @@
 						
 						_draw_grid($TWorkstation, $column_width);
 						
-						?></tr></table>
+						?>
+						<td valign="top" class="projects">
+						    <?php echo $langs->trans('Projects') ?>
+						    <ul style="position:relative;width:200px;" id="list-projects" class="task-list needToResize" >
+                        
+                            </ul>
+						</td>
+						</tr></table>
 					</td>
 				</tr>
 			</table>
@@ -137,9 +144,9 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;"><?php echo $w_param['name']; ?>
-		
-				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
+		?><td valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
+		        <?php echo $w_param['name']; ?>
+				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_name; ?>" ws-id="<?php echo $w_name; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
 
@@ -175,7 +182,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 			<li id="task-blank">
 				<header>|||</header>
 				<div rel="content">
-    				<span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+    				<span rel="project" style="display:none;"></span> <span rel="task-link">[<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span></span>
     				<div rel="time-end"></div>
     				
 				</div> 

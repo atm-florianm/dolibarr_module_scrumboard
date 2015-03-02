@@ -141,7 +141,7 @@ TOrdonnancement = function() {
 		
 		$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
 		$item.find('[rel=ref]').html(task.ref).attr("href", http+'/projet/tasks/task.php?id='+task.id+'&withproject=1');
-		/*$item.find('[rel=project]').html(task.project.title);*/
+		$item.find('[rel=project]').html(task.project.title);
 
 		var duration = task.planned_workload;
 		var height = 1;
@@ -172,7 +172,10 @@ TOrdonnancement = function() {
 		$li.attr('ordo-needed-ressource',task.needed_ressource); 
 		$li.attr('ordo-col',task.grid_col); 
 		$li.attr('ordo-row',task.grid_row); 
-		$li.attr('ordo-ws-id',task.fk_workstation); 
+		$li.attr('ordo-ws-id',task.fk_workstation);
+		$li.attr('ordo-fk-project',task.fk_project); 
+		
+		
 		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
 		
 		
@@ -308,36 +311,61 @@ TOrdonnancement = function() {
     var resizeUL = function() {
     	var max_height=0;
     	
+    	var TProject=[];
+    	
     	$('li[task-id]').each(function(i,item) {
     		$li = $(item);
     		
-    		h = parseInt($li.css('top') )+ parseInt($li.css('height'));
+    		var topLi = parseInt($li.css('top') ) ;
+    		var h = topLi + parseInt($li.css('height'));
     		
     		if(max_height<h) {
 				max_height=h+200;
-			
 			}
+			
+			if(TProject[$li.attr("ordo-fk-project")]==null) {
+				TProject[$li.attr("ordo-fk-project")]={
+					name:''
+					,tasks:[]
+					,end:0
+					,start:9999999999
+				};
+			}
+			
+			TProject[$li.attr("ordo-fk-project")].name = $li.find('[rel=project]').html();
+			TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+			if(h>TProject[$li.attr("ordo-fk-project")].end) TProject[$li.attr("ordo-fk-project")].end = h;
+			if(topLi<TProject[$li.attr("ordo-fk-project")].start) TProject[$li.attr("ordo-fk-project")].start = topLi;
+			
     	});
     	
-    	$('ul[ws-id]').css('height', max_height);
+    	$('ul.needToResize').css('height', max_height);
 
-	$('.day_delim').remove();
-	
-	date=new Date();
-	
-	var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
-	var TDayOff = new Array( 0,6 );
-	
-	for(i=0;i<max_height;i+=height_day) {
-			
-		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black; text-align:right;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'</div>');
-	
-		date.setDate(date.getDate() + 1);
-		while($.inArray(date.getDay(),TDayOff)>-1 ) {
+		$('.day_delim').remove();
+		
+		date=new Date();
+		
+		var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
+		var TDayOff = new Array( 0,6 );
+		
+		for(i=0;i<max_height;i+=height_day) {
+				
+			$('#list-task-0').append('<div style="height:'+(height_day-1)+'px; border-bottom:1px solid black; text-align:right;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'</div>');
+		
 			date.setDate(date.getDate() + 1);
-		}
-	}	
+			while($.inArray(date.getDay(),TDayOff)>-1 ) {
+				date.setDate(date.getDate() + 1);
+			}
+		}	
 
+		$('#list-projects li').remove();
+		for(idProject in TProject) {
+
+			project = TProject[idProject];
+			$('#list-projects').append('<li id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+			$('#list-projects').append('<li class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+
+		}
     	
     };
     
@@ -349,4 +377,26 @@ TWorkstation = function() {
     this.velocity = 1;
     this.id = 'idws';
     
+};
+
+ToggleProject = function(fk_project) {
+	
+	if($('#project-'+fk_project).hasClass('justMe')) {
+		$('#project-'+fk_project).removeClass('justMe');
+		
+		$('li[task-id]').each(function(i,item) {
+	    	$li = $(item);
+	    	$li.show();
+	 	});
+	 	
+	}
+	else{
+		$('#project-'+fk_project).addClass('justMe');
+		
+		$('li[task-id][ordo-fk-project!='+fk_project+']').each(function(i,item) {
+	    	$li = $(item);
+	    	$li.hide();
+	 	});
+		
+	}
 };
