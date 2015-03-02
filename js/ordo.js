@@ -141,7 +141,7 @@ TOrdonnancement = function() {
 		
 		$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
 		$item.find('[rel=ref]').html(task.ref).attr("href", http+'/projet/tasks/task.php?id='+task.id+'&withproject=1');
-		$item.find('[rel=project]').html(task.project.title);
+		/*$item.find('[rel=project]').html(task.project.title);*/
 
 		var duration = task.planned_workload;
 		var height = 1;
@@ -155,7 +155,7 @@ TOrdonnancement = function() {
 		date=new Date(task.time_date_end * 1000);
 		$item.find('[rel=time-end]').html(date.toLocaleDateString());
 	
-		$item.find('header').html((Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
+		$item.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
 	   
 	    $ul = $('#list-task-'+task.fk_workstation); 	
 	   
@@ -325,11 +325,17 @@ TOrdonnancement = function() {
 	
 	date=new Date();
 	
+	var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
+	var TDayOff = new Array( 0,6 );
+	
 	for(i=0;i<max_height;i+=height_day) {
 			
-		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black;" class="day_delim">'+date.toLocaleDateString()+'</div>');
+		$('#list-task-0').append('<div style=";height:'+(height_day-1)+'px; border-bottom:1px solid black; text-align:right;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'</div>');
 	
 		date.setDate(date.getDate() + 1);
+		while($.inArray(date.getDay(),TDayOff)>-1 ) {
+			date.setDate(date.getDate() + 1);
+		}
 	}	
 
     	

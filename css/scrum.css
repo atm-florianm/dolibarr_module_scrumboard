@@ -331,7 +331,7 @@ ul {
 .gridster li header {
     background: #999;
     display: block;
-    font-size: 20px;
+    font-size: 12px;
     line-height: normal;
     padding: 4px 0 6px ;
     margin-bottom: 5px;
@@ -342,6 +342,7 @@ ul {
 .gridster li {
 	overflow:hidden;
 	background-color: white;
+	text-align: left;
 }
 .gridster li.loading {
 	background-image: url("../img/loading.gif");
@@ -357,6 +358,7 @@ ul {
 .gridster li:hover {
 	overflow:visible;
 	z-index:999;
+	
 }
 .gridster li:hover div[rel=content] {
 	background-color: white;

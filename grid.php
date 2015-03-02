@@ -47,14 +47,12 @@
         setEventMessage($langs->trans("moduleWorkstationNeeded").' : <a href="https://github.com/ATM-Consulting/dolibarr_module_workstation" target="_blank">'.$langs->trans('DownloadModule').'</a>','errors');
     }
 
-	$number_of_columns = 1 ;
+	$number_of_columns = 0 ;
 	foreach($TWorkstation as $w_name=>$w_param) {
 		$number_of_columns+=$w_param['nb_ressource'];
 	}
 
-	
-    
-    $hh =  GETPOST('hour_height');
+	$hh =  GETPOST('hour_height');
     if(!empty($hh)) $_SESSION['hour_height'] = (int)$hh;
 	
 	$hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
@@ -66,15 +64,17 @@
 	$form = new Form($db);
 
 ?>
-	
-
 	<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 
 		<div class="content">
 	
 			<table id="scrum" style="width: inherit;">
 				<tr>
-					<td><?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' ressource(s) available(s)'; ?><br /><br /><br /></td>
+					<td>
+					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
+					    <br />
+					    <?php echo $langs->trans('HourHeight') ?> : <a href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> <a href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> <a href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+					</td>
 				</tr>group.class.php
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
@@ -83,8 +83,6 @@
 						$column_width = 200;
 						
 						_draw_grid($TWorkstation, $column_width);
-						
-						
 						
 						?></tr></table>
 					</td>
