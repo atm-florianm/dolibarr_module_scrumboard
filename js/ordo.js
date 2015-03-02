@@ -323,19 +323,24 @@ TOrdonnancement = function() {
 				max_height=h+200;
 			}
 			
-			if(TProject[$li.attr("ordo-fk-project")]==null) {
-				TProject[$li.attr("ordo-fk-project")]={
-					name:''
-					,tasks:[]
-					,end:0
-					,start:9999999999
-				};
+			if($li.attr('ordo-ws-id')>0) {
+					
+				if(TProject[$li.attr("ordo-fk-project")]==null) {
+					TProject[$li.attr("ordo-fk-project")]={
+						name:''
+						,tasks:[]
+						,end:0
+						,start:9999999999
+					};
+				}
+				
+				TProject[$li.attr("ordo-fk-project")].name = $li.find('[rel=project]').html();
+				TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+				if(h>TProject[$li.attr("ordo-fk-project")].end) TProject[$li.attr("ordo-fk-project")].end = h;
+				if(topLi<TProject[$li.attr("ordo-fk-project")].start) TProject[$li.attr("ordo-fk-project")].start = topLi;
+				
 			}
 			
-			TProject[$li.attr("ordo-fk-project")].name = $li.find('[rel=project]').html();
-			TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
-			if(h>TProject[$li.attr("ordo-fk-project")].end) TProject[$li.attr("ordo-fk-project")].end = h;
-			if(topLi<TProject[$li.attr("ordo-fk-project")].start) TProject[$li.attr("ordo-fk-project")].start = topLi;
 			
     	});
     	
