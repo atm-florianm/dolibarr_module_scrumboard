@@ -258,7 +258,7 @@ TOrdonnancement = function() {
                 	});
 
 				}	 
-				
+				$li.fadeTo(400,1);
 				$li.removeClass('loading');				
     
            });
@@ -386,7 +386,7 @@ ToggleProject = function(fk_project) {
 		
 		$('li[task-id]').each(function(i,item) {
 	    	$li = $(item);
-	    	$li.show();
+	    	$li.fadeTo(400,1);
 	 	});
 	 	
 	}
@@ -395,7 +395,7 @@ ToggleProject = function(fk_project) {
 		
 		$('li[task-id][ordo-fk-project!='+fk_project+']').each(function(i,item) {
 	    	$li = $(item);
-	    	$li.hide();
+	    	$li.fadeTo(400,.2);
 	 	});
 		
 	}
