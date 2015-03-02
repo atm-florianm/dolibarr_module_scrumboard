@@ -165,7 +165,9 @@ TOrdonnancement = function() {
 		$li = $('li[task-id='+task.id+']');
 		$li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
+		
 		$li.css('height', Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  ));
+		
 		$li.attr('ordo-nb-hour', height);
 		$li.attr('ordo-needed-ressource',task.needed_ressource); 
 		$li.attr('ordo-col',task.grid_col); 
@@ -210,7 +212,7 @@ TOrdonnancement = function() {
 			
 				coef_time = height_day / nb_hour_per_day;
 			
-				task_top = coef_time * task.grid_row / TVelocity[task.fk_workstation];
+				task_top = coef_time * task.grid_row/* / TVelocity[task.fk_workstation]*/; // vélocité déjà dans le top 
 			
 				$li = $('li[task-id='+task.id+']');
 				wsid = $li.attr('ordo-ws-id');
@@ -267,7 +269,7 @@ TOrdonnancement = function() {
     
     var afterAnimationOrder=function() {
     	resizeUL();
-    	reOrderTaskWithConstraint();	
+    	/*reOrderTaskWithConstraint();*/	
         
     };
     
