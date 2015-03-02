@@ -73,7 +73,7 @@
 					<td>
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br />
-					    <?php echo $langs->trans('HourHeight') ?> : <a href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> <a href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> <a href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+					    <?php echo $langs->trans('HourHeight') ?> : <a class="columnHeader" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> <a  class="columnHeader" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> <a  class="columnHeader" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
 					    <br />
 					    <?php
 					    foreach($TWorkstation as $w_id=>$w_param) {
