@@ -239,9 +239,9 @@ TOrdonnancement = function() {
                         	,height: height
                 	 });
 					 
-					 if(i+1 == nb_tasks) {
+					 /*if(i+1 == nb_tasks) {
 					 	afterAnimationOrder();
-					 }
+					 }*/
 					 
 				}
 				else {
@@ -253,7 +253,7 @@ TOrdonnancement = function() {
                     }
                     ,{	
                     	complete : function() {
-                    		if(i+1 == nb_tasks) {
+                    		if(i+1 == nb_tasks || i==10) {
                     			afterAnimationOrder();
                     		}
                     	}
