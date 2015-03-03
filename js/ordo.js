@@ -156,8 +156,8 @@ TOrdonnancement = function() {
 		if(height<1) height = 1;
 	
 		date=new Date(task.time_date_end * 1000);
-		$item.find('[rel=time-end]').html(date.toLocaleDateString());
-	
+		if(task.time_date_end>0) $item.find('[rel=time-end]').html(date.toLocaleDateString());
+		
 		$item.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
 	   
 	    $ul = $('#list-task-'+task.fk_workstation); 	
@@ -224,6 +224,7 @@ TOrdonnancement = function() {
 				wsid = $li.attr('ordo-ws-id');
 				$li.css('position','absolute');
 				$li.attr('ordo-fktaskparent', task.fk_task_parent);
+				$li.find('[rel=time-projection]').html(task.time_projection);
 				
 				var duration = task.planned_workload;
 				var height = 1;
@@ -401,14 +402,16 @@ toggleWorkStation = function (fk_ws) {
 
 ToggleProject = function(fk_project, showAll) {
 	
-	if($('#project-'+fk_project).hasClass('justMe') || showAll == true) {
-		$('#project-'+fk_project).removeClass('justMe');
-		
-		$('li[task-id]').each(function(i,item) {
-	    	$li = $(item);
-	    	$li.fadeTo(400,1);
-	 	});
+	$('li[task-id]').each(function(i,item) {
+    	$li = $(item);
+    	$li.fadeTo(400,1);
+ 	});
 	 	
+	if(fk_project==0) {
+		$('li.project').removeClass('justMe');
+	} 	
+	else if($('#project-'+fk_project).hasClass('justMe') || showAll == true) {
+		$('#project-'+fk_project).removeClass('justMe');
 	}
 	else{
 		$('#project-'+fk_project).addClass('justMe');

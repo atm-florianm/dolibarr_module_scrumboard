@@ -416,3 +416,10 @@ table .columnHeader {
 table .columnHeader.hiddenWS {
 	background: #2989d8;
 } 
+
+table li div[rel=content] {
+	font-weight: normal;
+}
+table li span[rel=task-link] {
+	font-weight: bold;
+}

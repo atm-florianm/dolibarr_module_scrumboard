@@ -79,11 +79,15 @@ function scrum_getVelocity(&$db, $id_project) {
 
 	return $velocity;	
 }
-
+/*
+ * Refresh task position
+ */
 function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
     $Tab = $TTaskOrdered = array();
   //  var_dump($fk_workstation,$TWorkstation);
     $TCol = $TRow = $TPlan = array();
+    
+    $time_init = time();
     
 	foreach($TTaskToOrder as $task) {
          
@@ -105,23 +109,32 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
 	   }
       
        if(empty($fk_workstation) || $fk_workstation == $fk_workstation) {
-	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task);  
+               $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
+               $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
 	  
+               $task['time_start'] = $time_init + ($row * 3600);
+               $task['time_end'] =  $time_init + (( $row + $height) *3600) ;
+               $task['time_projection'] = '';// dol_print_date($task['time_start'],'hour').' - '.dol_print_date($task['time_end'],'dayhour');
+      
+      
 	   	       $TTaskOrdered[] = $task;
        }
     }
      
     return $TTaskOrdered;
 }
-
-function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task) {
+/*
+ * Get new position for task
+ */
+function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task,$height) {
 global $db;
 
     $available_ressource = $TPlan['@param']['available_ressource'];
-    $velocity = $TPlan['@param']['velocity'];
+    
     
     if($available_ressource<1) return array(0,0); // cas impossible :-|
     
@@ -129,7 +142,7 @@ global $db;
     $TPlanned = &$TPlan['@plan'];
 
     $needed_ressource = $task['needed_ressource'];
-    $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
+    
     $col = 0;
     
     if(empty($TFree)){
@@ -146,7 +159,9 @@ global $db;
    
     return array($col, $top);
 }
-
+/*
+ * Get position for parent task
+ */
 function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
     global $db; 
     
@@ -181,7 +196,9 @@ function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
     
     return array(0,0);
 }
-
+/*
+ * get next free place for task
+ */
 function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_ressource, $needed_ressource, $height, &$task) {
     
     $left = $top = false;
@@ -230,7 +247,9 @@ function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_resso
     
     return array($left,$top);
 }
-
+/*
+ * Reconstruct Free Place after adding some task
+ */
 function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
         /*
          * Reconstruit $TFree sur la base du plannifié
@@ -282,6 +301,10 @@ function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
         return $TFree;
         
 }
+
+/*
+ * resize free place after adding
+ */
 function _orgo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=false) {
     list($other_y,$other_x,$other_h,$other_w) = $other_planned;
     
@@ -317,7 +340,9 @@ function _orgo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=fals
     
 }
 
-
+/*
+ * Delete wrong free place (void, empty, ...)
+ */
 function _orgo_gnc_purge(&$TFree, $available_ressource) {
     
     foreach($TFree as $k=>$free) {
