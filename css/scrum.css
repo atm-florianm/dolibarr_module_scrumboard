@@ -343,6 +343,11 @@ ul {
 	overflow:hidden;
 	background-color: white;
 	text-align: left;
+	
+	background-image: url("../img/background-panel.jpg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
 }
 .gridster li.loading {
 	background-image: url("../img/loading.gif");
@@ -361,7 +366,7 @@ ul {
 	
 }
 .gridster li:hover div[rel=content] {
-	background-color: white;
+/*	background-color: white;*/
 }
 
 #list-projects li.project {

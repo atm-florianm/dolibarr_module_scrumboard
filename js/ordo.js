@@ -169,9 +169,11 @@ TOrdonnancement = function() {
 		$li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
 		
-		$li.css('height', Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  ));
+		var ordo_height = Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  );
+		$li.css('height', ordo_height);
 		
 		$li.attr('ordo-nb-hour', height);
+		$li.attr('ordo-height', ordo_height);
 		$li.attr('ordo-needed-ressource',task.needed_ressource); 
 		$li.attr('ordo-col',task.grid_col); 
 		$li.attr('ordo-row',task.grid_row); 
@@ -180,8 +182,12 @@ TOrdonnancement = function() {
 		
 		
 		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
-		
-		
+		$li.mouseenter(function() {
+			$(this).height($(this)[0].scrollHeight);
+		})
+		.mouseleave(function() {
+			$(this).height($(this).attr('ordo-height'));
+		});
 		if(duration < task.duration_effective) {
 			
 			$('li[task-id='+task.id+']').css('background-color','red');
@@ -231,6 +237,8 @@ TOrdonnancement = function() {
 				if(duration>0) {
 					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
 				}
+				
+				$li.attr('ordo-height', height);
 			
 				if(i>10) {
 					 

@@ -30,3 +30,4 @@ NumberOfQueue=file(s) d'attente disponible(s)
 Small=Petite
 Middle=Moyenne
 High=Grande
+GridTasks=Ordonnanceur
