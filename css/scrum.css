@@ -349,6 +349,19 @@ ul {
 	background-position: center;
 	background-size: cover; 
 }
+.gridster ul#list-task-0 li {
+	overflow:hidden;
+	background-color: white;
+	text-align: left;
+	
+	background-image: url("../img/background-panel2.jpg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
+}
+
+
+
 .gridster li.loading {
 	background-image: url("../img/loading.gif");
 	background-repeat: no-repeat;
