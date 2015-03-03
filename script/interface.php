@@ -9,12 +9,47 @@ _put($db, $put);
 _get($db, $get);
 
 function _get(&$db, $case) {
+global $conf;    
+    
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status')));
+			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 ? true : false;
+			
+			$var = explode('|',GETPOST('status'));
+			$Tab=array();
+			foreach($var as $statut) {
+				$Tab=array_merge($Tab, _tasks($db, (int)GETPOST('id_project'), $statut, $onlyUseGrid));	
+			}
+			
+			print json_encode($Tab);
 
 			break;
+            
+        case 'tasks-ordo':
+           $TWorkstation = array(
+                0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+            );
+            
+            if($conf->workstation->enabled) {
+                define('INC_FROM_DOLIBARR',true);
+                dol_include_once('/workstation/config.php');
+                $ATMdb=new TPDOdb;
+                $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
+                
+            }
+           //     var_dump($TWorkstation);
+            $Tab = ordonnanceur( 
+    			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
+    			, $TWorkstation
+    			, (int)GETPOST('fk_workstation')
+			);
+            
+            print json_encode($Tab);
+
+            
+            break;    
+            
 		case 'task' :
 			
 			print json_encode(_task($db, (int)GETPOST('id')));
@@ -49,8 +84,87 @@ function _put(&$db, $case) {
 			
 			break;
 
+		case 'coord':
+			_coord($db, $_POST['coord']);
+			
+			break;
+        case 'sort-task-ws' :
+            
+            _sort_task_ws($db, GETPOST('TTaskID'));
+            
+            break;
+		
+        case 'ws':
+            _task_ws($db, GETPOST('taskid'), GETPOST('fk_workstation'));
+        
+            break;	
+		case 'resize':
+			_resize($db, $_POST['coord']);
+			
+			break;
+		
 	}
 
+}
+
+function _sort_task_ws(&$db, &$TTaskId) {
+     
+     foreach($TTaskId as $data) {
+         
+         list($id,$top)=explode('-',$data);
+         
+         $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+            grid_row=".$top." 
+            WHERE rowid = ".$id;
+         $db->query($sql);
+       
+     } 
+     
+    
+}
+
+function  _task_ws(&$db, $taskid, $fk_workstation) {
+    
+      $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
+            fk_workstation=".(int)$fk_workstation."
+        WHERE fk_object = ".(int)$taskid;
+      $db->query($sql);
+     
+
+}
+function _coord(&$db, $TCoord) {
+	
+	foreach($TCoord as $coord) {
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+			grid_col=".(int)$coord['col']."
+			,grid_row=".(int)$coord['row']." 
+		WHERE rowid = ".(int)$coord['id'];
+		$db->query($sql);
+		
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
+			fk_workstation=".(int)$coord['fk_workstation']."
+		WHERE fk_object = ".(int)$coord['id'];
+		$db->query($sql);
+		
+	}
+	
+}
+
+function _resize(&$db, $TCoord) {
+	
+	foreach($TCoord as $coord) {
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+			planned_workload=".((int)$coord['size_y']*3600)."
+		WHERE rowid = ".(int)$coord['id'];
+		$db->query($sql);
+		
+		$sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
+			needed_ressource=".(int)$coord['size_x']."
+		WHERE fk_object = ".(int)$coord['id'];
+		$db->query($sql);
+		
+	}
+	
 }
 
 function _velocity(&$db, $id_project) {
@@ -295,43 +409,110 @@ global $user;
 	$project->update($user);
 
 }
-
-function _tasks(&$db, $id_project, $status) {
+function _tasks_ordo(&$db, $status, $fk_workstation=0) {
+    
+        
+    $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress
+        FROM ".MAIN_DB_PREFIX."projet_task t 
+        LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
+        LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
+        
+    if($status=='ideas') {
+        $sql.=" WHERE t.progress=0 AND t.datee IS NULL";
+    }   
+    else if($status=='todo') {
+        $sql.=" WHERE t.progress=0";
+    }
+    else if($status=='inprogress|todo') {
+        $sql.=" WHERE t.progress>=0 AND t.progress<100";
+    }
+    else if($status=='inprogress') {
+        $sql.=" WHERE t.progress>0 AND t.progress<100";
+    }
+    else if($status=='finish') {
+        $sql.=" WHERE t.progress=100 
+        ";
+    }
+    
+    $sql.=" AND p.fk_statut IN (0,1)"; 
+        
+	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
+		
+    $sql.=" AND ex.grid_use=1 
+        ORDER BY t.grid_row";
+        
+    $res = $db->query($sql);    
+        
+    $TTask = array();
+    while($obj = $db->fetch_object($res)) {
+        $TTask[] = array(
+                'status'=>$status
+                ,'id'=>$obj->rowid
+                , 'grid_col'=>$obj->grid_col
+                , 'grid_row'=>$obj->grid_row
+                ,'fk_workstation'=>(int)$obj->fk_workstation
+                ,'fk_task_parent'=>(int)$obj->fk_task_parent
+                ,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
+                ,'planned_workload'=>$obj->planned_workload / 3600
+                ,'progress'=>$obj->progress
+         );
+    }
+    
+   
+    
+    return $TTask;
+    
+}
+function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
+	
+	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
+		FROM ".MAIN_DB_PREFIX."projet_task t 
+		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
+		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
 		
 	if($status=='ideas') {
-		$sql = "SELECT t.rowid 
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=0 AND t.datee IS NULL";
-		
+		$sql.=" WHERE t.progress=0 AND t.datee IS NULL";
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT t.rowid 
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=0";
+		$sql.=" WHERE t.progress=0";
+	}
+	else if($status=='inprogress|todo') {
+		$sql.=" WHERE t.progress>=0 AND t.progress<100";
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT t.rowid 
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress>0 AND t.progress<100";
+		$sql.=" WHERE t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql = "SELECT t.rowid 
-		FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid) 
-		WHERE t.progress=100 
+		$sql.=" WHERE t.progress=100 
 		";
 	}
 	
 	if($id_project) $sql.=" AND t.fk_projet=".$id_project; 
 	else $sql.=" AND p.fk_statut IN (0,1)";	
 		
-	$sql.=" ORDER BY rang";	
+	if($onlyUseGrid) {
+	    $sql.=" AND ex.grid_use=1 
+	    ORDER BY t.grid_row";
+    }
+    else{
+        $sql.=" ORDER BY rang";    
+    }	
 		
 	$res = $db->query($sql);	
 		
-		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status));
+		$TTask[] = array_merge( 
+			_task($db, $obj->rowid)
+		 	, array(
+		 		'status'=>$status
+		 		, 'grid_col'=>$obj->grid_col
+		 		, 'grid_row'=>$obj->grid_row
+		 		,'fk_workstation'=>(int)$obj->fk_workstation
+		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
+		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
+			)
+		 );
 	}
 	
 	return $TTask;
