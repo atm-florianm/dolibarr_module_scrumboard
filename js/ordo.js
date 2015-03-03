@@ -276,8 +276,6 @@ TOrdonnancement = function() {
     var afterAnimationOrder=function() {
     	resizeUL();
     	ToggleProject(0,true);
-    	/*reOrderTaskWithConstraint();*/	
-        
     };
     
     var reOrderTaskWithConstraint = function() {
