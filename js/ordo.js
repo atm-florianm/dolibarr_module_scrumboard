@@ -99,7 +99,8 @@ TOrdonnancement = function() {
 						,dataType: 'json'
 					}).done(function() {
 						sortTask(wsid);
-						if(wsid!=old_wsid)order(old_wsid);	
+						if(wsid!=old_wsid)order(old_wsid);
+						
 					});
 						
 					
@@ -430,4 +431,10 @@ ToggleProject = function(fk_project, showAll) {
 	 	});
 		
 	}
+};
+
+
+OrdoReorderAll = function() {
+    	
+    	alert('!');
 };

@@ -349,6 +349,14 @@ ul {
 	background-position: center;
 	background-size: cover; 
 }
+
+.gridster li.loading, .gridster ul#list-task-0 li.loading {
+	background-image: url("../img/loading.gif");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
+					    
+}
 .gridster ul#list-task-0 li {
 	overflow:hidden;
 	background-color: white;
@@ -360,15 +368,6 @@ ul {
 	background-size: cover; 
 }
 
-
-
-.gridster li.loading {
-	background-image: url("../img/loading.gif");
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: cover; 
-					    
-}
 .gridster li.loading div {
 	display:none;	
 } 
@@ -379,7 +378,7 @@ ul {
 	
 }
 .gridster li:hover div[rel=content] {
-/*	background-color: white;*/
+/*	background-color: white;*/	
 }
 
 #list-projects li.project {
@@ -437,6 +436,7 @@ table .columnHeader.hiddenWS {
 
 table li div[rel=content] {
 	font-weight: normal;
+	padding:10px;
 }
 table li span[rel=task-link] {
 	font-weight: bold;
