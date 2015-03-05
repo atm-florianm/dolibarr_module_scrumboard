@@ -234,9 +234,12 @@ TOrdonnancement = function() {
 				$li.find('[rel=time-projection]').html(task.time_projection);
 				$li.find('[rel=users]').empty();
 				
-				for(idUser in task.TUser) {
-					var tUser = task.TUser[idUser];
-					$li.find('[rel=users]').append('<input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label><br />' );
+				if(task.TUser!=null) {
+					for(idUser in task.TUser) {
+						var tUser = task.TUser[idUser];
+						$li.find('[rel=users]').append('<input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label><br />' );
+						
+					}
 					
 				}
 				
