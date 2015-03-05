@@ -199,6 +199,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 				<div rel="content">
     				<span rel="project" style="display:none;"></span> <span rel="task-link">[<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span></span>
     				<div rel="time-projection"></div>
+    				<div rel="users"></div>
     				<div rel="time-end"></div>
     				
 				</div> 

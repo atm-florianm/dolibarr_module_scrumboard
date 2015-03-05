@@ -40,7 +40,7 @@ global $conf;
             }
            //     var_dump($TWorkstation);
             $Tab = ordonnanceur( 
-    			_tasks_ordo($db, GETPOST('status'), GETPOST('fk_workstation') )
+    			_tasks_ordo($db, $TWorkstation, GETPOST('status'), GETPOST('fk_workstation') )
     			, $TWorkstation
     			, (int)GETPOST('fk_workstation')
 			);
@@ -102,9 +102,36 @@ function _put(&$db, $case) {
 			_resize($db, $_POST['coord']);
 			
 			break;
-		
+            
+        case 'set-user-task':
+            print _set_user_in_task(GETPOST('taskid'), GETPOST('userid'));
+            
+            break;
+        case 'remove-user-task':
+            print _remove_user_in_task(GETPOST('taskid'), GETPOST('userid'));
+            
+            break;
 	}
 
+}
+
+function _set_user_in_task($taskid, $userid) {
+global $db;
+    
+    $task=new Task($db);
+    $task->fetch($taskid); 
+    
+    return $task->add_contact($userid, 180, 'internal');
+    
+}
+function _remove_user_in_task($taskid, $userid) {
+global $db;
+    
+    $db->query("DELETE FROM ".MAIN_DB_PREFIX."element_contact WHERE element_id=".$taskid." AND fk_c_type_contact=180 AND fk_socpeople=".$userid);
+    
+    return 1;
+    
+  
 }
 
 function _sort_task_ws(&$db, &$TTaskId) {
@@ -409,9 +436,8 @@ global $user;
 	$project->update($user);
 
 }
-function _tasks_ordo(&$db, $status, $fk_workstation=0) {
+function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     
-        
     $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
@@ -445,16 +471,42 @@ function _tasks_ordo(&$db, $status, $fk_workstation=0) {
         
     $TTask = array();
     while($obj = $db->fetch_object($res)) {
+                
+        $fk_workstation = (int)$obj->fk_workstation;
+        if(!isset($TWorkstation[$fk_workstation])) $fk_workstation=0;
+        $workstation = $TWorkstation[$fk_workstation];
+    
+        $TUser =array();
+        if(!empty($workstation['TUser'])) {
+            foreach($workstation['TUser'] as $idUser=>$user) {
+
+                $TUser[$idUser] = array(
+                    'name'=>$user->firstname.' '.$user->lastname
+                    ,'selected'=>0
+                );
+                
+            } 
+
+            $task=new Task($db);
+            $task->fetch($obj->rowid);
+            $TIdContact = $task->getListContactId('internal');
+            foreach($TIdContact as $idContact) {
+                $TUser[$idContact]['selected']=1;
+            }
+  
+        }    
+        
         $TTask[] = array(
                 'status'=>$status
                 ,'id'=>$obj->rowid
                 , 'grid_col'=>$obj->grid_col
                 , 'grid_row'=>$obj->grid_row
-                ,'fk_workstation'=>(int)$obj->fk_workstation
+                ,'fk_workstation'=>$fk_workstation
                 ,'fk_task_parent'=>(int)$obj->fk_task_parent
                 ,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
                 ,'planned_workload'=>$obj->planned_workload / 3600
                 ,'progress'=>$obj->progress
+                ,'TUser'=>$TUser
          );
     }
     

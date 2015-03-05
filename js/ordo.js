@@ -232,6 +232,13 @@ TOrdonnancement = function() {
 				$li.css('position','absolute');
 				$li.attr('ordo-fktaskparent', task.fk_task_parent);
 				$li.find('[rel=time-projection]').html(task.time_projection);
+				$li.find('[rel=users]').empty();
+				
+				for(idUser in task.TUser) {
+					var tUser = task.TUser[idUser];
+					$li.find('[rel=users]').append('<input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label><br />' );
+					
+				}
 				
 				var duration = task.planned_workload;
 				var height = 1;
@@ -435,6 +442,47 @@ ToggleProject = function(fk_project, showAll) {
 	}
 };
 
+OrdoToggleContact = function($check) {
+	
+	if($check.is(':checked')) {
+		
+		$check.attr('disabled', 'disabled');
+		
+		$.ajax({
+				url : "./script/interface.php"
+				,data: {
+					json:1
+					,put : 'set-user-task'
+					,taskid : $check.attr('taskid')
+					,userid : $check.attr('userid')
+				}
+				,dataType: 'json'
+		}).done(function() {
+			$check.removeAttr('disabled');
+		});
+		
+		
+	}
+	else {
+		$check.attr('disabled', 'disabled');
+		
+		$.ajax({
+				url : "./script/interface.php"
+				,data: {
+					json:1
+					,put : 'remove-user-task'
+					,taskid : $check.attr('taskid')
+					,userid : $check.attr('userid')
+				}
+				,dataType: 'json'
+		}).done(function() {
+			$check.removeAttr('disabled');
+		});
+		
+	}
+	
+	
+};
 
 OrdoReorderAll = function() {
     	
