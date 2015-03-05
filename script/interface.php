@@ -90,17 +90,16 @@ function _put(&$db, $case) {
 			break;
         case 'sort-task-ws' :
             
-            _sort_task_ws($db, GETPOST('TTaskID'));
+            print _sort_task_ws($db, GETPOST('TTaskID'));
             
             break;
 		
         case 'ws':
-            _task_ws($db, GETPOST('taskid'), GETPOST('fk_workstation'));
+            print _task_ws($db, GETPOST('taskid'), GETPOST('fk_workstation'));
         
             break;	
 		case 'resize':
-			_resize($db, $_POST['coord']);
-			
+			return _resize($db, $_POST['coord']);
 			break;
             
         case 'set-user-task':
@@ -147,7 +146,7 @@ function _sort_task_ws(&$db, &$TTaskId) {
        
      } 
      
-    
+    return 1;
 }
 
 function  _task_ws(&$db, $taskid, $fk_workstation) {
@@ -156,7 +155,7 @@ function  _task_ws(&$db, $taskid, $fk_workstation) {
             fk_workstation=".(int)$fk_workstation."
         WHERE fk_object = ".(int)$taskid;
       $db->query($sql);
-     
+      return 1;
 
 }
 function _coord(&$db, $TCoord) {
@@ -191,6 +190,8 @@ function _resize(&$db, $TCoord) {
 		$db->query($sql);
 		
 	}
+    
+    return 1;
 	
 }
 
