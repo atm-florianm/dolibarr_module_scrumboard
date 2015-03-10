@@ -329,7 +329,8 @@ ul {
 	padding:0px 0 0 0px;
 }
 .gridster li header {
-    background: #999;
+    background: #333 url("../img/grip.png") center;
+    color:#fff;
     display: block;
     font-size: 12px;
     line-height: normal;
@@ -341,13 +342,13 @@ ul {
 
 .gridster li {
 	overflow:hidden;
-	background-color: white;
+	background-color: #aed3cb;
 	text-align: left;
 	
-	background-image: url("../img/background-panel.jpg");
+	/*background-image: url("../img/background-panel.jpg");
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: cover; 
+	background-size: cover;*/ 
 }
 
 .gridster li.loading, .gridster ul#list-task-0 li.loading {
@@ -362,10 +363,10 @@ ul {
 	background-color: white;
 	text-align: left;
 	
-	background-image: url("../img/background-panel2.jpg");
+	/*background-image: url("../img/background-panel2.jpg");
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: cover; 
+	background-size: cover;*/ 
 }
 
 .gridster li.loading div {
@@ -437,7 +438,20 @@ table .columnHeader.hiddenWS {
 table li div[rel=content] {
 	font-weight: normal;
 	padding:10px;
+	position:relative;
+	padding-bottom:50px;
 }
 table li span[rel=task-link] {
 	font-weight: bold;
+}
+
+.gridster li a.split {
+	display: block;
+	position : absolute;
+	bottom : 5px;
+	left: 5px;
+	background: #bbbbbb url("../img/split.png") center center;
+	
+	width:32px;
+	height: 32px;
 }

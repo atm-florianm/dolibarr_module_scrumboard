@@ -81,15 +81,16 @@
 					    <br />
 					    <?php
 					    foreach($TWorkstation as $w_id=>$w_param) {
-                            ?><span class="columnHeader" id="columm-header1-<?php echo $w_id; ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span><?php
-        
+                            ?><span class="columnHeader" id="columm-header1-<?php echo $w_id; 
+                            ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
+                            echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span><?php
                         }
                         
                      /*   ?><a href="javascript:OrdoReorderAll();" class="columnHeader"><?php echo $langs->trans('Refresh'); ?></a><?php */
 					    ?>
 					    
 					</td>
-				</tr>group.class.php
+				</tr>
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
 						<table><tr>
@@ -201,7 +202,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
     				<div rel="time-projection"></div>
     				<div rel="users"></div>
     				<div rel="time-end"></div>
-    				
+    				<a href="#" class="button split" title="<?php echo $langs->trans('SplitTask'); ?>">x</a>
 				</div> 
 				<div class="loading"></div>
 			</li>

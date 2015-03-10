@@ -180,7 +180,9 @@ TOrdonnancement = function() {
 		$li.attr('ordo-row',task.grid_row); 
 		$li.attr('ordo-ws-id',task.fk_workstation);
 		$li.attr('ordo-fk-project',task.fk_project); 
-		
+		$li.find('a.split').click(function() {
+			OrdoSplitTask(task.id);
+		});
 		
 		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
 		$li.mouseenter(function() {
@@ -425,7 +427,7 @@ ToggleProject = function(fk_project, showAll) {
 	
 	$('li[task-id]').each(function(i,item) {
     	$li = $(item);
-    	$li.fadeTo(400,1);
+    	$li.fadeTo(400,1);OrdoSplitTask
  	});
 	 	
 	if(fk_project==0) {
@@ -484,6 +486,12 @@ OrdoToggleContact = function($check) {
 		
 	}
 	
+	
+};
+
+OrdoSplitTask = function(taskid) {
+	
+	alert('SplitTask' + taskid);
 	
 };
 
