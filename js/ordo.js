@@ -150,6 +150,10 @@ TOrdonnancement = function() {
 		var duration = task.planned_workload;
 		var height = 1;
 		
+		if(task.progress == 0 && task.duration_effective>0) { // calcul de la progression si non déclarée mais temps passé
+			task.progress = Math.round( task.duration_effective / task.planned_workload * 100);
+		}
+		
 		if(duration>0) {
 			height = duration * (1- (task.progress / 100)) / 3600;
 		}
@@ -173,6 +177,8 @@ TOrdonnancement = function() {
 		var ordo_height = Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  );
 		$li.css('height', ordo_height);
 		
+		
+		$li.attr('ordo-project-date-end', task.project_date_end);
 		$li.attr('ordo-nb-hour', height);
 		$li.attr('ordo-height', ordo_height);
 		$li.attr('ordo-needed-ressource',task.needed_ressource); 
@@ -183,6 +189,7 @@ TOrdonnancement = function() {
 		$li.find('a.split').click(function() {
 			OrdoSplitTask(task.id);
 		});
+		$li.find('div[rel=time-rest]').html(task.aff_time_rest);
 		
 		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
 		$li.mouseenter(function() {
@@ -191,11 +198,6 @@ TOrdonnancement = function() {
 		.mouseleave(function() {
 			$(this).height($(this).attr('ordo-height'));
 		});
-		if(duration < task.duration_effective) {
-			
-			$('li[task-id='+task.id+']').css('background-color','red');
-			
-		}
     };
     
     this.addWorkstation = function(w) {
@@ -234,7 +236,10 @@ TOrdonnancement = function() {
 				$li.css('position','absolute');
 				$li.attr('ordo-fktaskparent', task.fk_task_parent);
 				$li.find('[rel=time-projection]').html(task.time_projection);
+				
 				$li.find('[rel=users]').empty();
+				
+				$li.attr('ordo-time-estimated-end',task.time_estimated_end);
 				
 				if(task.TUser!=null) {
 					for(idUser in task.TUser) {
@@ -252,7 +257,16 @@ TOrdonnancement = function() {
 				}
 				
 				$li.attr('ordo-height', height);
-			
+				if(task.date_end>0) {
+					if(task.time_estimated_end > task.date_end) {
+						$('li[task-id='+task.id+']').addClass('taskLate');
+					}
+					else if(task.time_estimated_end > task.date_end - 86400) {
+						$('li[task-id='+task.id+']').addClass('taskMaybeLate');
+					}
+					
+				}
+				
 				if(i>10) {
 					 
 					 $li.css({
@@ -355,11 +369,23 @@ TOrdonnancement = function() {
 						,tasks:[]
 						,end:0
 						,start:9999999999
+						,hasLateTask:0
+						,hasMaybeLateTask:0
 					};
 				}
 				
 				TProject[$li.attr("ordo-fk-project")].name = $li.find('[rel=project]').html();
 				TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+
+				if($li.attr('ordo-project-date-end')>0) {
+					TProject[$li.attr("ordo-fk-project")].hasLateTask = TProject[$li.attr("ordo-fk-project")].hasLateTask | ($li.attr('ordo-project-date-end')<$li.attr('ordo-time-estimated-end') ) ;
+					TProject[$li.attr("ordo-fk-project")].hasMaybeLateTask = TProject[$li.attr("ordo-fk-project")].hasMaybeLateTask | ($li.attr('ordo-project-date-end') - 86400<$li.attr('ordo-time-estimated-end') ) ;
+					
+				}
+				
+				TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+				
+				
 				if(h>TProject[$li.attr("ordo-fk-project")].end) TProject[$li.attr("ordo-fk-project")].end = h;
 				if(topLi<TProject[$li.attr("ordo-fk-project")].start) TProject[$li.attr("ordo-fk-project")].start = topLi;
 				
@@ -393,8 +419,11 @@ TOrdonnancement = function() {
 		for(idProject in TProject) {
 
 			project = TProject[idProject];
-			$('#list-projects').append('<li id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
-			$('#list-projects').append('<li class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+			$('#list-projects').append('<li fk-project="'+idProject+'" class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+
+			if(project.hasLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectLate');
+			else if(project.hasMaybeLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectMaybeLate');
 
 		}
     	

@@ -83,11 +83,16 @@ function scrum_getVelocity(&$db, $id_project) {
  * Refresh task position
  */
 function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
+global $conf;    
+    
     $Tab = $TTaskOrdered = array();
   //  var_dump($fk_workstation,$TWorkstation);
     $TCol = $TRow = $TPlan = array();
     
-    $time_init = time();
+    $time_init = strtotime(date('Y-m-d'));
+    
+    $nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
+    $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
     
 	foreach($TTaskToOrder as $task) {
          
@@ -116,9 +121,11 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
 	  
-               $task['time_start'] = $time_init + ($row * 3600);
-               $task['time_end'] =  $time_init + (( $row + $height) *3600) ;
-               $task['time_projection'] = '';// dol_print_date($task['time_start'],'hour').' - '.dol_print_date($task['time_end'],'dayhour');
+               $task['time_estimated_start'] = $time_init + ($row * $nb_second_in_hour);
+               $task['time_estimated_end'] =  $task['time_estimated_start'] + ($height  *$nb_second_in_hour) ;
+               
+               $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
+                    .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
       
       
 	   	       $TTaskOrdered[] = $task;
@@ -127,6 +134,22 @@ function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
      
     return $TTaskOrdered;
 }
+
+function getHourInDay($time) {
+    global $langs;
+    
+    $h = date('H', $time);
+    
+    if($h<5) return $langs->trans('OrdoEarlyMorning');
+    else if($h<10) return $langs->trans('OrdoMorning');
+    else if($h<13) return $langs->trans('OrdoLateMorning');
+    else if($h<15) return $langs->trans('OrdoAfternoon');
+    else if($h<18) return $langs->trans('OrdoLateAfternoon');
+    else if($h<21) return $langs->trans('OrdoEvening');
+    else return $langs->trans('OrdoLateEvening');
+    
+}
+
 /*
  * Get new position for task
  */

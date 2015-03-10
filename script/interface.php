@@ -322,7 +322,6 @@ global $user, $langs;
 		$task->status = $values['status'];
 		
 		$task->update($user);
-		
 	}
 	
 	$task->date_delivery = 0;
@@ -335,6 +334,8 @@ global $user, $langs;
 	
 	$task->aff_time = convertSecondToTime($task->duration_effective);
 	$task->aff_planned_workload = convertSecondToTime($task->planned_workload);
+    $task->time_rest = $task->planned_workload * (1 - ($task->progress / 100) );
+    $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
 
 	$task->long_description.='';
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
@@ -439,7 +440,7 @@ global $user;
 }
 function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     
-    $sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress
+    $sql = "SELECT t.rowid,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress,t.datee
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
@@ -500,6 +501,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
         $TTask[] = array(
                 'status'=>$status
                 ,'id'=>$obj->rowid
+                ,'fk_projet'=>$obj->fk_projet
                 , 'grid_col'=>$obj->grid_col
                 , 'grid_row'=>$obj->grid_row
                 ,'fk_workstation'=>$fk_workstation
@@ -508,6 +510,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 ,'planned_workload'=>$obj->planned_workload / 3600
                 ,'progress'=>$obj->progress
                 ,'TUser'=>$TUser
+                ,'date_end'=>strtotime($obj->datee)
          );
     }
     
@@ -518,7 +521,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
 }
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	
-	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
+	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end'
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
 		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
@@ -563,7 +566,8 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		 		, 'grid_row'=>$obj->grid_row
 		 		,'fk_workstation'=>(int)$obj->fk_workstation
 		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
-		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
+		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
+		 		,'project_date_end'=>strtotime($obj->project_date_end) 
 			)
 		 );
 	}

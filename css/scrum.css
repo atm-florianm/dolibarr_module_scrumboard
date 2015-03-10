@@ -419,6 +419,14 @@ ul {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#7db9e8',GradientType=0 ); /* IE6-9 */
 }
 
+#list-projects li.projectMaybeLate, ul.task-list li.taskMaybeLate {
+	background: orange;
+}
+
+#list-projects li.projectLate, ul.task-list li.taskLate {
+	background: red;
+}
+
 table .columnHeader {
 	background: #a1d54f;
 	padding:10px;
@@ -454,4 +462,9 @@ table li span[rel=task-link] {
 	
 	width:32px;
 	height: 32px;
+}
+
+li div[rel=users] {
+	margin-top:20px;
+	
 }
