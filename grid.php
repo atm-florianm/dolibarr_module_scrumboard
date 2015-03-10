@@ -124,11 +124,13 @@
 _js_grid($TWorkstation, $day_height, $column_width);
 
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
+    global $conf;
 		?>		
 		        <script type="text/javascript">
 		            var http = "<?php echo DOL_URL_ROOT; ?>";
 		            var w_column = <?php echo $column_width; ?>;
 		            var h_day = <?php echo $day_height; ?>;
+		            var TDayOff = new Array( <?php echo $conf->global->TIMESHEET_DAYOFF; ?> );
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js"></script>
                 <script type="text/javascript" src="./js/makefixed.js"></script>

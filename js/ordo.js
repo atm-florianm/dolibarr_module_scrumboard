@@ -401,7 +401,6 @@ TOrdonnancement = function() {
 		date=new Date();
 		
 		var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
-		var TDayOff = new Array( 0,6 );
 		
 		for(i=0;i<max_height;i+=height_day) {
 			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; right:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:right;position:absolute;z-index:0;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'&nbsp;</div>';	
