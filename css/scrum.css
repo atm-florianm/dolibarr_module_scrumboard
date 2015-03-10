@@ -344,7 +344,7 @@ ul {
 	overflow:hidden;
 	background-color: #aed3cb;
 	text-align: left;
-	
+	z-index:1;
 	/*background-image: url("../img/background-panel.jpg");
 	background-repeat: no-repeat;
 	background-position: center;

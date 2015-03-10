@@ -404,10 +404,10 @@ TOrdonnancement = function() {
 		var TDayOff = new Array( 0,6 );
 		
 		for(i=0;i<max_height;i+=height_day) {
-			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; right:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:right;position:absolute;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'&nbsp;</div>';	
+			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; right:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:right;position:absolute;z-index:0;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'&nbsp;</div>';	
 			$('#list-task-0').append(dayBlock);
 
-			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; left:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:left;position:absolute;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'</div>';	
+			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; left:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:left;position:absolute;z-index:0;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'</div>';	
 			$('#list-projects').append(dayBlock);
 		
 			date.setDate(date.getDate() + 1);
