@@ -52,10 +52,14 @@
 		$number_of_columns+=$w_param['nb_ressource'];
 	}
 
-	$hh =  GETPOST('hour_height');
+    $hh =  GETPOST('hour_height');
     if(!empty($hh)) $_SESSION['hour_height'] = (int)$hh;
-	
-	$hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
+    
+    $cw =  GETPOST('column_width');
+    if(!empty($cw)) $_SESSION['column_width'] = (int)$cw;
+    
+    $hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
+    $column_width = empty($_SESSION['column_width']) ? 200 : $_SESSION['column_width'];
 	
 	$day_height =  $hour_height * 7;
 
@@ -73,12 +77,18 @@
 					<td>
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br />
-					    <?php echo $langs->trans('HourHeight') ?> : 
-					    <a class="columnHeader" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <?php echo $langs->trans('HourHeight') ?> : 
+                        <a class="columnHeader" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
                         <a class="columnHeader" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
-					    <a  class="columnHeader" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
-					    <br />
+                        <a  class="columnHeader" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+                        <br />
+                        <?php echo $langs->trans('ColumnWidth') ?> : 
+                        <a class="columnHeader" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <a class="columnHeader" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
+                        <a  class="columnHeader" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
+                        <a  class="columnHeader" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
+                        <br />
 					    <?php
 					    foreach($TWorkstation as $w_id=>$w_param) {
                             ?><span class="columnHeader" id="columm-header1-<?php echo $w_id; 
@@ -95,7 +105,6 @@
 					<td class="gridster" id="tasks" style="position:relative;">
 						<table><tr>
 						<?php
-						$column_width = 200;
 						
 						_draw_grid($TWorkstation, $column_width);
 						
@@ -161,7 +170,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		$width_table+=$w_column;	
 		?><td id="columm-ws-<?php echo $w_id; ?>" valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
-		        <span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span>
+		        <div style="width:<?php echo $column_width ?>px; overflow: hidden;"><span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span></div>
 				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_id; ?>" ws-id="<?php echo $w_id; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
