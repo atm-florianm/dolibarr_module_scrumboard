@@ -1,0 +1,18 @@
+.gridster li header {
+    background: none;;
+    color:#000;
+    display: block;
+    font-size: 9px;
+    line-height: normal;
+    padding: 2px 2px ;
+    margin-bottom: 5px;
+    cursor: move;
+    text-align: center;
+    font-weight: normal;
+    text-align: left;
+}
+.gridster li div[rel=content] {
+	font-size: 9px;
+
+
+}

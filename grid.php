@@ -69,7 +69,13 @@
 
 ?>
 	<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
+<?php
+    if($hour_height<=10) {
+            
+        ?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-small.css',1) ?>"><?php
+    }
 
+?>
 		<div class="content">
 	
 			<table id="scrum" style="width: inherit;">
