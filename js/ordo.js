@@ -187,7 +187,7 @@ TOrdonnancement = function() {
 		$li.attr('ordo-ws-id',task.fk_workstation);
 		$li.attr('ordo-fk-project',task.fk_project); 
 		$li.find('a.split').click(function() {
-			OrdoSplitTask(task.id);
+			OrdoSplitTask(task.id, height ,duration/3600);
 		});
 		$li.find('div[rel=time-rest]').html(task.aff_time_rest);
 		
@@ -518,13 +518,35 @@ OrdoToggleContact = function($check) {
 	
 };
 
-OrdoSplitTask = function(taskid) {
+OrdoSplitTask = function(taskid, min, max) {
+	console.log(taskid, min, max);
 	
-	alert('SplitTask' + taskid);
+	if($('#splitSlider').length==0) {
+		$('body').append('<div id="splitSlider"><div><label></label></div><div style="padding:20px;position:relative;" ><div rel="slide"></div></div></div>');
+	}
+	
+	$('#splitSlider').dialog({
+		title:"Sélectionnez comment diviser la tâche"
+		,modal:true
+	});
+	
+	 $( "div[rel=slide]" ).slider({
+		min:min
+		,max:max
+		/*,value : min + Math.round((max-min)/2)*/
+		,step:0.25
+		,slide:function(event,ui) {
+			var val = Math.round( ui.value * 100 ) / 100;
+			$("#splitSlider label").html("Reste sur tâche actuelle : "+ val +"h<br />Sur la tâche créée : "+(max - val)+"h"  );
+			
+			$("#splitSlider label").attr("tache1", val);
+			$("#splitSlider label").attr("tache2", max - val);
+		}
+	});
 	
 };
 
 OrdoReorderAll = function() {
     	
-    	alert('!');
+    	alert('OrdoReorderAll, pas écrit ça !');
 };
