@@ -79,6 +79,61 @@ function scrum_getVelocity(&$db, $id_project) {
 
 	return $velocity;	
 }
+
+function ordonnanceur_link_event(&$Task) {
+    global $db, $user;
+    
+    dol_include_once('/comm/action/class/actioncomm.class.php');
+    
+    foreach($Task as &$task) {
+        
+         $t_start = $task['time_estimated_start'];
+         $t_end = $task['time_estimated_end'];
+         
+         
+         
+         $res = $db->query("SELECT id FROM ".MAIN_DB_PREFIX."actioncomm WHERE elementtype='project_task' AND fk_element=".(int)$task['id'] );
+         
+         if($obj = $db->fetch_object($res)) {
+    
+            $t=new ActionComm($db);
+            $t->fetch($obj->id);         
+            $t->datep = $t_start;
+            $t->datef = $t_end;
+            $t->durationp = $task['planned_workload'];
+             var_dump($task);
+            $t->progress = $task['progress'];
+             
+            $t->update($user); 
+         }
+         else {
+    
+             $t=new ActionComm($db);
+             $t->datep = $t_start;
+             $t->datef = $t_end;
+             
+             $t->userownerid = $user->id;
+             $t->type_code='AC_OTH_AUTO';
+             $t->label = $task['label'] ;
+             
+             $t->elementtype='project_task';
+             $t->fk_element = $task['id'];
+             $t->fk_project = $task['fk_projet'];
+            
+             $t->progress = $task['progress'];
+             
+             $t->durationp = $task['planned_workload'];
+             
+             $t->add($user);
+                 
+             
+         }
+         
+        
+    }
+    
+}
+
 /*
  * Refresh task position
  */

@@ -45,6 +45,12 @@ global $conf;
     			, (int)GETPOST('fk_workstation')
 			);
             
+            if(!empty($conf->global->SCRUM_LINK_EVENT_TO_TASK)) {
+                
+                ordonnanceur_link_event($Tab);
+                
+            }
+            
             print json_encode($Tab);
 
             
