@@ -90,8 +90,6 @@ function ordonnanceur_link_event(&$Task) {
          $t_start = $task['time_estimated_start'];
          $t_end = $task['time_estimated_end'];
          
-         
-         
          $res = $db->query("SELECT id FROM ".MAIN_DB_PREFIX."actioncomm WHERE elementtype='project_task' AND fk_element=".(int)$task['id'] );
          
          if($obj = $db->fetch_object($res)) {
@@ -101,7 +99,7 @@ function ordonnanceur_link_event(&$Task) {
             $t->datep = $t_start;
             $t->datef = $t_end;
             $t->durationp = $task['planned_workload'];
-             var_dump($task);
+            
             $t->progress = $task['progress'];
              
             $t->update($user); 
