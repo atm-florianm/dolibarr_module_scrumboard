@@ -92,37 +92,52 @@ function ordonnanceur_link_event(&$Task) {
          
          $res = $db->query("SELECT id FROM ".MAIN_DB_PREFIX."actioncomm WHERE elementtype='project_task' AND fk_element=".(int)$task['id'] );
          
+         $TUserAssigned = array();
+         foreach($task['TUser'] as $idContact=>$u) {
+             if($u['selected']) {
+                 $TUserAssigned[]=array('id'=>$idContact);
+             }
+         }
+         
+         
          if($obj = $db->fetch_object($res)) {
     
-            $t=new ActionComm($db);
-            $t->fetch($obj->id);         
-            $t->datep = $t_start;
-            $t->datef = $t_end;
-            $t->durationp = $task['planned_workload'];
+            $a=new ActionComm($db);
+            $a->fetch($obj->id);         
+            $a->datep = $t_start;
+            $a->datef = $t_end;
+            $a->durationp = $task['planned_workload'] * 3600;
+            $a->label = $task['ref'] .' '. $task['label'] ;
+            $a->progress = $task['progress'];
+            $a->fk_project = $task['fk_projet']; 
+            $a->userassigned = $TUserAssigned;
+            $a->socid = $task['fk_soc'];
             
-            $t->progress = $task['progress'];
-             
-            $t->update($user); 
+            $a->update($user);
+            
          }
          else {
     
-             $t=new ActionComm($db);
-             $t->datep = $t_start;
-             $t->datef = $t_end;
+             $a=new ActionComm($db);
+             $a->datep = $t_start;
+             $a->datef = $t_end;
              
-             $t->userownerid = $user->id;
-             $t->type_code='AC_OTH_AUTO';
-             $t->label = $task['label'] ;
+             $a->userownerid = $user->id;
+             $a->type_code='AC_OTH_AUTO';
+             $a->label = $task['ref'] .' '. $task['label'] ;
              
-             $t->elementtype='project_task';
-             $t->fk_element = $task['id'];
-             $t->fk_project = $task['fk_projet'];
+             $a->elementtype='project_task';
+             $a->fk_element = $task['id'];
+             $a->fk_project = $task['fk_projet'];
             
-             $t->progress = $task['progress'];
+             $a->progress = $task['progress'];
              
-             $t->durationp = $task['planned_workload'];
+             $a->durationp = $task['planned_workload'] * 3600;
+             $a->userassigned = $TUserAssigned;
              
-             $t->add($user);
+             $a->socid = $task['fk_soc'];
+             
+             $a->add($user);
                  
              
          }
