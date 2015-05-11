@@ -416,12 +416,18 @@ TOrdonnancement = function() {
 		}	
 
 		$('#list-projects li').remove();
+		$('#list-projects').css("width", TProject.length * 40);
+		
 		for(idProject in TProject) {
 
 			project = TProject[idProject];
-			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
+			/*$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
 			$('#list-projects').append('<li fk-project="'+idProject+'" class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
-
+			*/
+			
+			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;">'+project.name+'</span></li>');	
+			
+			
 			if(project.hasLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectLate');
 			else if(project.hasMaybeLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectMaybeLate');
 
@@ -456,7 +462,7 @@ ToggleProject = function(fk_project, showAll) {
 	
 	$('li[task-id]').each(function(i,item) {
     	$li = $(item);
-    	$li.fadeTo(400,1);OrdoSplitTask
+    	$li.fadeTo(400,1);
  	});
 	 	
 	if(fk_project==0) {

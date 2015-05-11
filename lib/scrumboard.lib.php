@@ -114,7 +114,7 @@ function ordonnanceur_link_event(&$Task) {
             $a->socid = $task['fk_soc'];
             
             $a->update($user);
-            
+          //  print "update ".$a->id.'<br />';
          }
          else {
     
