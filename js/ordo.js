@@ -185,7 +185,12 @@ TOrdonnancement = function() {
 		$li.attr('ordo-col',task.grid_col); 
 		$li.attr('ordo-row',task.grid_row); 
 		$li.attr('ordo-ws-id',task.fk_workstation);
-		$li.attr('ordo-fk-project',task.fk_project); 
+		$li.attr('ordo-fk-project',task.fk_project);
+		$li.attr('ordo-progress',task.progress);
+		$li.attr('ordo-planned-workload',task.planned_workload);
+		$li.attr('ordo-duration-effective',task.duration_effective);
+		
+		 
 		$li.find('a.split').click(function() {
 			OrdoSplitTask(task.id, height ,duration/3600);
 		});
@@ -362,32 +367,40 @@ TOrdonnancement = function() {
 			}
 			
 			if($li.attr('ordo-ws-id')>0) {
-					
-				if(TProject[$li.attr("ordo-fk-project")]==null) {
-					TProject[$li.attr("ordo-fk-project")]={
+				var fk_project = $li.attr("ordo-fk-project");
+				if(TProject[fk_project]==null) {
+					TProject[fk_project]={
 						name:''
 						,tasks:[]
 						,end:0
 						,start:9999999999
 						,hasLateTask:0
 						,hasMaybeLateTask:0
+						,planned_workload:0
+						,duration_effective:0
+						,progress : 0
 					};
 				}
 				
-				TProject[$li.attr("ordo-fk-project")].name = $li.find('[rel=project]').html();
-				TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+				TProject[fk_project].name = $li.find('[rel=project]').html();
+				TProject[fk_project].tasks.push($li.find('[rel=task-link]').html());
+
+				TProject[fk_project].planned_workload+=parseInt($li.attr('ordo-planned-workload'));
+				TProject[fk_project].duration_effective+=parseInt($li.attr('ordo-duration-effective'));	
+				TProject[fk_project].progress = Math.round( TProject[fk_project].duration_effective / TProject[fk_project].planned_workload * 100 );
+
 
 				if($li.attr('ordo-project-date-end')>0) {
-					TProject[$li.attr("ordo-fk-project")].hasLateTask = TProject[$li.attr("ordo-fk-project")].hasLateTask | ($li.attr('ordo-project-date-end')<$li.attr('ordo-time-estimated-end') ) ;
-					TProject[$li.attr("ordo-fk-project")].hasMaybeLateTask = TProject[$li.attr("ordo-fk-project")].hasMaybeLateTask | ($li.attr('ordo-project-date-end') - 86400<$li.attr('ordo-time-estimated-end') ) ;
+					TProject[fk_project].hasLateTask = TProject[fk_project].hasLateTask | ($li.attr('ordo-project-date-end')<$li.attr('ordo-time-estimated-end') ) ;
+					TProject[fk_project].hasMaybeLateTask = TProject[fk_project].hasMaybeLateTask | ($li.attr('ordo-project-date-end') - 86400<$li.attr('ordo-time-estimated-end') ) ;
 					
 				}
 				
-				TProject[$li.attr("ordo-fk-project")].tasks.push($li.find('[rel=task-link]').html());
+				TProject[fk_project].tasks.push($li.find('[rel=task-link]').html());
 				
 				
-				if(h>TProject[$li.attr("ordo-fk-project")].end) TProject[$li.attr("ordo-fk-project")].end = h;
-				if(topLi<TProject[$li.attr("ordo-fk-project")].start) TProject[$li.attr("ordo-fk-project")].start = topLi;
+				if(h>TProject[fk_project].end) TProject[fk_project].end = h;
+				if(topLi<TProject[fk_project].start) TProject[fk_project].start = topLi;
 				
 			}
 			
@@ -425,11 +438,18 @@ TOrdonnancement = function() {
 			$('#list-projects').append('<li fk-project="'+idProject+'" class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
 			*/
 			
-			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;">'+project.name+'</span></li>');	
+			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;">'+project.name+' '+project.progress+'%</span></li>');	
 			
 			
 			if(project.hasLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectLate');
 			else if(project.hasMaybeLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectMaybeLate');
+			else if(project.planned_workload < project.duration_effective){
+				 $('#list-projects li[fk-project='+idProject+']').addClass('projectMaybeLate');
+			}
+			else {
+				$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, #ccc 100%) repeat scroll 0 0');
+				
+			}
 
 		}
     	
