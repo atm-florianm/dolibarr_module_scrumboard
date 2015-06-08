@@ -150,7 +150,7 @@ function ordonnanceur_link_event(&$Task) {
 /*
  * Refresh task position
  */
-function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0) {
+function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0,$update_base=true) {
 global $conf;    
     
     $Tab = $TTaskOrdered = array();
@@ -183,8 +183,10 @@ global $conf;
       
        if(empty($fk_workstation) || $fk_workstation == $fk_workstation) {
                $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
+               if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
-	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
+               //var_dump($task['progress'],$velocity);
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height,$update_base);  
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
@@ -222,7 +224,7 @@ function getHourInDay($time) {
 /*
  * Get new position for task
  */
-function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task,$height) {
+function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task,$height, $udpate_base=true) {
 global $db;
 
     $available_ressource = $TPlan['@param']['available_ressource'];
@@ -243,11 +245,14 @@ global $db;
     
     list($col, $top) = _orgo_gnc_get_free($TWorkstation, $TFree, $TPlanned,$available_ressource, $needed_ressource, $height, $task);
     
-    $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
-            grid_row=".$top.", grid_col=".$col."
-            WHERE rowid = ".$task['id'];
-          
-    $db->query($sql);
+    if($udpate_base) {
+        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+                grid_row=".$top.", grid_col=".$col."
+                WHERE rowid = ".$task['id'];
+              
+        $db->query($sql);
+        
+    }
    
     return array($col, $top);
 }

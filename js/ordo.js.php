@@ -1,4 +1,7 @@
-TOrdonnancement = function() {
+<?php
+    require('../config.php');
+?>
+function TOrdonnancement() {
     
     this.TWorkstation = [];
     
@@ -214,6 +217,8 @@ TOrdonnancement = function() {
     
     var order = function(wsid, nb_ressource) {
     	
+    	$("a[ws-id="+wsid+"]").css("color","white");
+    	
     	$.ajax({
 			url : "./script/interface.php"
 			,data: {
@@ -228,6 +233,9 @@ TOrdonnancement = function() {
 		})
 		.done(function (tasks) {
 			/*console.log(tasks);*/
+			
+			$("a[ws-id="+wsid+"]").css("color","");
+			
 			var nb_tasks = tasks.length;
 			
 			$.each(tasks, function(i, task) {
@@ -430,15 +438,13 @@ TOrdonnancement = function() {
 
 		$('#list-projects li').remove();
 		$('#list-projects').css("width", TProject.length * 40);
+		$('td.projects').css("width", TProject.length * 40);
 		
 		for(idProject in TProject) {
 
 			project = TProject[idProject];
-			/*$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:absolute; padding:10px; top:'+project.start+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
-			$('#list-projects').append('<li fk-project="'+idProject+'" class="project" style="text-align:left; position:absolute; padding:10px; top:'+project.end+'px"><a href="javascript:ToggleProject('+idProject+')">'+project.name+'</a></li>');	
-			*/
 			
-			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;">'+project.name+' '+project.progress+'%</span></li>');	
+			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;"><a href="<?php echo dol_buildpath('/projet/card.php',1) ?>?id='+idProject+'">'+project.name+'</a> '+project.progress+'%</span></li>');	
 			
 			
 			if(project.hasLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectLate');
@@ -452,6 +458,12 @@ TOrdonnancement = function() {
 			}
 
 		}
+		
+		wtable=0;
+		$("#theGrid div").each(function() {
+		    wtable+=parseInt($(this).css('width'))+5;
+		});
+    	$("#theGrid").css("min-width", wtable);
     	
     };
     

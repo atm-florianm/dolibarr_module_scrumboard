@@ -78,7 +78,7 @@
 ?>
 		<div class="content">
 	
-			<table id="scrum" style="width: inherit;">
+			<table id="scrum">
 				<tr>
 					<td>
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
@@ -109,19 +109,18 @@
 				</tr>
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
-						<table><tr>
+						<div id="theGrid">
 						<?php
 						
 						_draw_grid($TWorkstation, $column_width);
 						
 						?>
-						<td valign="top" class="projects">
+						<div class="projects" style="float:left;">
 						    <span class="fixedHeader columnHeader"><?php echo $langs->trans('Projects') ?></span>
 						    <ul style="position:relative;width:200px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
-						</td>
-						</tr></table>
+						</div>
 					</td>
 				</tr>
 			</table>
@@ -138,7 +137,7 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		            var h_day = <?php echo $day_height; ?>;
 		            var TDayOff = new Array( <?php echo $conf->global->TIMESHEET_DAYOFF; ?> );
 		        </script>
-		        <script type="text/javascript" src="./js/ordo.js"></script>
+		        <script type="text/javascript" src="./js/ordo.js.php"></script>
                 <script type="text/javascript" src="./js/makefixed.js"></script>
                 <script type="text/javascript">
 				var TVelocity = [];
@@ -177,13 +176,13 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><td id="columm-ws-<?php echo $w_id; ?>" valign="top" style="width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
-		        <div style="width:<?php echo $column_width ?>px; overflow: hidden;"><span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span></div>
+		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;">
+		        <div style="width:<?php echo $column_width ?>px; overflow: hidden;"><span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span></div>
 				<ul style="position:relative;min-height: 500px;" id="list-task-<?php echo $w_id; ?>" ws-id="<?php echo $w_id; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
 
-		</td><?php 
+		</div><?php 
 		
 	}
 		
@@ -220,7 +219,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
                     <div rel="time-rest"></div>
                     <div rel="users"></div>
     				<div rel="time-end"></div>
-    				<a href="#" class="button split" title="<?php echo $langs->trans('SplitTask'); ?>">x</a>
+    				<a href="javascript:;" class="button split" title="<?php echo $langs->trans('SplitTask'); ?>">x</a>
 				</div> 
 				<div class="loading"></div>
 			</li>

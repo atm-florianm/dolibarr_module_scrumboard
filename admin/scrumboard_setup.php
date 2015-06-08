@@ -136,11 +136,41 @@ function showParameters() {
         </tr>
 
        <tr>
-            <td><?php echo $langs->trans('DayOff') ?></td>
+            <td><?php echo $langs->trans('DayNoWorking') ?></td>
             <td><input type="text" value="<?php echo $conf->global->TIMESHEET_DAYOFF ?>" name="TDivers[TIMESHEET_DAYOFF]" size="30" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
 
-		
+        <tr>
+            <td><?php echo $langs->trans('UseProjectPriority') ?></td><td><?php
+            
+                if($conf->global->SCRUM_USE_PROJECT_PRIORITY==0) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_USE_PROJECT_PRIORITY]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_USE_PROJECT_PRIORITY]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
+
+		<tr>
+            <td><?php echo $langs->trans('GroupTaskByProduct') ?></td><td><?php
+            
+                if($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT==0) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_GROUP_TASK_BY_PRODUCT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_GROUP_TASK_BY_PRODUCT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
 	</table>
 	</form>
 	
