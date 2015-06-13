@@ -80,7 +80,7 @@ class modscrumboard extends DolibarrModules
         // for specific css file (eg: /scrumboard/css/scrumboard.css.php)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory
-            //'triggers' => 1,
+            'triggers' => 1,
             // Set this to 1 if module has its own login method directory
             //'login' => 0,
             // Set this to 1 if module has its own substitution function file
@@ -394,6 +394,10 @@ class modscrumboard extends DolibarrModules
 					ADD `grid_row` INT NOT NULL DEFAULT '1'");		
 	
 		dol_include_once('/core/class/extrafields.class.php');
+		$extrafields=new ExtraFields($this->db);
+		$res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
+		
+		
         $extrafields=new ExtraFields($this->db);
 		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
 

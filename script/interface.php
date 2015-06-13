@@ -352,7 +352,8 @@ global $user, $langs;
 
 	$task->project = new Project($db);
 	$task->project->fetch($task->fk_project);
-
+	$task->project->fetch_optionals($task->fk_project,'color');
+	
 	return _as_array($task);
 }
 

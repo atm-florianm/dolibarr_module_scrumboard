@@ -451,3 +451,11 @@ function _orgo_gnc_purge(&$TFree, $available_ressource) {
 
 }   
     
+function scrumboard_random_color_part($min = 50) {
+    return str_pad( dechex( mt_rand( $min, 255 ) ), 2, '0', STR_PAD_LEFT);
+}
+
+function scrumboard_random_color() {
+    return scrumboard_random_color_part(200) . scrumboard_random_color_part() . scrumboard_random_color_part();
+}
+    

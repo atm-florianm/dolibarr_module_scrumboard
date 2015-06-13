@@ -180,6 +180,10 @@ function TOrdonnancement() {
 		var ordo_height = Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  );
 		$li.css('height', ordo_height);
 		
+		if(task.project.array_options.options_color!=null) {
+			$li.css('background-color', task.project.array_options.options_color);
+			$li.attr('ordo-project-color', task.project.array_options.options_color);
+		}
 		
 		$li.attr('ordo-project-date-end', task.project_date_end);
 		$li.attr('ordo-nb-hour', height);
@@ -397,6 +401,7 @@ function TOrdonnancement() {
 				TProject[fk_project].duration_effective+=parseInt($li.attr('ordo-duration-effective'));	
 				TProject[fk_project].progress = Math.round( TProject[fk_project].duration_effective / TProject[fk_project].planned_workload * 100 );
 
+				TProject[fk_project].color = $li.attr('ordo-project-color');
 
 				if($li.attr('ordo-project-date-end')>0) {
 					TProject[fk_project].hasLateTask = TProject[fk_project].hasLateTask | ($li.attr('ordo-project-date-end')<$li.attr('ordo-time-estimated-end') ) ;
@@ -453,7 +458,14 @@ function TOrdonnancement() {
 				 $('#list-projects li[fk-project='+idProject+']').addClass('projectMaybeLate');
 			}
 			else {
-				$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, #ccc 100%) repeat scroll 0 0');
+				if(project.color!=null && project.color!='') {
+					$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, '+project.color+' 100%) repeat scroll 0 0');
+					
+				}
+				else{
+					$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, #ccc 100%) repeat scroll 0 0');
+					
+				}		
 				
 			}
 
