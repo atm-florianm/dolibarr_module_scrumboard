@@ -150,12 +150,12 @@ function ordonnanceur_link_event(&$Task) {
 /*
  * Refresh task position
  */
-function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation=0,$update_base=true) {
+function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation_to_order=0,$update_base=true) {
 global $conf;    
-    
+    if(isset($_REQUEST['DEBUG2'])) print count($TTaskToOrder);
     $Tab = $TTaskOrdered = array();
-  //  var_dump($fk_workstation,$TWorkstation);
-    $TCol = $TRow = $TPlan = array();
+  
+	$TCol = $TRow = $TPlan = array();
     
     $time_init = strtotime(date('Y-m-d'));
     
@@ -165,12 +165,20 @@ global $conf;
 	foreach($TTaskToOrder as $task) {
          
        $fk_workstation = (int)$task['fk_workstation'];
-       if(!isset($TWorkstation[$fk_workstation]))$fk_workstation = 0;
+	   
+       if(!isset($TWorkstation[$fk_workstation])) continue; //$fk_workstation = 0;
+	   
        if(!isset($TPlan[$fk_workstation])) {
+       	
+			$ws_nb_ressource = (int)$TWorkstation[$fk_workstation]['nb_ressource'];
+			if($ws_nb_ressource<1)$ws_nb_ressource = 1;
+			$ws_velocity = (float)$TWorkstation[$fk_workstation]['velocity'];	
+			if($ws_velocity<0.01)$ws_velocity=1;
+		
 	   		$TPlan[$fk_workstation]=array(
 				'@param'=>array(
-					'available_ressource'=>(int)$TWorkstation[$fk_workstation]['nb_ressource']
-					,'velocity'=>(float)$TWorkstation[$fk_workstation]['velocity']
+					'available_ressource'=>$ws_nb_ressource
+					,'velocity'=>$ws_velocity
 				)
 				,'@plan'=>array(
 				
@@ -181,7 +189,8 @@ global $conf;
 			);
 	   }
       
-       if(empty($fk_workstation) || $fk_workstation == $fk_workstation) {
+       if((empty($fk_workstation_to_order) && $fk_workstation>0) || ($fk_workstation_to_order>0 && $fk_workstation == $fk_workstation_to_order) ) {
+       	
                $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
                if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
@@ -236,7 +245,8 @@ global $db;
     $TPlanned = &$TPlan['@plan'];
 
     $needed_ressource = $task['needed_ressource'];
-    
+    if($needed_ressource<0)$needed_ressource = 1;
+	
     $col = 0;
     
     if(empty($TFree)){
@@ -273,7 +283,7 @@ function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
         $sql = "SELECT t.grid_row,t.planned_workload,t.progress,tex.fk_workstation 
             FROM ".MAIN_DB_PREFIX."projet_task t 
             LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
-            WHERE t.rowid = ".$fk_task_parent;
+            WHERE t.rowid = ".$fk_task_parent." AND t.percent<100 AND tex.grid_use = 1";
         $res = $db->query($sql);    
         $obj = $db->fetch_object($res);
         if($obj) {
@@ -324,8 +334,9 @@ function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_resso
         
     }
     if(isset($_REQUEST['DEBUG2'])) {
-         var_dump(array($task['id'], $fk_task_parent, $yParent, $top, $height));
+         var_dump(array($task['id'], $fk_task_parent, $yParent, $top, $height, $fKey));
     }
+	
     if($fKey!==false) {
        $TPlanned[]=array($top,$left,$height,$needed_ressource, $task['id'], $fk_task_parent);  
         
