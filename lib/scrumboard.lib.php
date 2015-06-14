@@ -189,7 +189,7 @@ global $conf;
 			);
 	   }
       
-       if((empty($fk_workstation_to_order) && $fk_workstation>0) || ($fk_workstation_to_order>0 && $fk_workstation == $fk_workstation_to_order) ) {
+       if( $fk_workstation_to_order == 0  ||  $fk_workstation == $fk_workstation_to_order ) {
        	
                $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
                if($velocity<=0)$velocity=1;

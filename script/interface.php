@@ -482,7 +482,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     while($obj = $db->fetch_object($res)) {
                 
         $fk_workstation = (int)$obj->fk_workstation;
-        if(!isset($TWorkstation[$fk_workstation])) $fk_workstation=0;
+        if(!isset($TWorkstation[$fk_workstation])) continue;
         $workstation = $TWorkstation[$fk_workstation];
     
         $TUser =array();
