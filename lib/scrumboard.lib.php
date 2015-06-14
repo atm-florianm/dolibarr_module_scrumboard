@@ -151,7 +151,7 @@ function ordonnanceur_link_event(&$Task) {
  * Refresh task position
  */
 function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation_to_order=0,$update_base=true) {
-global $conf;    
+global $conf,$db;    
     if(isset($_REQUEST['DEBUG2'])) print count($TTaskToOrder);
     $Tab = $TTaskOrdered = array();
   
@@ -195,7 +195,7 @@ global $conf;
                if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
                //var_dump($task['progress'],$velocity);
-	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height,$update_base);  
+	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
@@ -204,6 +204,18 @@ global $conf;
                $task['time_estimated_start'] = $time_init + ($row * $nb_second_in_hour);
                $task['time_estimated_end'] =  $task['time_estimated_start'] + ($height  *$nb_second_in_hour) ;
                
+			    if($update_base) {
+			        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
+			                grid_row=".$task['grid_col']."
+			                , grid_col=".$task['grid_row']."
+			                , date_estimated_start = '".date('Y-m-d H:i:s',$task['time_estimated_start'])."'
+			                , date_estimated_end = '".date('Y-m-d H:i:s',$task['time_estimated_end'])."'
+			                WHERE rowid = ".$task['id'];
+			              
+			        $db->query($sql);
+			       
+			    }
+			   
                $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
                     .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
       
@@ -233,7 +245,7 @@ function getHourInDay($time) {
 /*
  * Get new position for task
  */
-function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task,$height, $udpate_base=true) {
+function _ordonnanceur_get_next_coord(&$TWorkstation, &$TPlan,&$task,$height) {
 global $db;
 
     $available_ressource = $TPlan['@param']['available_ressource'];
@@ -255,14 +267,7 @@ global $db;
     
     list($col, $top) = _orgo_gnc_get_free($TWorkstation, $TFree, $TPlanned,$available_ressource, $needed_ressource, $height, $task);
     
-    if($udpate_base) {
-        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
-                grid_row=".$top.", grid_col=".$col."
-                WHERE rowid = ".$task['id'];
-              
-        $db->query($sql);
-        
-    }
+   
    
     return array($col, $top);
 }

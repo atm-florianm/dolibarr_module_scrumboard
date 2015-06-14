@@ -393,6 +393,11 @@ class modscrumboard extends DolibarrModules
 					ADD `grid_col` INT NOT NULL DEFAULT '1',
 					ADD `grid_row` INT NOT NULL DEFAULT '1'");		
 	
+		$db->query("ALTER TABLE ".MAIN_DB_PREFIX."projet_task
+				ADD date_estimated_start DATETIME NOT NULL 
+			  , ADD date_estimated_end DATETIME NOT NULL 
+			  , ADD INDEX (date_estimated_start, date_estimated_end)");
+	
 		dol_include_once('/core/class/extrafields.class.php');
 		$extrafields=new ExtraFields($this->db);
 		$res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
