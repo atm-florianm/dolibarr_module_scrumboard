@@ -70,7 +70,7 @@
 ?>
 	<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 <?php
-    if($hour_height<=10) {
+    if($hour_height<=10 || $column_width<=100) {
             
         ?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-small.css',1) ?>"><?php
     }
