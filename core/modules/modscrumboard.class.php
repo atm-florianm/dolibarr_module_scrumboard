@@ -218,7 +218,16 @@ class modscrumboard extends DolibarrModules
 
         // Permissions
         $this->rights = array(); // Permission array used by this module
-
+        
+        $r = $this->numero;
+        $this->rights[]=array(
+            0=>$this->numero + $r
+            ,1=>'UseOrdonnancement'
+            ,3=>0
+            ,4=>'ordo'
+        );
+        
+        $r++;
 
         // Add here list of permission defined by
         // an id, a label, a boolean and two constant strings.
@@ -261,7 +270,7 @@ class modscrumboard extends DolibarrModules
 								'url'=>'/scrumboard/grid.php',
 								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
-								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
@@ -269,10 +278,23 @@ class modscrumboard extends DolibarrModules
        $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=asset',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
             'titre'=>$langs->trans('Ordonnancement'),
-            'mainmenu'=>'ordoGPAO',
+            'mainmenu'=>'asset',
             'leftmenu'=>'ordoGPAO',
             'url'=>'/scrumboard/grid.php',
             'position'=>300,
+            'perms'=>'$user->rights->scrumboard->ordo',
+            'target'=>'',
+            'user'=>2);
+        $r++;
+       
+      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=asset,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+            'type'=>'left',         // This is a Left menu entry
+            'titre'=>$langs->trans('OrdonnancementStat'),
+            'mainmenu'=>'ordoGPAO',
+            'leftmenu'=>'ordoStat',
+            'url'=>'/scrumboard/grid-stat.php',
+            'position'=>300,
+            'perms'=>'$user->rights->scrumboard->ordo',
             'target'=>'',
             'user'=>2);
         $r++;

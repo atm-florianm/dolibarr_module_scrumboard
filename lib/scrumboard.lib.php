@@ -288,8 +288,9 @@ function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
         $sql = "SELECT t.grid_row,t.planned_workload,t.progress,tex.fk_workstation 
             FROM ".MAIN_DB_PREFIX."projet_task t 
             LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
-            WHERE t.rowid = ".$fk_task_parent." AND t.percent<100 AND tex.grid_use = 1";
+            WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND tex.grid_use = 1";
         $res = $db->query($sql);    
+        
         $obj = $db->fetch_object($res);
         if($obj) {
            
