@@ -75,11 +75,6 @@ function _get_time(&$TRes, &$TAxis,& $TSerie) {
             $c_day = date('Ymd',$tCurrent);
             
             
-            if(!isset($TAxis[$c_day])){
-                 $TAxis[$c_day] = 0;
-                 $TSerie[$c_day] = date('d',$tCurrent) == '1' ? date('d/m',$tCurrent) : date('d',$tCurrent);
-            } 
-          
             if($tStart>$tCurrent && $tEnd<$tCurrentSoir) {
                 $t = $tEnd - $tStart;
                 $TAxis[$c_day] += $t; 
@@ -104,7 +99,22 @@ function _get_time(&$TRes, &$TAxis,& $TSerie) {
     }
 }
 
-function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin) {
+function _init_data(&$TAxis, &$TSerie, $tDeb, $tFin) {
+    
+    $tCurrent = $tDeb;
+    while($tCurrent<=$tFin) {
+         $c_day = date('Ymd',$tCurrent);
+        
+        $TAxis[$c_day] = 0;
+        $TSerie[$c_day] = date('d',$tCurrent) == '1' ? date('d/m',$tCurrent) : date('d',$tCurrent);
+  
+        
+        $tCurrent = strtotime('+1day', $tCurrent);
+    }
+    
+}
+
+function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
  global $conf;
  
     $Tab=array(
@@ -112,36 +122,45 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin) {
         ,'axis'=>array()
     );
     
+    if($nb_ressource<1)$nb_ressource = 1;
     
     $nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
    
-    
-    $TRes = $PDOdb->ExecuteAsArray("SELECT t.date_estimated_start,t.date_estimated_end 
+    $TAxis = $TSerie = array();
+    _init_data($TAxis, $TSerie, $tDeb, $tFin);
+   
+   
+    $sql = "SELECT t.date_estimated_start,t.date_estimated_end 
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
                 WHERE tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
-                AND t.date_estimated_start<'".date('Y-m-d', $tFin)."' 
-                AND t.date_estimated_end>'".date('Y-m-d', $tDeb)."'
-                ORDER BY  t.date_estimated_start  ");
-    
+                AND t.date_estimated_start<'".date('Y-m-d 23:59:59', $tFin)."' 
+                AND t.date_estimated_end>'".date('Y-m-d 00:00:00', $tDeb)."'
+                ORDER BY  t.date_estimated_start  ";
+    $TRes = $PDOdb->ExecuteAsArray($sql);
     _get_time($TRes, $TAxis, $TSerie, $tDeb, $tFin);
     
-    $TRes = $PDOdb->ExecuteAsArray("SELECT t.dateo as 'date_estimated_start',t.datee as 'date_estimated_end'
+    
+    $sql = "SELECT t.dateo as 'date_estimated_start',t.datee as 'date_estimated_end'
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
                 WHERE tex.fk_workstation=".$id_ws." AND t.datee < NOW()
-                ORDER BY  t.dateo  ");
+                AND t.dateo<'".date('Y-m-d 23:59:59', $tFin)."' 
+                AND t.datee>'".date('Y-m-d 00:00:00', $tDeb)."'
+                ORDER BY  t.dateo  ";
+    $TRes = $PDOdb->ExecuteAsArray($sql);
     
     _get_time($TRes, $TAxis, $TSerie, $tDeb, $tFin);
     
+     
     ksort($TAxis);
     ksort($TSerie);
     
     
-    foreach($TAxis as &$val) { $val = $val / $nb_second_in_hour; }
+    foreach($TAxis as &$val) { $val = round( $val / $nb_second_in_hour / $nb_ressource / $nb_hour_per_day * 100 ); }
     
     $Tab['series']= array(
         0=>array(
@@ -161,13 +180,13 @@ function _stat_wd(&$PDOdb, $id_ws, $tDeb, $tFin) {
     $ws = new TWorkstation;
     $ws->load($PDOdb, $id_ws);
     
-    $TData = _get_data_ws($PDOdb, $id_ws, $tDeb, $tFin);
+    $TData = _get_data_ws($PDOdb, $id_ws, $tDeb, $tFin, $ws->nb_ressource);
     
     ?>
     <table class="border" style="margin-top:20px;width:100%;">
         <tr>
             <td><?php
-            echo $ws->getNomUrl(1);
+            echo $ws->getNomUrl(1).' du '.date('d/m/Y', $tDeb).' au '.date('d/m/Y', $tFin);
             ?></td>
         </tr>
         <tr>
