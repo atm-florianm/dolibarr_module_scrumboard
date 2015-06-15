@@ -240,6 +240,11 @@ function TOrdonnancement() {
 			
 			$("a[ws-id="+wsid+"]").css("color","");
 			
+			if(wsid>0) text_ws = $("a[ws-id="+wsid+"]").text()+" <?php echo $langs->transnoentities('ordonnanced') ?>" ;
+			else text_ws="<?php echo $langs->transnoentities('OrdonnancementEnding') ?>"; 
+			
+			$.jnotify(text_ws, "3000", "false" ,{ remove: function (){} } );
+			
 			var nb_tasks = tasks.length;
 			
 			$.each(tasks, function(i, task) {
