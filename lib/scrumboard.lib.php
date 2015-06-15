@@ -157,7 +157,8 @@ global $conf,$db;
   
 	$TCol = $TRow = $TPlan = array();
     
-    $time_init = strtotime(date('Y-m-d'));
+    // $time_init = strtotime(date('Y-m-d'));
+    $time_init = time();
     
     $nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
@@ -205,9 +206,10 @@ global $conf,$db;
                $task['time_estimated_end'] =  $task['time_estimated_start'] + ($height  *$nb_second_in_hour) ;
                
 			    if($update_base) {
+			        
 			        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
-			                grid_row=".$task['grid_col']."
-			                , grid_col=".$task['grid_row']."
+			                grid_col=".$task['grid_col']."
+			                , grid_row=".$task['grid_row']."
 			                , date_estimated_start = '".date('Y-m-d H:i:s',$task['time_estimated_start'])."'
 			                , date_estimated_end = '".date('Y-m-d H:i:s',$task['time_estimated_end'])."'
 			                WHERE rowid = ".$task['id'];
@@ -298,7 +300,7 @@ function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
             $velocity = $TWorkstation[$fk_worstation]['velocity'];
            
             $height = $obj->planned_workload / $velocity / 3600 * (1- ($obj->progress / 100));
-            $y = $obj->grid_row + $height;
+            $y = ($obj->grid_row / $velocity )+ $height;
             
             return array($y, 0);
         }
