@@ -21,12 +21,36 @@
 
     $TWS = TWorkstation::getWorstations($PDOdb, false);
 
-
+    
     llxHeader('',$langs->trans('OrdonnancementStat'));
+    print_fiche_titre('Filtres');
+    echo '<div class="tabBar">';
+    $form1 = new TFormcore('auto','form1', 'post');
+    
+    echo '<table>';
+    
+    ?>
+        <tr>
+            <td>Date de début : </td>
+            <td><?php echo $form1->calendrier('', 'date_deb', ($_REQUEST['date_deb'])? $_REQUEST['date_deb'] : ''); ?></td>
+        </tr>
+        <tr>
+            <td>Date de fin : </td>
+            <td><?php echo $form1->calendrier('', 'date_fin', ($_REQUEST['date_fin'])? $_REQUEST['date_fin'] : ''); ?></td>
+        </tr>
+    <?php
 
+    echo '<tr><td colspan="2" align="center">'.$form1->btsubmit('Valider', 'valider').'</td></tr>';
+    echo '</table>';
+    $form1->end();
+    echo '</div>';
+    
+    $tDeb = isset($_REQUEST['date_deb']) ? Tools::get_time($_REQUEST['date_deb']) : time();
+    $tFin = isset($_REQUEST['date_fin']) ? Tools::get_time($_REQUEST['date_fin']) : time() + (86400 * 7);
+    
     foreach($TWS as $id_ws=>$ws_name) {
         
-       _stat_wd($PDOdb, $id_ws);
+       _stat_wd($PDOdb, $id_ws, $tDeb, $tFin);
         
     }
     
@@ -40,6 +64,9 @@ function _get_time(&$TRes, &$TAxis,& $TSerie) {
         $tStart = strtotime($row->date_estimated_start);
         $tEnd = strtotime($row->date_estimated_end);
        
+        if($tStart< $tDeb) $tStart = $tDeb;
+        if($tFin>$tEnd)$tFin = $tEnd;
+       
         $tCurrent = strtotime(date('Y-m-d 00:00:00', $tStart));
         while($tCurrent < $tEnd) {
             
@@ -50,7 +77,7 @@ function _get_time(&$TRes, &$TAxis,& $TSerie) {
             
             if(!isset($TAxis[$c_day])){
                  $TAxis[$c_day] = 0;
-                 $TSerie[$c_day] = date('d/m/Y',$tCurrent);
+                 $TSerie[$c_day] = date('d',$tCurrent) == '1' ? date('d/m',$tCurrent) : date('d',$tCurrent);
             } 
           
             if($tStart>$tCurrent && $tEnd<$tCurrentSoir) {
@@ -77,7 +104,7 @@ function _get_time(&$TRes, &$TAxis,& $TSerie) {
     }
 }
 
-function _get_data_ws(&$PDOdb, $id_ws) {
+function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin) {
  global $conf;
  
     $Tab=array(
@@ -95,9 +122,11 @@ function _get_data_ws(&$PDOdb, $id_ws) {
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
                 WHERE tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
+                AND t.date_estimated_start<'".date('Y-m-d', $tFin)."' 
+                AND t.date_estimated_end>'".date('Y-m-d', $tDeb)."'
                 ORDER BY  t.date_estimated_start  ");
     
-    _get_time($TRes, $TAxis, $TSerie);
+    _get_time($TRes, $TAxis, $TSerie, $tDeb, $tFin);
     
     $TRes = $PDOdb->ExecuteAsArray("SELECT t.dateo as 'date_estimated_start',t.datee as 'date_estimated_end'
                 FROM ".MAIN_DB_PREFIX."projet_task t 
@@ -106,7 +135,7 @@ function _get_data_ws(&$PDOdb, $id_ws) {
                 WHERE tex.fk_workstation=".$id_ws." AND t.datee < NOW()
                 ORDER BY  t.dateo  ");
     
-    _get_time($TRes, $TAxis, $TSerie);
+    _get_time($TRes, $TAxis, $TSerie, $tDeb, $tFin);
     
     ksort($TAxis);
     ksort($TSerie);
@@ -127,12 +156,12 @@ function _get_data_ws(&$PDOdb, $id_ws) {
     
 }
 
-function _stat_wd(&$PDOdb, $id_ws) {
+function _stat_wd(&$PDOdb, $id_ws, $tDeb, $tFin) {
     
     $ws = new TWorkstation;
     $ws->load($PDOdb, $id_ws);
     
-    $TData = _get_data_ws($PDOdb, $id_ws);
+    $TData = _get_data_ws($PDOdb, $id_ws, $tDeb, $tFin);
     
     ?>
     <table class="border" style="margin-top:20px;width:100%;">
@@ -146,12 +175,12 @@ function _stat_wd(&$PDOdb, $id_ws) {
                 <div id="stat-ws-<?php echo $id_ws; ?>"></div>
                 <?php
             
-            $d = new TReport_dashboard();
-            $d->format='area';
-            
-            $d->getChart('stat-ws-'.$id_ws , false , '' , $TData);
-            
-            ?></td>
+                    $d = new TReport_dashboard();
+                    $d->format='area';
+                    
+                    $d->getChart('stat-ws-'.$id_ws , false , '' , $TData);
+                    
+                ?></td>
         </tr>
         
     </table>
