@@ -224,11 +224,7 @@ global $conf,$db;
 			       
 			    }
 			   
-               $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
-                    .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
-      
-      
-	   	       $TTaskOrdered[] = $task;
+                $TTaskOrdered[] = $task;
        }
     }
      
@@ -283,9 +279,11 @@ global $conf;
             
             $t_end = _scrumboard_gts_next($t_end, $TFerie, $TDayOff);
             
-            
             $task['time_estimated_start'] = $t_start;
             $task['time_estimated_end'] = $t_end;
+            
+            $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
+                    .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
         
     }
    
@@ -299,8 +297,7 @@ function _scrumboard_gts_next($time, &$TFerie, &$TDayOff) {
       
       $cpt = 0;
       while( ( isset($TFerie[date('Y-m-d', $t_current)]) || isset($TDayOff[ date('w', $t_current) ] ) ) && $cpt<50) {
-      
-        $t_current=strtotime('+1 day',$t_current);
+         $t_current=strtotime('+1 day',$t_current);
       
         $cpt++;    
       }

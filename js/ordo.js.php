@@ -437,7 +437,7 @@ function TOrdonnancement() {
 		
 		var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
 		
-		for(i=0;i<max_height;i+=height_day) {
+		/*for(i=0;i<max_height;i+=height_day) {
 			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; right:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:right;position:absolute;z-index:0;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'&nbsp;</div>';	
 			$('#list-task-0').append(dayBlock);
 
@@ -448,7 +448,7 @@ function TOrdonnancement() {
 			while($.inArray(date.getDay(),TDayOff)>-1 ) {
 				date.setDate(date.getDate() + 1);
 			}
-		}	
+		}*/	
 
 		$('#list-projects li').remove();
 		$('#list-projects').css("width", TProject.length * 40);
