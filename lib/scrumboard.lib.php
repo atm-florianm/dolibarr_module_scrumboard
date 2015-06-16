@@ -85,7 +85,7 @@ function ordonnanceur_link_event(&$Task) {
     
     dol_include_once('/comm/action/class/actioncomm.class.php');
     
-    foreach($Task as &$task) {
+    foreach($Task['tasks'] as &$task) {
         
          $t_start = $task['time_estimated_start'];
          $t_end = $task['time_estimated_end'];
@@ -157,11 +157,15 @@ global $conf,$db;
   
 	$TCol = $TRow = $TPlan = array();
     
-    // $time_init = strtotime(date('Y-m-d'));
+    $time_day = strtotime(date('Y-m-d'));
     $time_init = time();
+    $t_ecart = $time_init - $time_day;
+    
     
     $nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
+    
+    $grid_decalage = $t_ecart / $nb_second_in_hour;
     
 	foreach($TTaskToOrder as $task) {
          
@@ -198,6 +202,8 @@ global $conf,$db;
                //var_dump($task['progress'],$velocity);
 	   		   list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
                
+               //$row+=$grid_decalage;
+               
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
 	  
@@ -226,7 +232,81 @@ global $conf,$db;
        }
     }
      
-    return $TTaskOrdered;
+    $TTimeScale = scrumboard_get_time_scale($TTaskOrdered, $time_init); 
+     
+    return array('tasks'=>$TTaskOrdered, 'timeScale'=>$TTimeScale);
+}
+
+function scrumboard_get_time_scale(&$TTaskOrdered, $time_init) {
+global $conf;
+
+    $TDayOff=array();
+    if(!empty($conf->global->TIMESHEET_DAYOFF)) $TDayOff = array_flip(explode(',', $conf->global->TIMESHEET_DAYOFF));         // 0,6
+    
+    $TFerie=array();
+    
+    if($conf->jouroff->enabled) {
+        define('INC_FROM_DOLIBARR',true);
+        dol_include_once('/jouroff/config.php');
+        dol_include_once('/jouroff/class/jouroff.class.php');
+        $PDOdb=new TPDOdb;
+        $TRes = TRH_JoursFeries::getAll($PDOdb, date('Y-m-d'), date('Y-m-d', strtotime('+1year')));
+        $TFerie = array();
+        foreach($TRes as $row) {
+            $TFerie[substr($row->date_jourOff,0,10)] = 1;
+        }
+    }
+ 
+    $Tab = array();
+   
+    foreach($TTaskOrdered as &$task) {
+            
+            $t_start = $task['time_estimated_start'];
+            $t_end = $task['time_estimated_end'];
+              
+            $t_ecart = $t_end - $t_start;     
+            $t_start = _scrumboard_gts_next($t_start, $TFerie, $TDayOff);
+            $t_end = $t_start + $t_ecart;
+            
+            $t_current = $t_start;
+            while($t_current<=$t_end) {
+
+                $t2 = _scrumboard_gts_next($t_current, $TFerie, $TDayOff);
+                
+                if($t2!=$t_current) {
+                    $t_end+=($t2-$t_current);
+                    $t_current = $t2;
+                }
+                
+                $t_current=strtotime('+1 day',$t_current);
+            }
+            
+            $t_end = _scrumboard_gts_next($t_end, $TFerie, $TDayOff);
+            
+            
+            $task['time_estimated_start'] = $t_start;
+            $task['time_estimated_end'] = $t_end;
+        
+    }
+   
+   
+    return $Tab;
+    
+}
+function _scrumboard_gts_next($time, &$TFerie, &$TDayOff) {
+     
+      $t_current = $time;
+      
+      $cpt = 0;
+      while( ( isset($TFerie[date('Y-m-d', $t_current)]) || isset($TDayOff[ date('w', $t_current) ] ) ) && $cpt<50) {
+      
+        $t_current=strtotime('+1 day',$t_current);
+      
+        $cpt++;    
+      }
+      
+      return $t_current;
+    
 }
 
 function getHourInDay($time) {

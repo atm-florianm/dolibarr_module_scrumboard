@@ -147,7 +147,7 @@ function TOrdonnancement() {
 		$item.attr('task-id', task.id);
 		
 		$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
-		$item.find('[rel=ref]').html(task.ref).attr("href", http+'/projet/tasks/task.php?id='+task.id+'&withproject=1');
+		$item.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
 		$item.find('[rel=project]').html(task.project.title);
 
 		var duration = task.planned_workload;
@@ -184,7 +184,11 @@ function TOrdonnancement() {
 			$li.css('background-color', task.project.array_options.options_color);
 			$li.attr('ordo-project-color', task.project.array_options.options_color);
 		}
-		
+		/*
+		if(task.project.array_options.options_fk_of!=null) {
+		     $li.find('[rel=anything]').append("<div><a href="<?php echo dol_buildpath('/asset/fiche_of.php',1) ?>"</div>");    
+		}
+		*/
 		$li.attr('ordo-project-date-end', task.project_date_end);
 		$li.attr('ordo-nb-hour', height);
 		$li.attr('ordo-height', ordo_height);
@@ -199,7 +203,7 @@ function TOrdonnancement() {
 		
 		 
 		$li.find('a.split').click(function() {
-			OrdoSplitTask(task.id, height ,duration/3600);
+			OrdoSplitTask(task.id, task.duration_effective/3600 ,duration/3600);
 		});
 		$li.find('div[rel=time-rest]').html(task.aff_time_rest);
 		
@@ -247,7 +251,7 @@ function TOrdonnancement() {
 			
 			var nb_tasks = tasks.length;
 			
-			$.each(tasks, function(i, task) {
+			$.each(tasks['tasks'], function(i, task) {
 			
 				coef_time = height_day / nb_hour_per_day;
 			
@@ -576,9 +580,8 @@ OrdoToggleContact = function($check) {
 OrdoSplitTask = function(taskid, min, max) {
 	console.log(taskid, min, max);
 	
-	if($('#splitSlider').length==0) {
-		$('body').append('<div id="splitSlider"><div><label></label></div><div style="padding:20px;position:relative;" ><div rel="slide"></div></div></div>');
-	}
+	$('#splitSlider').remove();
+    $('body').append('<div id="splitSlider"><div><label></label></div><div style="padding:20px;position:relative;" ><div rel="slide"></div></div></div>');
 	
 	$('#splitSlider').dialog({
 		title:"Sélectionnez comment diviser la tâche"
