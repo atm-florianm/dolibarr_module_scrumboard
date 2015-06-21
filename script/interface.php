@@ -368,7 +368,7 @@ global $user, $langs;
 			$task->divers.='[<a href="'.$link_of.'">'.$of->numero.'</a>] '.(!empty($soc) ? $soc->getNomUrl() : '' ).'<br />';
 			
 			if($of->fk_commande > 0) {
-				dol_include('/commande/class/commande.class.php');
+				dol_include_once('/commande/class/commande.class.php');
 				$commande=new Commande($db);
 				$commande->fetch($of->fk_commande);
 				$task->divers.=$commande->getNomUrl(1) .'<br />';
