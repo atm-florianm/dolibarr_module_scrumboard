@@ -309,7 +309,10 @@ function _task(&$db, $id_task, $values=array()) {
 global $user, $langs;
 
 	$task=new Task($db);
-	if($id_task) $task->fetch($id_task);
+	if($id_task) {
+		$task->fetch($id_task);
+		$task->fetch_optionals();	
+	}
 	
 	if(!empty($values)){
 		_set_values($task, $values);
@@ -343,7 +346,38 @@ global $user, $langs;
     $task->time_rest = $task->planned_workload * (1 - ($task->progress / 100) );
     $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
 
-	$task->long_description.='';
+	$task->long_description=$task->divers='';
+	if($task->array_options['options_fk_of']>0) {
+			define('INC_FROM_DOLIBARR',true);
+			dol_include_once('/asset/config.php');
+			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
+			
+			if(!isset($PDOdb))$PDOdb = new TPDOdb;
+			
+			$of=new TAssetOF;
+			$of->withChild = false;
+			$of->load($PDOdb, $task->array_options['options_fk_of']);
+			
+			$link_of = dol_buildpath('/asset/fiche_of.php?id='.$task->array_options['options_fk_of']);
+			
+			if($of->fk_soc > 0) {
+				$soc=new Societe($db);
+				$soc->fetch($of->fk_soc);
+			}
+				
+			$task->divers.='[<a href="'.$link_of.'">'.$of->numero.'</a>] '.(!empty($soc) ? $soc->getNomUrl() : '' ).'<br />';
+			
+			if($of->fk_commande > 0) {
+				dol_include('/commande/class/commande.class.php');
+				$commande=new Commande($db);
+				$commande->fetch($of->fk_commande);
+				$task->divers.=$commande->getNomUrl(1) .'<br />';
+			
+			}
+			
+	}
+	
+	
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
 	if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
 	if($task->date_delivery>0 && $task->date_delivery>$task->date_end) $task->long_description .= $langs->trans('TaskDateShouldDelivery').' : '.dol_print_date($task->date_delivery).'<br />';

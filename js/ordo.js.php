@@ -147,6 +147,8 @@ function TOrdonnancement() {
 		$item.attr('task-id', task.id);
 		
 		$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
+		$item.find('[rel=divers]').html(task.divers);
+		
 		$item.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
 		$item.find('[rel=project]').html(task.project.title);
 
