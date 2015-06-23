@@ -125,8 +125,9 @@ class modscrumboard extends DolibarrModules
        		array('SCRUM_DEFAULT_VELOCITY','chaine', 7,'Vélocité par défaut d\'un projet',0)
 			,array('SCRUM_VELOCITY_NUMBER_OF_DAY','chaine', 14,'Vélocité calculée sur ce nombre de jour',0)
 			,array('SCRUM_SEE_DELIVERYDATE_PER_DAY','chaine', 1,'Ajoute des titres par jour',0)
-			,array('SCRUM_SEE_DELIVERYDATE_PER_WEEK','chaine', 1,'Ajoute des titres par semaine',0)
-		);
+            ,array('SCRUM_SEE_DELIVERYDATE_PER_WEEK','chaine', 1,'Ajoute des titres par semaine',0)
+            ,array('SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE','chaine', 4,'tolérance de groupage des tâches par produit',0)
+     	);
 
         // Array to add new pages in new tabs
         // Example:
@@ -421,9 +422,8 @@ class modscrumboard extends DolibarrModules
 			  , ADD INDEX (date_estimated_start, date_estimated_end)");
 	
 		dol_include_once('/core/class/extrafields.class.php');
-		$extrafields=new ExtraFields($this->db);
-		$res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
-		
+        $extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
 		
         $extrafields=new ExtraFields($this->db);
 		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');

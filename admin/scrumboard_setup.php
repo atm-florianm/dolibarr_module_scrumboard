@@ -28,6 +28,7 @@
 require '../config.php';
 // Change this following line to use the correct relative path from htdocs (do not remove DOL_DOCUMENT_ROOT)
 dol_include_once('/core/lib/admin.lib.php');
+dol_include_once('/core/class/extrafields.class.php');
 
 // Access control
 if (! $user->admin) {
@@ -43,6 +44,17 @@ if($action=='save') {
 		
 		dolibarr_set_const($db, $name, $param);
 		
+        if($name == 'SCRUM_USE_PROJECT_PRIORITY' && $param == 1) {
+            $extrafields=new ExtraFields($db);
+            $default_value = array('options'=> array(0=>$langs->trans('Normal'), 1=>$langs->trans('Important')));
+            $res = $extrafields->addExtraField('priority', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
+        }
+        /*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
+            $extrafields=new ExtraFields($db);
+            $res = $extrafields->addExtraField('grou', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
+        }*/
+        
+        
 	}
 	
 	setEventMessage( $langs->trans('RegisterSuccess') );
@@ -135,7 +147,7 @@ function showParameters() {
             <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_SCHEDULE ?>" name="TDivers[TIMESHEET_WORKING_SCHEDULE]" size="80" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
 
-       <tr>
+        <tr>
             <td><?php echo $langs->trans('DayNoWorking') ?></td>
             <td><input type="text" value="<?php echo $conf->global->TIMESHEET_DAYOFF ?>" name="TDivers[TIMESHEET_DAYOFF]" size="30" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
@@ -170,6 +182,10 @@ function showParameters() {
                 }
             
             ?></td>             
+        </tr>
+        <tr>
+            <td><?php echo $langs->trans('ProductTolerance') ?></td>
+            <td><input type="text" value="<?php echo $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE ?>" name="TDivers[SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
 	</table>
 	</form>
