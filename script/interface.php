@@ -311,7 +311,7 @@ global $user, $langs;
 	$task=new Task($db);
 	if($id_task) {
 		$task->fetch($id_task);
-		$task->fetch_optionals();	
+		$task->fetch_optionals($id_task);	
 	}
 	
 	if(!empty($values)){
