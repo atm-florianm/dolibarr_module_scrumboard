@@ -500,9 +500,15 @@ TWorkstation = function() {
     
 };
 
-toggleWorkStation = function (fk_ws) {
+toggleWorkStation = function (fk_ws, justMe) {
 	
-	if($('#columm-ws-'+fk_ws).is(':visible')) {
+	if(justMe!=null && justMe == true) {
+	    $('div[id^="columm-ws-"]').hide();
+	    $('#columm-ws-'+fk_ws).show();
+        $('span[id^="columm-header1"]').addClass('hiddenWS');
+        $('#columm-header1-'+fk_ws).removeClass('hiddenWS');
+	}
+	else if($('#columm-ws-'+fk_ws).is(':visible')) {
 		$('#columm-ws-'+fk_ws).hide();
 		$('#columm-header1-'+fk_ws).addClass('hiddenWS');
 	}

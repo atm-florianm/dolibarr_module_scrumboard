@@ -84,22 +84,26 @@
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br />
                         <?php echo $langs->trans('HourHeight') ?> : 
-                        <a class="columnHeader" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
-                        <a class="columnHeader" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
-                        <a  class="columnHeader" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
-                        <a  class="columnHeader" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+                        <a class="columnHeader columnHeaderMini" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
+                        <a  class="columnHeader columnHeaderMini" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
+                        <a  class="columnHeader columnHeaderMini" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
                         <br />
                         <?php echo $langs->trans('ColumnWidth') ?> : 
-                        <a class="columnHeader" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
-                        <a class="columnHeader" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
-                        <a  class="columnHeader" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
-                        <a  class="columnHeader" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
+                        <a class="columnHeader columnHeaderMini" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <a class="columnHeader columnHeaderMini" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
+                        <a  class="columnHeader columnHeaderMini" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
+                        <a  class="columnHeader columnHeaderMini" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
                         <br />
 					    <?php
+					    echo $langs->trans('Workstations').' : ';
+                        
 					    foreach($TWorkstation as $w_id=>$w_param) {
-                            ?><span class="columnHeader" id="columm-header1-<?php echo $w_id; 
+                            ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
-                            echo $w_param['name'].($w_param['velocity']<1 ? ' '.($w_param['velocity']*100).'%' : ''); ?></a></span><?php
+                            echo $w_param['name'].($w_param['velocity']<1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+                                <a title="Juste cette colonne" href="javascript:toggleWorkStation(<?php echo $w_id; ?>, true)">(+)</a>
+                            </span><?php
                         }
                         
                      /*   ?><a href="javascript:OrdoReorderAll();" class="columnHeader"><?php echo $langs->trans('Refresh'); ?></a><?php */
