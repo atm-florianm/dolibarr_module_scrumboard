@@ -7,7 +7,6 @@
 
 	include($dir."main.inc.php");
 	
-	
 	dol_include_once('/projet/class/project.class.php');
 	dol_include_once('/projet/class/task.class.php');
 	dol_include_once('/core/lib/project.lib.php');

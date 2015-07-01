@@ -347,7 +347,7 @@ global $user, $langs;
     $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
 
 	$task->long_description=$task->divers='';
-	if($task->array_options['options_fk_of']>0) {
+	if((int)$task->array_options['options_fk_of']>0) {
 			define('INC_FROM_DOLIBARR',true);
 			dol_include_once('/asset/config.php');
 			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
@@ -376,6 +376,27 @@ global $user, $langs;
 			}
 			
 	}
+
+    if((int)$task->array_options['options_fk_product']>0) {
+        dol_include_once('/product/class/product.class.php');
+        
+        $product = new Product($db);
+        if($product->fetch((int)$task->array_options['options_fk_product'])>0) {
+            $task->divers.='['.$product->getNomUrl().' '.$product->label.']<br />';
+            
+            $nb_picto = ($product->id % 49) - 1;
+            $y_picto = floor($nb_picto / 7);
+            $x_picto = ($nb_picto - ($y_picto * 7));
+            
+            $w_cell = 27;
+            $h_cell = 28;
+            
+            $task->divers.='<div style="float:left; margin-left:3px; background-image:url(./img/animal-icons-mini.png);background-position:'.($w_cell * -$x_picto).'px '.($h_cell * -$y_picto).'px;width:'.$w_cell.'px; height:'.$h_cell.'px;"></div>';
+            //var_dump(array($nb_picto,$y_picto, $x_picto,$task->divers));
+        }
+            
+        
+    }
 	
 	
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
