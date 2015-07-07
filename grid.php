@@ -120,8 +120,7 @@
 						
 						?>
 						<div class="projects" style="float:left;">
-						    <span class="fixedHeader columnHeader"><?php echo $langs->trans('Projects') ?></span>
-						    <ul style="position:relative;width:200px;" id="list-projects" class="task-list needToResize" >
+						    <ul style="position:relative;width:200px; top:34px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
 						</div>
