@@ -14,6 +14,8 @@ function TOrdonnancement() {
     this.init = function(w_column, h_day,sw_time) {
         /* initialise l'ordo sur la base de TWorkstation */
        
+       var ordo = this;
+       
        width_column = w_column;
        height_day = h_day;
        swap_time = sw_time;
@@ -37,7 +39,7 @@ function TOrdonnancement() {
 			
 			$.each(tasks, function(i, task) {
 			
-				addTask(task);
+				ordo.addTask(task);
 				
             });
 
@@ -141,7 +143,7 @@ function TOrdonnancement() {
 		});
     };
     
-    var addTask = function(task) {
+    this.addTask = function(task) {
         $item = $('li#task-blank');
 				
 		$item.attr('task-id', task.id);
@@ -205,7 +207,7 @@ function TOrdonnancement() {
 		
 		 
 		$li.find('a.split').click(function() {
-			OrdoSplitTask(task.id, task.duration_effective/3600 ,duration/3600);
+			OrdoSplitTask(task.id, (duration/3600) * (task.progress / 100) ,duration/3600);
 		});
 		$li.find('div[rel=time-rest]').html(task.aff_time_rest);
 		
@@ -594,12 +596,38 @@ OrdoSplitTask = function(taskid, min, max) {
 	$('#splitSlider').dialog({
 		title:"Sélectionnez comment diviser la tâche"
 		,modal:true
+		,draggable: false
+		,resizable: false
+		,buttons:[
+            {
+              text: 'Split',
+              click: function() {
+                  
+                $.ajax({
+                   url : "script/interface.php"
+                   ,data:{
+                       'put':'split'
+                       ,'taskid':taskid
+                       ,'tache1':$("#splitSlider label").attr("tache1")
+                       ,'tache2':$("#splitSlider label").attr("tache2")
+                       
+                   } 
+                }).done(function(task) {
+                    document.ordo.addTask(task);
+                    
+                    $li = $('li#task-'+taskid);
+                    document.ordo.order( $li.attr("ordo-ws-id"), $li.attr("ordo-needed-ressource")  );
+                });  
+                  
+                $( this ).dialog( "close" );
+              }
+            }
+          ]
 	});
 	
 	 $( "div[rel=slide]" ).slider({
 		min:min
 		,max:max
-		/*,value : min + Math.round((max-min)/2)*/
 		,step:0.25
 		,slide:function(event,ui) {
 			var val = Math.round( ui.value * 100 ) / 100;

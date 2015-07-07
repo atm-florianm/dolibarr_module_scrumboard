@@ -146,9 +146,11 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
                 <script type="text/javascript">
 				var TVelocity = [];
 				
+				document.ordo = {};
+				
 				$(document).ready(function(){
 				
-				     var ordo = new TOrdonnancement();
+				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
 					 	foreach($TWorkstation as $w_name=>$w_param) {
@@ -159,13 +161,13 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
                             w.velocity = <?php echo $w_param['velocity']; ?>;
                             w.id = "<?php echo $w_name; ?>";
 					 		
-					 		ordo.addWorkstation(w);
+					 		document.ordo.addWorkstation(w);
 	
 					 		<?php
 						}
 					 ?>
 					  
-					ordo.init(w_column, h_day,0.08); 		  
+					document.ordo.init(w_column, h_day,0.08); 		  
 					
 				});
 				</script><?php	

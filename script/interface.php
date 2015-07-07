@@ -73,6 +73,12 @@ global $conf;
 
 function _put(&$db, $case) {
 	switch ($case) {
+        case 'split':
+            
+            $task2id = _split_task(GETPOST('taskid'),GETPOST('tache1'),GETPOST('tache2'));
+            print json_encode(_task($db, $task2id));
+            
+            break;
 		case 'task' :
 			
 			print json_encode(_task($db, (int)GETPOST('id'), $_REQUEST));
@@ -429,6 +435,45 @@ function _get_task_just_before(&$db, &$task) {
 		return false;
 	}
 	
+}
+
+function _split_task($taskid, $task1time, $task2time) {
+    global $db, $user, $conf;
+    
+    $task =new Task($db);
+    $task->fetch($taskid);
+    $task->fetch_optionals();
+    
+    $task->planned_workload = $task1time * 3600;
+    $task->update($user);
+    
+    $task2 = new Task($db);
+    foreach($task as $k=>$v) {
+        
+        if($k!='id' && $k!='progress' &$k!='duration_effective' && $k!='ref' ) {
+            $task2->{$k} = $v;
+        }
+        
+    }
+
+    $task2->planned_workload = $task2time * 3600;
+
+    $defaultref='';
+    $obj = empty($conf->global->PROJECT_TASK_ADDON)?'mod_task_simple':$conf->global->PROJECT_TASK_ADDON;
+    if (! empty($conf->global->PROJECT_TASK_ADDON) && is_readable(DOL_DOCUMENT_ROOT ."/core/modules/project/task/".$conf->global->PROJECT_TASK_ADDON.".php"))
+    {
+        require_once DOL_DOCUMENT_ROOT ."/core/modules/project/task/".$conf->global->PROJECT_TASK_ADDON.'.php';
+        $modTask = new $obj;
+        $defaultref = $modTask->getNextValue(0,$task2);
+    }
+
+    if (is_numeric($defaultref) && $defaultref <= 0) $defaultref='';
+
+    $task2->ref = $defaultref;
+
+    $task2->create($user);
+    
+    return $task2->id;
 }
 
 function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
