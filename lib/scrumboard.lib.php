@@ -177,7 +177,7 @@ function _ordo_init_new_task(&$TTaskToOrder) {
     foreach($TTaskToOrder as &$task) {
         if($task['grid_row'] == 999999) {
             
-            if(!empty($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT) ) {
+            if(!empty($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT) && $task['fk_product']>0 ) {
                 
                 $task['grid_row'] = _ordo_int_get_good_col_product($TTaskToOrder, $task, $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE);
                 
