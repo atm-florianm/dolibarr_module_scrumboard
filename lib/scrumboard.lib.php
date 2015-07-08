@@ -147,6 +147,50 @@ function ordonnanceur_link_event(&$Task) {
     
 }
 
+function _ordo_int_get_good_col_product(&$TTaskToOrder, &$taskToMove, $tolerance) {
+    
+    $good_date = false;
+    $grid_row = 999999;
+    
+    foreach($TTaskToOrder as &$task) {
+        
+       if($task['grid_row']!=999999 && $task['fk_workstation'] ==  $taskToMove['fk_workstation'] && $task['fk_product'] == $TTaskToOrder['fk_product']) {
+               
+           if($TTaskToOrder['date_end'] == false && ($task['grid_row']>$grid_row || $grid_row == 999999 ) ) {
+               $grid_row = $task['grid_row'];    
+           }
+           else if($TTaskToOrder['date_end'] != false && (abs($task['date_end']-$TTaskToOrder['date_end'])<=$tolerance * 86400 ) ) {
+               $grid_row = $task['grid_row'];
+           }
+           
+       }
+        
+    }
+    
+    return ($grid_row == 999999) ? 999999 : $grid_row+0.0001;
+    
+}
+
+function _ordo_init_new_task(&$TTaskToOrder) {
+    global $conf;
+    
+    foreach($TTaskToOrder as &$task) {
+        if($task['grid_row'] == 999999) {
+            
+            if(!empty($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT) ) {
+                
+                $task['grid_row'] = _ordo_int_get_good_col_product($TTaskToOrder, $task, $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE);
+                
+            }
+            
+            
+            
+        }
+        
+    }
+    
+}
+
 /*
  * Refresh task position
  */
@@ -166,6 +210,8 @@ global $conf,$db;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
     
     $grid_decalage = $t_ecart / $nb_second_in_hour;
+    
+    _ordo_init_new_task($TTaskToOrder);
     
 	foreach($TTaskToOrder as $task) {
          

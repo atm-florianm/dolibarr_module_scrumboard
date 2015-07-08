@@ -546,8 +546,10 @@ global $user;
 
 }
 function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
+    global $conf;
     
-    $sql = "SELECT t.rowid,t.label,t.ref,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,t.planned_workload,t.progress,t.datee,p.fk_soc
+    $sql = "SELECT t.rowid,t.label,t.ref,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
+                ,t.planned_workload,t.progress,t.datee,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
@@ -614,6 +616,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 , 'grid_col'=>$obj->grid_col
                 , 'grid_row'=>$obj->grid_row
                 ,'fk_workstation'=>$fk_workstation
+                ,'fk_product'=>(int)$obj->fk_product
                 ,'fk_task_parent'=>(int)$obj->fk_task_parent
                 ,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
                 ,'planned_workload'=>$obj->planned_workload / 3600
@@ -621,6 +624,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 ,'fk_soc'=>$obj->fk_soc
                 ,'TUser'=>$TUser
                 ,'date_end'=>strtotime($obj->datee)
+                ,'date_estimated_end'=>strtotime($obj->date_estimated_end)
          );
     }
     
