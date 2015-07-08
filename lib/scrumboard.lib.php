@@ -287,7 +287,7 @@ global $conf;
     
     $TFerie=array();
     
-    if($conf->jouroff->enabled) {
+    if(!empty($conf->jouroff->enabled)) {
         define('INC_FROM_DOLIBARR',true);
         dol_include_once('/jouroff/config.php');
         dol_include_once('/jouroff/class/jouroff.class.php');
