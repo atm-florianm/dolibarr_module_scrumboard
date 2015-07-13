@@ -423,7 +423,9 @@ ul {
 ul.task-list {
 	overflow:hidden;
 }
-
+ul#list-projects.task-list {
+	overflow:visible;
+}
 #list-projects li.projectMaybeLate, ul.task-list li.taskMaybeLate {
 	background: orange;
 }
