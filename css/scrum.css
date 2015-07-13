@@ -420,6 +420,10 @@ ul {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#7db9e8',GradientType=0 ); /* IE6-9 */
 }
 
+ul.task-list {
+	overflow:hidden;
+}
+
 #list-projects li.projectMaybeLate, ul.task-list li.taskMaybeLate {
 	background: orange;
 }
@@ -473,4 +477,12 @@ table li span[rel=task-link] {
 li div[rel=users] {
 	margin-top:20px;
 	
+}
+
+li.dayoff {
+	background-color: #666666;
+	font-weight: bold;
+	color:#fff;
+	
+	border:0 none;
 }

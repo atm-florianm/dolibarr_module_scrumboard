@@ -147,7 +147,7 @@ function ordonnanceur_link_event(&$Task) {
     
 }
 
-function _ordo_int_get_good_col_product(&$TTaskToOrder, &$taskToMove, $tolerance) {
+function _ordo_int_get_good_row_product(&$TTaskToOrder, &$taskToMove, $tolerance) {
     
     $good_date = false;
     $grid_row = 999999;
@@ -179,7 +179,7 @@ function _ordo_init_new_task(&$TTaskToOrder) {
             
             if(!empty($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT) && $task['fk_product']>0 ) {
                 
-                $task['grid_row'] = _ordo_int_get_good_col_product($TTaskToOrder, $task, $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE);
+                $task['grid_row'] = _ordo_int_get_good_row_product($TTaskToOrder, $task, $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE);
                 
             }
             
@@ -189,6 +189,103 @@ function _ordo_init_new_task(&$TTaskToOrder) {
         
     }
     
+}
+
+function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour) {
+    
+    $t_start = $time_off_start - $time_init;
+            
+    if($day_moment == 'ALL') {
+        $t_end = $start + 86400;
+        $height = 86400;
+    }
+    else if($day_moment == 'AM') {
+        $t_end = $start + 43200;
+        $height = 43200;
+    }
+    else {
+        $t_start += 43200;
+        $t_end = $start + 43200;
+        $height = 43200;
+    }
+    
+    $top = $t_start / $nb_second_in_hour;
+    $height = $height / $nb_second_in_hour;
+    $left = 0;
+    
+   return array('top'=>$top,'left'=>$left,'height'=>$height,'nb_ressource'=>$nb_ressource); 
+    
+}
+
+function _ordo_init_dayOff(&$TPlanned, $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $velocity) {
+    $TOff = array();
+     
+    $PDOdb = new TPDOdb;
+    
+    $ws = new TWorkstation;
+    $ws->load($PDOdb, $fk_workstation);
+    
+    $TDayWeekOff=array();
+    foreach($ws->TWorkstationSchedule as &$sc) {
+    
+        if($sc->nb_ressource == 0) $sc->nb_ressource = $ws->nb_ressource; 
+    
+        if($sc->date_off>0) {
+            
+           $TRow = _ordo_ido_get($sc->date_off, $sc->day_moment, $sc->nb_ressource, $time_init, $nb_second_in_hour);
+           $TOff[]=$TRow;  
+           $TPlanned[]=array($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource'],0,0);  
+           
+        }     
+        else{
+           
+           if(!isset($TDayWeekOff[$sc->week_day]))$TDayWeekOff[$sc->week_day] = array('AM'=>0,'PM'=>0, 'nb_ressource'=>0);
+           
+           if($sc->day_moment == 'AM')$TDayWeekOff[$sc->week_day]['AM'] = 1;
+           else if($sc->day_moment == 'PM')$TDayWeekOff[$sc->week_day]['PM'] = 1;
+           else $TDayWeekOff[$sc->week_day]['AM'] = $TDayWeekOff[$sc->week_day]['PM'] = 1; 
+            
+           if($TDayWeekOff[$sc->week_day]['nb_ressource']<$sc->nb_ressource)$TDayWeekOff[$sc->week_day]['nb_ressource'] = $sc->nb_ressource;
+            
+        }
+        
+    }
+    
+
+    $t_end_3month = strtotime('+3month', $time_day);
+    $t_current = $time_init;
+    
+    while($t_current<$t_end_3month) {
+        
+        $dw = (int)date('w', $t_current);
+        
+        $TRow=array();
+        if(!empty($TDayWeekOff[$dw]['AM']) && !empty($TDayWeekOff[$dw]['PM'])) {
+            $TRow = _ordo_ido_get($t_current, 'ALL', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+           
+        }
+        else if(!empty($TDayWeekOff[$dw]['AM'])) {
+            $TRow = _ordo_ido_get($t_current, 'AM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        } 
+        else if(!empty($TDayWeekOff[$dw]['PM'])) {
+            $TRow = _ordo_ido_get($t_current, 'PM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        } 
+        
+        if(!empty($TRow)) {
+           $TOff[]=$TRow;  
+           $TPlanned[]=array($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource'],0,0);
+        }
+        
+        $t_current = strtotime('+1day', $t_current);   
+    }
+   
+    
+    _ordo_gnc_get_free_place($TPlanned, $ws->nb_ressource);
+        
+    
+    $PDOdb->close();
+   
+    return $TOff;
 }
 
 /*
@@ -210,6 +307,8 @@ global $conf,$db;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
     
     $grid_decalage = $t_ecart / $nb_second_in_hour;
+    
+    $TDayOff=array();
     
     _ordo_init_new_task($TTaskToOrder);
     
@@ -241,8 +340,10 @@ global $conf,$db;
 	   }
       
        if( $fk_workstation_to_order == 0  ||  $fk_workstation == $fk_workstation_to_order ) {
-       	
-               $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
+           
+               if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TPlan[$fk_workstation]['@plan'], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws_velocity);
+           
+       	       $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
                if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
                //var_dump($task['progress'],$velocity);
@@ -256,6 +357,8 @@ global $conf,$db;
       //TODO prendre en compte les jours non travaillé
                $task['time_estimated_start'] = $time_init + ($row * $nb_second_in_hour);
                $task['time_estimated_end'] =  $task['time_estimated_start'] + ($height  *$nb_second_in_hour) ;
+               $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
+                    .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
                
 			    if($update_base) {
 			        
@@ -274,9 +377,9 @@ global $conf,$db;
        }
     }
      
-    $TTimeScale = scrumboard_get_time_scale($TTaskOrdered, $time_init); 
+    //$TTimeScale = scrumboard_get_time_scale($TTaskOrdered, $time_init); 
      
-    return array('tasks'=>$TTaskOrdered, 'timeScale'=>$TTimeScale);
+    return array('tasks'=>$TTaskOrdered, 'timeScale'=>$TTimeScale, 'dayOff'=>$TDayOff);
 }
 
 function scrumboard_get_time_scale(&$TTaskOrdered, $time_init) {
@@ -390,7 +493,7 @@ global $db;
         $TFree[] = array(0, 0, false, $available_ressource); // y,x,h,w de largeur tous à partir de 0 à gauche et 0 en haut et d'une hauteur infinie
     }
     
-    list($col, $top) = _orgo_gnc_get_free($TWorkstation, $TFree, $TPlanned,$available_ressource, $needed_ressource, $height, $task);
+    list($col, $top) = _ordo_gnc_get_free($TWorkstation, $TFree, $TPlanned,$available_ressource, $needed_ressource, $height, $task);
     
    
    
@@ -437,7 +540,7 @@ function _ordo_get_parent_coord(&$TWorkstation, &$TPlanned, $fk_task_parent) {
 /*
  * get next free place for task
  */
-function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_ressource, $needed_ressource, $height, &$task) {
+function _ordo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_ressource, $needed_ressource, $height, &$task) {
     
     $left = $top = false;
     
@@ -474,7 +577,7 @@ function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_resso
        if(isset($_REQUEST['DEBUG'])) {
          print "{$task[id]} :: $fKey,$available_ressource || $needed_ressource, $height >> $top, $left<br />";
        }
-       $TFree= _orgo_gnc_get_free_place($TPlanned, $available_ressource); 
+       $TFree= _ordo_gnc_get_free_place($TPlanned, $available_ressource); 
        if(isset($_REQUEST['DEBUG'])) {
             var_dump('TFree',$TFree);   
        }
@@ -489,7 +592,7 @@ function _orgo_gnc_get_free(&$TWorkstation, &$TFree, &$TPlanned,$available_resso
 /*
  * Reconstruct Free Place after adding some task
  */
-function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
+function _ordo_gnc_get_free_place(&$TPlanned, $available_ressource) {
         /*
          * Reconstruit $TFree sur la base du plannifié
          * $TFree[] = array($y, $x, $h, $w);
@@ -512,12 +615,12 @@ function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
             
             foreach($TPlanned as $other_planned) {
                 
-               _orgo_gnc_get_free_place_correction($free_before, $other_planned);
-               _orgo_gnc_get_free_place_correction($free_after, $other_planned);
-               _orgo_gnc_get_free_place_correction($free_before_ext, $other_planned);
-               _orgo_gnc_get_free_place_correction($free_after_ext, $other_planned);
-               _orgo_gnc_get_free_place_correction($free_right, $other_planned);
-               _orgo_gnc_get_free_place_correction($free_left, $other_planned);    
+               _ordo_gnc_get_free_place_correction($free_before, $other_planned);
+               _ordo_gnc_get_free_place_correction($free_after, $other_planned);
+               _ordo_gnc_get_free_place_correction($free_before_ext, $other_planned);
+               _ordo_gnc_get_free_place_correction($free_after_ext, $other_planned);
+               _ordo_gnc_get_free_place_correction($free_right, $other_planned);
+               _ordo_gnc_get_free_place_correction($free_left, $other_planned);    
                 
             }
              
@@ -535,7 +638,7 @@ function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
         
         $TFree[] = $free_after_all;
         
-       _orgo_gnc_purge($TFree, $available_ressource);
+       _ordo_gnc_purge($TFree, $available_ressource);
         
         return $TFree;
         
@@ -544,7 +647,7 @@ function _orgo_gnc_get_free_place(&$TPlanned, $available_ressource) {
 /*
  * resize free place after adding
  */
-function _orgo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=false) {
+function _ordo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=false) {
     list($other_y,$other_x,$other_h,$other_w) = $other_planned;
     
    // if($free===array(5,0,false,2)) { print 'case' ;$debug = true; }
@@ -582,7 +685,7 @@ function _orgo_gnc_get_free_place_correction(&$free, &$other_planned,$debug=fals
 /*
  * Delete wrong free place (void, empty, ...)
  */
-function _orgo_gnc_purge(&$TFree, $available_ressource) {
+function _ordo_gnc_purge(&$TFree, $available_ressource) {
     
     foreach($TFree as $k=>$free) {
         list($y,$x,$h,$w) = $free;

@@ -244,7 +244,9 @@ function TOrdonnancement() {
 			,dataType: 'json'
 		})
 		.done(function (tasks) {
-			/*console.log(tasks);*/
+			//console.log(tasks);
+			var coef_time = height_day / nb_hour_per_day;
+			
 			
 			$("a[ws-id="+wsid+"]").css("color","");
 			
@@ -253,11 +255,34 @@ function TOrdonnancement() {
 			
 			$.jnotify(text_ws, "3000", "false" ,{ remove: function (){} } );
 			
-			var nb_tasks = tasks.length;
+			for(fk_worstation_jo in tasks['dayOff']) {
+                if(tasks['dayOff'][fk_worstation_jo].length>0) {
+                    
+                    $('ul[ws-id='+fk_worstation_jo+'] > li.dayoff').remove();
+                    $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {
+                       
+                             $('ul[ws-id='+fk_worstation_jo+']').append('<li class="dayoff" jouroff="'+i+'"></li>');
+                         
+                             $li = $('ul[ws-id='+fk_worstation_jo+'] > li[jouroff='+i+']');
+                             console.log(dof);
+                             $li.css({
+                                    top:dof.top * coef_time
+                                    ,position:'absolute'
+                                    ,width:(width_column * dof.nb_ressource)
+                                    ,height: dof.height * coef_time
+                             });
+                        
+                       
+                    });
+                    
+                }
+			    
+			}
 			
+			
+			
+			var nb_tasks = tasks['tasks'].length;
 			$.each(tasks['tasks'], function(i, task) {
-			
-				coef_time = height_day / nb_hour_per_day;
 			
 				task_top = coef_time * task.grid_row/* / TVelocity[task.fk_workstation]*/; // vélocité déjà dans le top 
 			
