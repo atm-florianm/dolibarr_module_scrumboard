@@ -45,7 +45,7 @@ class TSmallGeoffrey {
         $Tab = array();
         foreach($this->TBox as &$box) {
             
-            if($box->top<=$y && $box->top + $box->height>=$y) {
+            if($box->top<=$y && $box->top + $box->height>$y) {
                 $Tab[] = $box;
             }
             
@@ -88,7 +88,9 @@ class TSmallGeoffrey {
         
         foreach($this->TBox as &$box) {
             
-            if( $box->left + $box->width > $x && $box->left<=$x ) {
+            $box_xw = $box->left + $box->width;
+            
+            if( $box_xw > $x && $box->left<=$x ) {
                 // boite au dessus ou au dessous ?
                 if($box->top + $box->height<=$y && $box->top + $box->height>$y_before)$y_before = $box->top + $box->height;
                 else if($box->top > $y && ($box->top <= $y_after || $y_after ===  false) )$y_after = $box->top;
@@ -96,7 +98,14 @@ class TSmallGeoffrey {
             }
             
             if($box->top<$y && $box->top + $box->height<=$y) {
-                if($box->left + $box->width>=$x && $box->left + $box->width>$x_before)$x_before = $box->left + $box->width;
+                if($box_xw > $x && $box->left < $x && $box_xw - 1  > $x_before ){
+                        $x_before = $box_xw -1; 
+                    
+                    if($this->debug){
+                    print "($box_xw) x_before = $x_before;";
+                    var_dump($box);}
+                    
+                }
                 else if($box->left >= $x+$w && $box->left < $x_after)$x_after = $box->left;
             }
                         
@@ -154,8 +163,14 @@ class TSmallGeoffrey {
            } 
            
            if(!$empty_place) $this->top = $less_next_y;
-           $y = $less_next_y;
            
+           if($less_next_y===false || $less_next_y == $y) {
+               $y = $y + 1 ;
+           }
+           else{
+               $y = $less_next_y;
+           }
+          
            if($this->debug) print '$less_next_y : '.$less_next_y.'<br />';
            
            $cpt_notFinishYet++;
