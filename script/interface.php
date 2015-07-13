@@ -561,7 +561,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
         $sql.=" WHERE t.progress=0";
     }
     else if($status=='inprogress|todo') {
-        $sql.=" WHERE t.progress>=0 AND t.progress<100";
+        $sql.=" WHERE t.progress>=0 AND t.progress<100 AND t.planned_workload>0";
     }
     else if($status=='inprogress') {
         $sql.=" WHERE t.progress>0 AND t.progress<100";
@@ -661,7 +661,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	else $sql.=" AND p.fk_statut IN (0,1)";	
 		
 	if($onlyUseGrid) {
-	    $sql.=" AND ex.grid_use=1 
+	    $sql.=" AND ex.grid_use=1 AND t.planned_workload>0
 	    ORDER BY t.grid_row";
     }
     else{
