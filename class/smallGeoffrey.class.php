@@ -78,7 +78,7 @@ class TSmallGeoffrey {
         
     }   
         
-    function isLargeEnougthEmptyPlace($y,$x, $h, $w) {
+    function isLargeEnougthEmptyPlace($y,$x, $h, $w, &$y_first_block_not_enougth_large) {
         if($this->debug) print "<br />
         isLargeEnougthEmptyPlace($y,$x, $h, $w);";
         
@@ -117,12 +117,16 @@ class TSmallGeoffrey {
             }
                         
             if(( $y_after!==false && $y_after - $y_before < $h) || $x_after - $x_before < $w) {
+                if($y_first_block_not_enougth_large === false || $y_after>$y_first_block_not_enougth_large) {
+                	$y_first_block_not_enougth_large = $y_after;
+                }	
+					
                 if($this->debug) {
-                    print "Pas assez grand ($y_before,$x_before => $y_after, $x_after)";
+                    print "Pas assez grand ($y_first_block_not_enougth_large :: $y_before,$x_before => $y_after, $x_after)";
                     
                 }
-                    
-                return false; // pas assez de place
+                   
+				return false; // pas assez de place
             } 
         }
         if($this->debug) print 1;
@@ -139,7 +143,7 @@ class TSmallGeoffrey {
         
         $cpt_notFinishYet = 0;
          
-        $nb_max = (count($this->TBox)+1) * 2;
+        $nb_max = (count($this->TBox)+1) * 20;
         if($this->debug)var_dump($this->TBox);
         while(true) {
             
@@ -148,41 +152,47 @@ class TSmallGeoffrey {
            if($this->debug)var_dump($y, $TBox);
            $empty_place = false; 
            $less_next_y = false;
-           
+           $y_first_block_not_enougth_large = false;
+		   
            for($x = 0; $x<=$this->width - $w; $x++) { // on parcours la largeur pour voir s'il y a un emplacement
            
                if($this->noBoxeHere($y,$x, $TBox)) {
                        
                   $empty_place = true;
-                  
-                  if($this->isLargeEnougthEmptyPlace($y,$x, $h, $w)) {
+                  if($this->isLargeEnougthEmptyPlace($y,$x, $h, $w, $y_first_block_not_enougth_large)) {
                         if($this->debug) print '...trouvé ('.$y.','.$x.') !<br />';    
                       return array($x,$y); 
                       
                   }
-                       
+                  
                }
                
            } 
-            
+           
+		   //if(!$empty_place) $this->top = $y;
+		    
            foreach($TBox as &$box) {
                if($less_next_y === false || $less_next_y>$box->top + $box->height)$less_next_y=$box->top + $box->height;
            } 
            
-           if(!$empty_place) $this->top = $less_next_y;
-           
+		   if($y_first_block_not_enougth_large === false && $less_next_y === false) $y++;
+		   elseif($y_first_block_not_enougth_large === false) $y = $less_next_y;
+		   else $y = min($y_first_block_not_enougth_large, $less_next_y); 
+		   
+		   /*
            if($less_next_y===false || $less_next_y == $y) {
                $y = $y + 1 ;
            }
            else{
                $y = $less_next_y;
-           }
+           }*/
           
            if($this->debug) print '$less_next_y : '.$less_next_y.'<br />';
            
            $cpt_notFinishYet++;
            if($cpt_notFinishYet>$nb_max) {
                exit('infini');
+			   return array(0,99);
            }
            
         }

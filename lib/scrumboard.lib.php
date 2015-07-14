@@ -352,7 +352,7 @@ global $conf,$db;
                $t_nb_ressource = $task['nb_ressource']>0 ? $task['nb_ressource'] : 1;
                
                
-               //$TSmallGeoffrey[$fk_workstation]->debug = true;
+               if(isset($_REQUEST['DEBUG_ORDO'])) $TSmallGeoffrey[$fk_workstation]->debug = true;
                list($col, $row) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource );
                
                $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
