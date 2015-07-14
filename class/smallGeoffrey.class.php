@@ -12,6 +12,37 @@ class TSmallGeoffrey {
         $this->debug = false;
     }
 
+	function getMinY($fk_task_parent) {
+	    global $db; 
+	    
+	    if($fk_task_parent>0) {
+	        // dans la même file ? 
+	        foreach($this->TBox as &$box) {
+	            if($box->taskid == $fk_task_parent) {
+	                return array($box->top + $box->height ,0);
+	            }
+	        }
+	    
+	        $sql = "SELECT t.grid_row,t.grid_height,t.planned_workload,t.progress,tex.fk_workstation 
+	            FROM ".MAIN_DB_PREFIX."projet_task t 
+	            LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
+	            WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND tex.grid_use = 1";
+	        $res = $db->query($sql);    
+	        
+	        $obj = $db->fetch_object($res);
+	        if($obj) {
+	            $y = $obj->grid_row + $obj->grid_height;
+	            
+	            return array($y, 0);
+	        }
+	           
+            
+    }
+    
+    
+    return array(0,0);
+}
+
     function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0) {
         
         $box = new stdClass;
@@ -79,8 +110,8 @@ class TSmallGeoffrey {
     }   
         
     function isLargeEnougthEmptyPlace($y,$x, $h, $w, &$y_first_block_not_enougth_large) {
-        if($this->debug) print "<br />
-        isLargeEnougthEmptyPlace($y,$x, $h, $w);";
+        if($this->debug) {print "<br />
+        isLargeEnougthEmptyPlace($y,$x, $h, $w);";}
         
         $y_before = 0;
         $y_after = false;
@@ -133,10 +164,13 @@ class TSmallGeoffrey {
         return true;
     }    
         
-    function getNextPlace($h, $w) {
+    function getNextPlace($h, $w, $fk_task_parent = 0) {
         if($this->debug)print " getNextPlace($h, $w)<hr>";
         
-        $y = $this->top;
+        list($yParent,$xParent) = $this->getMinY($fk_task_parent);
+		
+		$y = max($this->top, $yParent);
+		
         $x = 0;
         
         if(empty($this->TBox)) return array(0,0);
@@ -144,7 +178,7 @@ class TSmallGeoffrey {
         $cpt_notFinishYet = 0;
          
         $nb_max = (count($this->TBox)+1) * 20;
-        if($this->debug)var_dump($this->TBox);
+        if($this->debug){var_dump($this->TBox);}
         while(true) {
             
            $TBox = $this->getBoxes($y);
@@ -191,8 +225,8 @@ class TSmallGeoffrey {
            
            $cpt_notFinishYet++;
            if($cpt_notFinishYet>$nb_max) {
-               exit('infini');
-			   return array(0,99);
+               if($this->debug) exit('infini');
+			   return array(-0.5,99);
            }
            
         }

@@ -353,7 +353,7 @@ global $conf,$db;
                
                
                if(isset($_REQUEST['DEBUG_ORDO'])) $TSmallGeoffrey[$fk_workstation]->debug = true;
-               list($col, $row) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource );
+               list($col, $row) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] );
                
                $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
                
@@ -375,6 +375,7 @@ global $conf,$db;
 			        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
 			                grid_col=".$task['grid_col']."
 			                , grid_row=".$task['grid_row']."
+			                , grid_height=".$height."
 			                , date_estimated_start = '".date('Y-m-d H:i:s',$task['time_estimated_start'])."'
 			                , date_estimated_end = '".date('Y-m-d H:i:s',$task['time_estimated_end'])."'
 			                WHERE rowid = ".$task['id'];

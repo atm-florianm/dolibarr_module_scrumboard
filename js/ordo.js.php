@@ -128,6 +128,7 @@ function TOrdonnancement() {
 			
 		$.ajax({
 			url : "./script/interface.php"
+			,method : 'POST'
 			,data: {
 				json:1
 				,put : 'sort-task-ws'

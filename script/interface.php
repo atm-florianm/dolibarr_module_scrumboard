@@ -576,7 +576,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
 	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
 		
     $sql.=" AND ex.grid_use=1 
-        ORDER BY t.grid_row";
+        ORDER BY t.grid_row, t.grid_col";
         
     $res = $db->query($sql);    
         

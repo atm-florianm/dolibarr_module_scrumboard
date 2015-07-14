@@ -413,10 +413,16 @@ class modscrumboard extends DolibarrModules
         $result = $this->loadTables();
 		
 		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task` 
-					ADD `grid_col` INT NOT NULL DEFAULT '0',
-					ADD `grid_row` INT NOT NULL DEFAULT '999999'");		
+					ADD `grid_col` FLOAT NOT NULL DEFAULT '0',
+					ADD `grid_row` FLOAT NOT NULL DEFAULT '999999'");		
 	
-		$db->query("ALTER TABLE ".MAIN_DB_PREFIX."projet_task
+		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task`
+					ADD grid_height FLOAT NOT NULL DEFAULT 0");		
+		
+		$db->query('ALTER TABLE `'.MAIN_DB_PREFIX.'projet_task`
+				ADD INDEX `grid_row_grid_col` (`grid_row`, `grid_col`)');		
+	
+			$db->query("ALTER TABLE ".MAIN_DB_PREFIX."projet_task
 				ADD date_estimated_start DATETIME NOT NULL 
 			  , ADD date_estimated_end DATETIME NOT NULL 
 			  , ADD INDEX (date_estimated_start, date_estimated_end)");
