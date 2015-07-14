@@ -37,11 +37,11 @@ class TSmallGeoffrey {
 	        }
 	           
             
-    }
-    
-    
-    return array(0,0);
-}
+	    }
+	    
+	    
+	    return array(0,0);
+	}
 
     function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0) {
         
@@ -173,7 +173,7 @@ class TSmallGeoffrey {
 		
         $x = 0;
         
-        if(empty($this->TBox)) return array(0,0);
+        //if(empty($this->TBox)) return array(0,0);
         
         $cpt_notFinishYet = 0;
          
