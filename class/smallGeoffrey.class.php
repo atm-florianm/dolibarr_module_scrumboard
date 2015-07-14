@@ -123,6 +123,7 @@ class TSmallGeoffrey {
             $box_xw = $box->left + $box->width;
             
             if( $box_xw > $x && $box->left<=$x ) {
+            	//var_dump($box, '<hr>');
                 // boite au dessus ou au dessous ?
                 if($box->top + $box->height<=$y && $box->top + $box->height>$y_before)$y_before = $box->top + $box->height;
                 else if($box->top > $y && ($box->top <= $y_after || $y_after ===  false) )$y_after = $box->top;
@@ -160,13 +161,15 @@ class TSmallGeoffrey {
 				return false; // pas assez de place
             } 
         }
-        if($this->debug) print 1;
+        if($this->debug) print "<br />Assez Grand($y,$x, $h, $w => $y_before, $y_after, $x_before, $x_after)";
         return true;
     }    
         
     function getNextPlace($h, $w, $fk_task_parent = 0) {
-        if($this->debug)print " getNextPlace($h, $w)<hr>";
-        
+        if($this->debug) {
+        	print "<hr><strong> getNextPlace($h, $w)";
+			print '<br />'.$this->debug_info.'</strong><hr>';
+		}
         list($yParent,$xParent) = $this->getMinY($fk_task_parent);
 		
 		$y = max($this->top, $yParent);
@@ -211,6 +214,7 @@ class TSmallGeoffrey {
            
 		   if($y_first_block_not_enougth_large === false && $less_next_y === false) $y++;
 		   elseif($y_first_block_not_enougth_large === false) $y = $less_next_y;
+		   elseif($less_next_y === false) $y = $y_first_block_not_enougth_large ;
 		   else $y = min($y_first_block_not_enougth_large, $less_next_y); 
 		   
 		   /*
@@ -221,7 +225,7 @@ class TSmallGeoffrey {
                $y = $less_next_y;
            }*/
           
-           if($this->debug) print '$less_next_y : '.$less_next_y.'<br />';
+           if($this->debug) print '<br />$less_next_y : '.$less_next_y.'/'.$y.'/'.$y_first_block_not_enougth_large.'<br />';
            
            $cpt_notFinishYet++;
            if($cpt_notFinishYet>$nb_max) {

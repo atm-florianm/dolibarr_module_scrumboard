@@ -273,7 +273,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         
         if(!empty($TRow)) {
            $TOff[]=$TRow;  
-          //TODO reactivate $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
+           $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
         }
         
         $t_current = strtotime('+1day', $t_current);   
@@ -352,7 +352,10 @@ global $conf,$db;
                $t_nb_ressource = $task['nb_ressource']>0 ? $task['nb_ressource'] : 1;
                
                
-               if(isset($_REQUEST['DEBUG_ORDO'])) $TSmallGeoffrey[$fk_workstation]->debug = true;
+               if(isset($_REQUEST['DEBUG_ORDO'])) {
+               		$TSmallGeoffrey[$fk_workstation]->debug = true;
+				    $TSmallGeoffrey[$fk_workstation]->debug_info = 'Taskid='. $task['id'];
+			   }
                list($col, $row) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] );
                
                $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
