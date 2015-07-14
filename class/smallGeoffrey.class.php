@@ -79,13 +79,14 @@ class TSmallGeoffrey {
     }   
         
     function isLargeEnougthEmptyPlace($y,$x, $h, $w) {
-        if($this->debug) print "isLargeEnougthEmptyPlace($y,$x, $h, $w);";
+        if($this->debug) print "<br />
+        isLargeEnougthEmptyPlace($y,$x, $h, $w);";
         
         $y_before = 0;
         $y_after = false;
         $x_before = 0;
-        $x_after = $this->width-1;
-        
+        $x_after = $this->width;
+
         foreach($this->TBox as &$box) {
             
             $box_xw = $box->left + $box->width;
@@ -106,7 +107,13 @@ class TSmallGeoffrey {
                     var_dump($box);}
                     
                 }
-                else if($box->left >= $x+$w && $box->left < $x_after)$x_after = $box->left;
+                else if($box->left >= $x+$w && $box->left < $x_after){                		
+                	$x_after = $box->left;
+					   if($this->debug){
+                 		   print "({$box->left}) x_after= $x_after;";
+                    		var_dump($box);}
+                 
+				}
             }
                         
             if(( $y_after!==false && $y_after - $y_before < $h) || $x_after - $x_before < $w) {
