@@ -113,7 +113,7 @@ class TSmallGeoffrey {
         if($this->debug) {print "<br />
         isLargeEnougthEmptyPlace($y,$x, $h, $w);";}
         
-        $y_before = 0;
+        $y_before = $y;
         $y_after = false;
         $x_before = 0;
         $x_after = $this->width;
