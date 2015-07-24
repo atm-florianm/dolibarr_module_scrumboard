@@ -120,26 +120,29 @@ class TSmallGeoffrey {
 
         foreach($this->TBox as &$box) {
             
-            $box_xw = $box->left + $box->width;
-            
-            if( $box_xw > $x && $box->left<=$x ) {
+            if( $box->left + $box->width > $x && $box->left<=$x ) {
             	//var_dump($box, '<hr>');
                 // boite au dessus ou au dessous ?
-                if($box->top + $box->height<=$y && $box->top + $box->height>$y_before)$y_before = $box->top + $box->height;
-                else if($box->top > $y && ($box->top <= $y_after || $y_after ===  false) )$y_after = $box->top;
+                if($box->top + $box->height<=$y && $box->top + $box->height>$y_before){
+                    $y_before = $box->top + $box->height;
+                }
+                else if($box->top >= $y && ($box->top < $y_after || $y_after ===  false) ){
+                    $y_after = $box->top;
+                }
                 
             }
             
-            if($box->top<$y && $box->top + $box->height<=$y) {
-                if($box_xw > $x && $box->left < $x && $box_xw - 1  > $x_before ){
-                        $x_before = $box_xw -1; 
+            if($box->top + $box->height>$y && $box->top<=$y) {
+                
+                if($box->left + $box->width >= $x && $box->left < $x && $box->left + $box->width  > $x_before ){
+                    $x_before = $box->left + $box->width; 
                     
                     if($this->debug){
-                    print "($box_xw) x_before = $x_before;";
+                    print "(".($box->left + $box->width).") x_before = $x_before;";
                     var_dump($box);}
                     
                 }
-                else if($box->left >= $x+$w && $box->left < $x_after){                		
+                else if($box->left > $x && $box->left < $x_after){                		
                 	$x_after = $box->left;
 					   if($this->debug){
                  		   print "({$box->left}) x_after= $x_after;";
