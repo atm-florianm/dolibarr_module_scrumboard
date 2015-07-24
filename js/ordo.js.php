@@ -414,7 +414,7 @@ function TOrdonnancement() {
     		var h = topLi + parseInt($li.css('height'));
     		
     		if(max_height<h) {
-				max_height=h+200;
+				max_height=h+1000;
 			}
 			
 			if($li.attr('ordo-ws-id')>0) {
