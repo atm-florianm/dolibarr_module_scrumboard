@@ -2,11 +2,13 @@
 
 class TSmallGeoffrey {
 
-    function __construct($width) {
+    function __construct($width, $nb_hour_before = 0, $nb_hour_after = 0) {
         
         $this->top = 0;
         $this->width = $width;
-        
+        $this->nb_hour_before = $nb_hour_before;
+		$this->nb_hour_after = $nb_hour_after;
+		
         $this->TBox = array();
         
         $this->debug = false;
@@ -171,6 +173,8 @@ class TSmallGeoffrey {
 			print '<br />'.$this->debug_info.'</strong><hr>';
 		}
         list($yParent,$xParent) = $this->getMinY($fk_task_parent);
+		$yParent-=$this->nb_hour_before;
+		$h+=$this->nb_hour_after;
 		
 		$y = max($this->top, $yParent);
 		
@@ -198,7 +202,7 @@ class TSmallGeoffrey {
                   $empty_place = true;
                   if($this->isLargeEnougthEmptyPlace($y,$x, $h, $w, $y_first_block_not_enougth_large)) {
                         if($this->debug) print '...trouvé ('.$y.','.$x.') !<br />';    
-                      return array($x,$y); 
+                      return array($x,$y, $h); 
                       
                   }
                   
@@ -230,7 +234,7 @@ class TSmallGeoffrey {
            $cpt_notFinishYet++;
            if($cpt_notFinishYet>$nb_max) {
                if($this->debug) exit('infini');
-			   return array(-0.5,99);
+			   return array(-0.5,99, $h);
            }
            
         }

@@ -340,13 +340,16 @@ global $conf,$db;
 	   }
       
        if( $fk_workstation_to_order == 0  ||  $fk_workstation == $fk_workstation_to_order ) {
-               if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws_nb_ressource);
+               if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws_nb_ressource, $TWorkstation[$fk_workstation]['nb_hour_before'], $TWorkstation[$fk_workstation]['nb_hour_after']);
               
                if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TSmallGeoffrey[$fk_workstation], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws_velocity);
            
        	       $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
                if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
+			   
+			   //$height+=$TWorkstation[$fk_workstation]['nb_hour_before'] + $TWorkstation[$fk_workstation]['nb_hour_after'];
+			   
                //var_dump($task['progress'],$velocity);
                
                $t_nb_ressource = $task['nb_ressource']>0 ? $task['nb_ressource'] : 1;
@@ -356,7 +359,7 @@ global $conf,$db;
                		$TSmallGeoffrey[$fk_workstation]->debug = true;
 				    $TSmallGeoffrey[$fk_workstation]->debug_info = 'Taskid='. $task['id'];
 			   }
-               list($col, $row) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] );
+               list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] );
                
                $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
                
@@ -378,7 +381,7 @@ global $conf,$db;
 			        $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
 			                grid_col=".$task['grid_col']."
 			                , grid_row=".$task['grid_row']."
-			                , grid_height=".$height."
+			                , grid_height=".$grid_height."
 			                , date_estimated_start = '".date('Y-m-d H:i:s',$task['time_estimated_start'])."'
 			                , date_estimated_end = '".date('Y-m-d H:i:s',$task['time_estimated_end'])."'
 			                WHERE rowid = ".$task['id'];
