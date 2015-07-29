@@ -352,7 +352,7 @@ global $conf,$db;
 			   
                //var_dump($task['progress'],$velocity);
                
-               $t_nb_ressource = $task['nb_ressource']>0 ? $task['nb_ressource'] : 1;
+               $t_nb_ressource = $task['needed_ressource']>0 ? $task['needed_ressource'] : 1;
                
                
                if(isset($_REQUEST['DEBUG_ORDO'])) {
