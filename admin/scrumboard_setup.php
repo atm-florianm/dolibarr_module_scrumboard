@@ -187,6 +187,10 @@ function showParameters() {
             <td><?php echo $langs->trans('ProductTolerance') ?></td>
             <td><input type="text" value="<?php echo $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE ?>" name="TDivers[SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
+        <tr>
+            <td><?php echo $langs->trans('TimeMoreForPrevision') ?></td>
+            <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_MORE_PREVISION ?>" name="TDivers[SCRUM_TIME_MORE_PREVISION]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
+        </tr>
 	</table>
 	</form>
 	

@@ -25,7 +25,38 @@ global $conf;
 			print json_encode($Tab);
 
 			break;
-            
+		case 'task-ordo-simulation':
+			if($conf->workstation->enabled) {
+                define('INC_FROM_DOLIBARR',true);
+                dol_include_once('/workstation/config.php');
+                $ATMdb=new TPDOdb;
+                $TWorkstation=TWorkstation::getWorstations($ATMdb,true);
+                
+            }
+			else {
+				print 'module non configuré';
+				exit;
+			}
+           
+		    $Tab = ordonnanceur( 
+    			array_merge(
+    				_tasks_ordo($db, $TWorkstation, 'inprogress|todo', 0)
+					,_task_commande($db, GETPOST('fk_commande'))
+				)
+    			, $TWorkstation
+    			, 0
+				, false
+			);
+			
+			$time_max = 0;
+			foreach($Tab['tasks'] as &$task) {
+				if($task['time_estimated_end']> $time_max) $time_max =(int)$task['time_estimated_end']; 
+			}
+			
+			print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION * 86400), 'day');
+			
+			
+			break;
         case 'tasks-ordo':
            $TWorkstation = array(
                 0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
@@ -545,6 +576,26 @@ global $user;
 	$project->update($user);
 
 }
+function _task_commande(&$db, $fk_commande) {
+	
+	dol_include_once('/commande/class/commande.class.php');
+	
+	$c = new Commande($db);
+	$c->fetch($fk_commande);
+	
+	$TTask=array();
+	
+	foreach($c->lines as &$line) {
+		
+		
+		
+	}
+	
+	return $TTask;
+	
+	
+}
+
 function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     global $conf;
     
