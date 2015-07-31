@@ -485,6 +485,13 @@ li.dayoff {
 	background-color: #666666;
 	font-weight: bold;
 	color:#fff;
-	
+	font-size:35px;
 	border:0 none;
+}
+li.dayoff:hover {
+	
+}
+li.past {
+	background-color: #aaa;
+	opacity:0.5;
 }

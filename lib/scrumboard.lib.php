@@ -225,6 +225,13 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
     $ws = new TWorkstation;
     $ws->load($PDOdb, $fk_workstation);
     
+    // task for past of day
+    $height_of_past_day = ($time_init - $time_day) / $nb_second_in_hour;
+    $smallGeoffrey->addBox(0, 0,  $height_of_past_day , $ws->nb_ressource);
+    $TOff[] = array('top'=>0,'left'=>0,'height'=>$height_of_past_day,'nb_ressource'=>$ws->nb_ressource, 'class'=>'past','title'=>'Passé'); 
+    
+  //  var_dump($height_of_past_day,$smallGeoffrey );
+    
     $TDayWeekOff=array();
     foreach($ws->TWorkstationSchedule as &$sc) {
     
@@ -371,7 +378,7 @@ global $conf,$db;
        		   $task['grid_row'] = $row;
 	  
       //TODO prendre en compte les jours non travaillé
-               $task['time_estimated_start'] = $time_init + ($row * $nb_second_in_hour);
+               $task['time_estimated_start'] = $time_day + ($row * $nb_second_in_hour);
                $task['time_estimated_end'] =  $task['time_estimated_start'] + ($height  *$nb_second_in_hour) ;
                $task['time_projection'] ='Début prévu : '.dol_print_date($task['time_estimated_start'],'daytext').', '.getHourInDay($task['time_estimated_start'])
                     .'<br />Fin prévue : '.dol_print_date($task['time_estimated_end'],'daytext').', '.getHourInDay($task['time_estimated_end']);
