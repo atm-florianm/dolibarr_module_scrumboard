@@ -48,7 +48,7 @@ class ActionsScrumboard
 			?>
 			<script type="text/javascript">
 				function simulOrdo(fk_commande) {
-					
+					$('td[rel="date_fin_prod"]').html("Patientez svp...");
 					$.ajax({
 						url:"<?php echo dol_buildpath('/scrumboard/script/interface.php', 1); ?>"
 						,data:{
