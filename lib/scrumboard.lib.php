@@ -218,6 +218,8 @@ function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, 
 }
 
 function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $velocity) {
+    global $conf;	
+		
     $TOff = array();
      
     $PDOdb = new TPDOdb;
@@ -225,11 +227,31 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
     $ws = new TWorkstation;
     $ws->load($PDOdb, $fk_workstation);
     
+	// TODO function asshole
+	$t_start_ordo = strtotime(date('Y-m-d').' '. $conf->global->SCRUM_TIME_ORDO_START, $time_day);
+	$t_end_ordo = strtotime(date('Y-m-d').' '. $conf->global->SCRUM_TIME_ORDO_END, $time_day);
+	$t_diff = $t_end_ordo - $t_start_ordo; 
     // task for past of day
-    $height_of_past_day = ($time_init - $time_day) / $nb_second_in_hour;
-    $smallGeoffrey->addBox(0, 0,  $height_of_past_day , $ws->nb_ressource);
-    $TOff[] = array('top'=>0,'left'=>0,'height'=>$height_of_past_day,'nb_ressource'=>$ws->nb_ressource, 'class'=>'past','title'=>'Passé'); 
     
+    
+    if(empty($conf->global->SCRUM_TIME_ORDO_START) || empty($conf->global->SCRUM_TIME_ORDO_END)) {
+    	$height_of_past_day = ($time_init - $time_day) / $nb_second_in_hour;	
+    }
+	else if($time_init<$t_start_ordo) {
+    	$height_of_past_day = 0;
+    }
+	else if($time_init>$t_end_ordo) {
+    	$height_of_past_day = 86400 / $nb_second_in_hour;
+    }
+	else {
+		$height_of_past_day  = ($time_init - $t_start_ordo) / $t_diff * 86400 / $nb_second_in_hour;
+	}
+    //var_dump($height_of_past_day, $nb_second_in_hour);exit;
+    
+    if($height_of_past_day>0) {
+    	$smallGeoffrey->addBox(0, 0,  $height_of_past_day , $ws->nb_ressource);
+    	$TOff[] = array('top'=>0,'left'=>0,'height'=>$height_of_past_day,'nb_ressource'=>$ws->nb_ressource, 'class'=>'past','title'=>'Passé'); 
+	}
   //  var_dump($height_of_past_day,$smallGeoffrey );
     
     $TDayWeekOff=array();
