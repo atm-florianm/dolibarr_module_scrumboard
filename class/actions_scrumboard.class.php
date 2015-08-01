@@ -70,6 +70,31 @@ class ActionsScrumboard
 			<?php
 			
 		}
+		else if (in_array('projectcard',explode(':',$parameters['context']))) 
+        {
+        	?>
+				<tr>
+					<td>Fin de production prévisionnelle</td>
+					<td rel="date_fin_prod">
+				<?php
+				
+				$res = $db->query("SELECT MAX(date_estimated_end) as date_estimated_end 
+					FROM ".MAIN_DB_PREFIX."projet_task t 
+					LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (tex.fk_object=t.rowid)
+						WHERE t.fk_projet = ".$object->id);
+						
+					if($obj = $db->fetch_object($res)) {
+						$t = strtotime($obj->date_estimated_end);
+						print dol_print_date($t,'day').img_info('Temps actuel présent dans l\'ordonnancement. Attention, peut-être revu à tout moment');
+					}
+					else {
+						print 'Pas de tâche ordonnancée';
+					}
+				
+				?>
+				</td></tr>
+				<?php
+		}
 		
 		return 0;
 	}
