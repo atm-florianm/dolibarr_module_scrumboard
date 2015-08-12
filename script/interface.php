@@ -686,7 +686,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
 }
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	
-	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end'
+	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end', t.note_private
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
 		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
@@ -733,6 +733,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
 		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
 		 		,'project_date_end'=>strtotime($obj->project_date_end) 
+				,'divers'=>$obj->note_private
 			)
 		 );
 	}
