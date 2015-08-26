@@ -17,32 +17,35 @@ class TSmallGeoffrey {
 	function getMinY($fk_task_parent) {
 	    global $db; 
 	    
-	    if($fk_task_parent>0) {
+        $yMin = 0; 
+        
+        if($fk_task_parent>0) {
 	        // dans la même file ? 
 	        foreach($this->TBox as &$box) {
 	            if($box->taskid == $fk_task_parent) {
-	                return array($box->top + $box->height ,0);
+	                $yMin = $box->top + $box->height ;
+                    break;
 	            }
 	        }
 	    
-	        $sql = "SELECT t.grid_row,t.grid_height,t.planned_workload,t.progress,tex.fk_workstation 
-	            FROM ".MAIN_DB_PREFIX."projet_task t 
-	            LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
-	            WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND tex.grid_use = 1";
-	        $res = $db->query($sql);    
-	        
-	        $obj = $db->fetch_object($res);
-	        if($obj) {
-	            $y = $obj->grid_row + $obj->grid_height;
-	            
-	            return array($y, 0);
-	        }
+            if(empty($yMin)) {
+                $sql = "SELECT t.grid_row,t.grid_height,t.planned_workload,t.progress,tex.fk_workstation 
+                    FROM ".MAIN_DB_PREFIX."projet_task t 
+                    LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
+                    WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND tex.grid_use = 1";
+                $res = $db->query($sql);    
+                
+                $obj = $db->fetch_object($res);
+                if($obj) {
+                    $yMin = $obj->grid_row + $obj->grid_height;
+                }
+                
+            }
 	           
             
 	    }
 	    
-	    
-	    return array(0,0);
+	    return array($yMin,0);
 	}
 
     function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0) {
@@ -170,7 +173,7 @@ class TSmallGeoffrey {
         return true;
     }    
         
-    function getNextPlace($h, $w, $fk_task_parent = 0) {
+    function getNextPlace($h, $w, $fk_task_parent = 0, $y_min = 0) {
         if($this->debug) {
         	print "<hr><strong> getNextPlace($h, $w)";
 			print '<br />'.$this->debug_info.'</strong><hr>';
@@ -179,7 +182,7 @@ class TSmallGeoffrey {
 		$yParent-=$this->nb_hour_before;
 		$h+=$this->nb_hour_after;
 		
-		$y = max($this->top, $yParent);
+		$y = max($this->top, $yParent, $y_min);
 		
         $x = 0;
         

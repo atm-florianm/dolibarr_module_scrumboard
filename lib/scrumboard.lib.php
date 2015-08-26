@@ -388,7 +388,19 @@ global $conf,$db;
                		$TSmallGeoffrey[$fk_workstation]->debug = true;
 				    $TSmallGeoffrey[$fk_workstation]->debug_info = 'Taskid='. $task['id'];
 			   }
-               list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] );
+
+               if($task['date_start']>$time_day) {
+                   // la date de début est dans le future
+                   $t_start_ecart =  $task['date_start'] - $time_day;
+                   $y_start_ecart = $t_start_ecart / $nb_second_in_hour;
+                   
+               }
+               else {
+                   $y_start_ecart = 0;
+               }
+
+
+               list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] , $y_start_ecart);
                
                $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
                

@@ -600,7 +600,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     global $conf;
     
     $sql = "SELECT t.rowid,t.label,t.ref,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
-                ,t.planned_workload,t.progress,t.datee,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
+                ,t.planned_workload,t.progress,t.datee,t.dateo,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
@@ -674,6 +674,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 ,'progress'=>$obj->progress
                 ,'fk_soc'=>$obj->fk_soc
                 ,'TUser'=>$TUser
+                ,'date_start'=>strtotime($obj->dateo)
                 ,'date_end'=>strtotime($obj->datee)
                 ,'date_estimated_end'=>strtotime($obj->date_estimated_end)
          );
