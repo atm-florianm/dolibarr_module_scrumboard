@@ -384,8 +384,10 @@ global $user, $langs,$conf;
     $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
 
 	$task->long_description=$task->divers='';
+   
 	if((int)$task->array_options['options_fk_of']>0) {
-			define('INC_FROM_DOLIBARR',true);
+	 
+    		define('INC_FROM_DOLIBARR',true);
 			dol_include_once('/asset/config.php');
 			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
 			
@@ -435,6 +437,7 @@ global $user, $langs,$conf;
         
     }
 	
+    if(!empty($task->note_private)) $task->divers.='<br />'.$task->note_private;
 	
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
 	if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
@@ -445,6 +448,8 @@ global $user, $langs,$conf;
 	$task->project = new Project($db);
 	$task->project->fetch($task->fk_project);
 	$task->project->fetch_optionals($task->fk_project,'color');
+	
+	unset($task->db);
 	
 	return _as_array($task);
 }
@@ -734,7 +739,6 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
 		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
 		 		,'project_date_end'=>strtotime($obj->project_date_end) 
-				,'divers'=>$obj->note_private
 			)
 		 );
 	}
