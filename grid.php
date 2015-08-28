@@ -40,7 +40,13 @@
         define('INC_FROM_DOLIBARR',true);
         dol_include_once('/workstation/config.php');
         $ATMdb=new TPDOdb;
-        $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
+        
+        $TWorkstationList = TWorkstation::getWorstations($ATMdb,true);
+        /*var_dump($TWorkstationList);
+        uasort($TWorkstationList, '_order_by_name');
+        var_dump($TWorkstationList);
+        */
+        $TWorkstation=array_merge($TWorkstation, $TWorkstationList);
         
     }
     else {
@@ -130,7 +136,14 @@
 <?php
 
 _js_grid($TWorkstation, $day_height, $column_width);
-
+function _order_by_name(&$a, &$b) {
+    
+    $r = strcmp($a['name'],$b['name']);
+    if($r<0) return -1;
+    elseif($r>0) return 1;
+    else return 0;
+    
+}
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
     global $conf;
 		?>		
@@ -164,6 +177,19 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 	
 					 		<?php
 						}
+
+                        foreach($_COOKIE['WSTogle'] as $wsid=>$visible) {
+                            
+                            if(empty($visible)) {
+                                ?>
+                                toggleWorkStation(<?php echo (int)$wsid; ?>);
+                                <?php
+                                
+                            }
+                            
+                        }
+
+
 					 ?>
 					  
 					document.ordo.init(w_column, h_day,0.08); 		  

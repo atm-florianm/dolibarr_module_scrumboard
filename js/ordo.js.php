@@ -549,6 +549,16 @@ toggleWorkStation = function (fk_ws, justMe) {
 		$('#columm-header1-'+fk_ws).removeClass('hiddenWS');
 	}
 	
+	$('div[id^="columm-ws-"]').each(function(i, item) {
+	    
+	    var id = $(item).find('ul.task-list').attr('ws-id');
+	    var visible = ($(item).css('display') != 'none' ) ? 1 : 0;
+	    document.cookie="WSTogle["+id+"]="+visible;
+	    
+	});
+	
+	
+	
 };
 
 ToggleProject = function(fk_project, showAll) {
