@@ -133,20 +133,17 @@ class Interfacescrumboardtrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
        } 
-       /*
-        * Fait dans la déclaration
-        * else if($action === 'TASK_CREATE') {
-            $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task SET
-                            grid_col=0
-                            , grid_row=999999
-                            WHERE rowid = ".$object->id." AND grid_row=0";
-           
-            $this->db->query($sql);
-           
+       else if($action === 'TASK_CREATE') {
+            
+            if(!empty($conf->global->SCRUM_ADD_TASKS_TO_GRID)) {
+                  $object->array_options['options_grid_use'] = 1;  
+                  $object->update($user,1);
+            }
+            
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-       }*/
+       }
        
        
         return 0;
