@@ -178,12 +178,15 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 					 		<?php
 						}
 
-                        foreach($_COOKIE['WSTogle'] as $wsid=>$visible) {
-                            
-                            if(empty($visible)) {
-                                ?>
-                                toggleWorkStation(<?php echo (int)$wsid; ?>);
-                                <?php
+                        if(!empty($_COOKIE['WSTogle'])) {
+                            foreach($_COOKIE['WSTogle'] as $wsid=>$visible) {
+                                
+                                if(empty($visible)) {
+                                    ?>
+                                    toggleWorkStation(<?php echo (int)$wsid; ?>);
+                                    <?php
+                                    
+                                }
                                 
                             }
                             
