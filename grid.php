@@ -33,7 +33,7 @@
 	);*/
 	
 	$TWorkstation = array(
-        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
     );
 	
     if($conf->workstation->enabled) {
@@ -54,7 +54,7 @@
     }
 
 	$number_of_columns = 0 ;
-	foreach($TWorkstation as $w_name=>$w_param) {
+	foreach($TWorkstation as $w_param) {
 		$number_of_columns+=$w_param['nb_ressource'];
 	}
 
@@ -104,7 +104,8 @@
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
                         
-					    foreach($TWorkstation as $w_id=>$w_param) {
+					    foreach($TWorkstation as $w_param) {
+					        $w_id = $w_param['id'];
                             ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
                             echo $w_param['name'].($w_param['velocity']<1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
@@ -165,13 +166,14 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
-					 	foreach($TWorkstation as $w_name=>$w_param) {
+					 	foreach($TWorkstation as $w_param) {
+					 	    $w_id=$w_param['id'];
 					 		?>
 					 		
 					 		var w = new TWorkstation();
                             w.nb_ressource = <?php echo $w_param['nb_ressource']; ?>;
                             w.velocity = <?php echo $w_param['velocity']; ?>;
-                            w.id = "<?php echo $w_name; ?>";
+                            w.id = "<?php echo $w_id; ?>";
 					 		
 					 		document.ordo.addWorkstation(w);
 	
@@ -205,7 +207,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 function _draw_grid(&$TWorkstation, $column_width) {
 	
 	$width_table = 0;
-	foreach($TWorkstation as $w_id=>$w_param) {
+	foreach($TWorkstation as $w_param) {
+	    $w_id=$w_param['id'];
 		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
 		$w_column = $column_width*$w_param['nb_ressource'];
 		

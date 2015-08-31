@@ -339,7 +339,9 @@ global $conf,$db;
     
     $TDayOff=$TSmallGeoffrey = array();
     if( $fk_workstation_to_order == 0 ) {
-        foreach($TWorkstation as $fk_workstation=>&$ws) {
+        foreach($TWorkstation as &$ws) {
+             $fk_workstation = $ws['id'];
+            
              if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws['nb_ressource'], $ws['nb_hour_before'], $ws['nb_hour_after']);
              if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TSmallGeoffrey[$fk_workstation], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws['velocity']);
         }
