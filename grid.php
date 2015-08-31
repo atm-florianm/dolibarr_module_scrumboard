@@ -42,10 +42,7 @@
         $ATMdb=new TPDOdb;
         
         $TWorkstationList = TWorkstation::getWorstations($ATMdb,true);
-        /*var_dump($TWorkstationList);
         uasort($TWorkstationList, '_order_by_name');
-        var_dump($TWorkstationList);
-        */
         $TWorkstation=array_merge($TWorkstation, $TWorkstationList);
         
     }
