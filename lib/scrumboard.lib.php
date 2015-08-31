@@ -338,6 +338,12 @@ global $conf,$db;
     $grid_decalage = $t_ecart / $nb_second_in_hour;
     
     $TDayOff=$TSmallGeoffrey = array();
+    if( $fk_workstation_to_order == 0 ) {
+        foreach($TWorkstation as $fk_workstation=>&$ws) {
+             if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws['nb_ressource'], $ws['nb_hour_before'], $ws['nb_hour_after']);
+             if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TSmallGeoffrey[$fk_workstation], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws['velocity']);
+        }
+    }
     
     _ordo_init_new_task($TTaskToOrder);
     
@@ -370,9 +376,8 @@ global $conf,$db;
       
        if( $fk_workstation_to_order == 0  ||  $fk_workstation == $fk_workstation_to_order ) {
                if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws_nb_ressource, $TWorkstation[$fk_workstation]['nb_hour_before'], $TWorkstation[$fk_workstation]['nb_hour_after']);
-              
                if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TSmallGeoffrey[$fk_workstation], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws_velocity);
-           
+              
        	       $velocity = $TPlan[$fk_workstation]['@param']['velocity'];
                if($velocity<=0)$velocity=1;
                $height = $task['planned_workload'] / $velocity * (1- ($task['progress'] / 100));
