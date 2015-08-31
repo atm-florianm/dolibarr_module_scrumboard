@@ -449,7 +449,10 @@ global $user, $langs,$conf;
 	$task->project->fetch($task->fk_project);
 	$task->project->fetch_optionals($task->fk_project,'color');
 	
-	unset($task->db);
+    try {
+        unset($task->db);        
+    }
+	
 	
 	return _as_array($task);
 }
