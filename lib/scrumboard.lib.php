@@ -194,7 +194,7 @@ function _ordo_init_new_task(&$TTaskToOrder) {
 function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour) {
     
     $t_start = $time_off_start - $time_init;
-            
+//            var_dump($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour);exit;
     if($day_moment == 'ALL') {
         $t_end = $start + 86400;
         $height = 86400;
@@ -203,10 +203,20 @@ function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, 
         $t_end = $start + 43200;
         $height = 43200;
     }
+    else if($day_moment == 'TINY_AM') {
+	$t_end = $start + 43199;
+	$height = $nb_second_in_hour;
+    }
+    else if($day_moment == 'TINY_PM') {
+	$t_start += 86399;
+        $t_end = $start + 1;
+	$height = 1;
+    }
+
     else {
         $t_start += 43200;
         $t_end = $start + 43200;
-        $height = 43200;
+        $height = 1;
     }
     
     $top = $t_start / $nb_second_in_hour;
@@ -272,6 +282,8 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
            
            if($sc->day_moment == 'AM')$TDayWeekOff[$sc->week_day]['AM'] = 1;
            else if($sc->day_moment == 'PM')$TDayWeekOff[$sc->week_day]['PM'] = 1;
+           else if($sc->day_moment == 'TINY_PM')$TDayWeekOff[$sc->week_day]['TINY_PM'] = 1;
+           else if($sc->day_moment == 'TINY_AM')$TDayWeekOff[$sc->week_day]['TINY_AM'] = 1;
            else $TDayWeekOff[$sc->week_day]['AM'] = $TDayWeekOff[$sc->week_day]['PM'] = 1; 
             
            if($TDayWeekOff[$sc->week_day]['nb_ressource']<$sc->nb_ressource)$TDayWeekOff[$sc->week_day]['nb_ressource'] = $sc->nb_ressource;
@@ -299,7 +311,12 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         else if(!empty($TDayWeekOff[$dw]['PM'])) {
             $TRow = _ordo_ido_get($t_current, 'PM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
         } 
-        
+        else if(!empty($TDayWeekOff[$dw]['TINY_AM'])) {
+            $TRow = _ordo_ido_get($t_current, 'TINY_AM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        }
+	else if(!empty($TDayWeekOff[$dw]['TINY_PM'])) {
+            $TRow = _ordo_ido_get($t_current, 'TINY_PM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        }
         if(!empty($TRow)) {
            $TOff[]=$TRow;  
            $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
