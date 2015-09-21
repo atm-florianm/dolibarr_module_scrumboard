@@ -134,10 +134,13 @@ class Interfacescrumboardtrigger
             );
        } 
        else if($action === 'TASK_CREATE') {
-
-		$object->array_options['options_grid_use'] = 1;
-		$object->insertExtraFields();
-           
+            
+            if(!empty($conf->global->SCRUM_ADD_TASKS_TO_GRID)) {
+                  $object->array_options['options_grid_use'] = 1;  
+                  $object->update($user,1);
+	          $object->insertExtraFields();
+            }
+            
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );

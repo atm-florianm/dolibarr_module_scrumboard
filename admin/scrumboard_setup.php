@@ -112,21 +112,36 @@ function showParameters() {
 			?></td>				
 		</tr>
 
-		<tr>
-			<td><?php echo $langs->trans('SetDeliveryDateByOtherTask') ?></td><td><?php
-			
-				if($conf->global->SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK==0) {
-					
-					 ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-					
-				}
-				else {
-					 ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-					
-				}
-			
-			?></td>				
-		</tr>
+        <tr>
+            <td><?php echo $langs->trans('SetDeliveryDateByOtherTask') ?></td><td><?php
+            
+                if($conf->global->SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK==0) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
+        <tr>
+            <td><?php echo $langs->trans('SetSCRUM_ADD_TASKS_TO_GRID') ?></td><td><?php
+            
+                if($conf->global->SCRUM_ADD_TASKS_TO_GRID==0) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_ADD_TASKS_TO_GRID]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_ADD_TASKS_TO_GRID]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
 
 		<tr>
 			<td><?php echo $langs->trans('DefaultVelocity') ?></td>
@@ -183,6 +198,7 @@ function showParameters() {
             
             ?></td>             
         </tr>
+        
         <tr>
             <td><?php echo $langs->trans('ProductTolerance') ?></td>
             <td><input type="text" value="<?php echo $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE ?>" name="TDivers[SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               

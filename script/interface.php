@@ -384,8 +384,10 @@ global $user, $langs,$conf;
     $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
 
 	$task->long_description=$task->divers='';
+   
 	if((int)$task->array_options['options_fk_of']>0) {
-			define('INC_FROM_DOLIBARR',true);
+	 
+    		define('INC_FROM_DOLIBARR',true);
 			dol_include_once('/asset/config.php');
 			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
 			
@@ -435,6 +437,7 @@ global $user, $langs,$conf;
         
     }
 	
+    if(!empty($task->note_private)) $task->divers.='<br />'.$task->note_private;
 	
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
 	if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
@@ -445,6 +448,7 @@ global $user, $langs,$conf;
 	$task->project = new Project($db);
 	$task->project->fetch($task->fk_project);
 	$task->project->fetch_optionals($task->fk_project,'color');
+	
 	
 	return _as_array($task);
 }
@@ -600,7 +604,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     global $conf;
     
     $sql = "SELECT t.rowid,t.label,t.ref,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
-                ,t.planned_workload,t.progress,t.datee,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
+                ,t.planned_workload,t.progress,t.datee,t.dateo,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
         FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
@@ -674,6 +678,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 ,'progress'=>$obj->progress
                 ,'fk_soc'=>$obj->fk_soc
                 ,'TUser'=>$TUser
+                ,'date_start'=>strtotime($obj->dateo)
                 ,'date_end'=>strtotime($obj->datee)
                 ,'date_estimated_end'=>strtotime($obj->date_estimated_end)
          );
@@ -733,7 +738,6 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
 		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
 		 		,'project_date_end'=>strtotime($obj->project_date_end) 
-				,'divers'=>$obj->note_private
 			)
 		 );
 	}

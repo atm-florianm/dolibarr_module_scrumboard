@@ -33,14 +33,17 @@
 	);*/
 	
 	$TWorkstation = array(
-        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé') // base de 7h par jour
+        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
     );
 	
     if($conf->workstation->enabled) {
         define('INC_FROM_DOLIBARR',true);
         dol_include_once('/workstation/config.php');
         $ATMdb=new TPDOdb;
-        $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
+        
+        $TWorkstationList = TWorkstation::getWorstations($ATMdb,true);
+        uasort($TWorkstationList, '_order_by_name');
+        $TWorkstation=array_merge($TWorkstation, $TWorkstationList);
         
     }
     else {
@@ -48,7 +51,7 @@
     }
 
 	$number_of_columns = 0 ;
-	foreach($TWorkstation as $w_name=>$w_param) {
+	foreach($TWorkstation as $w_param) {
 		$number_of_columns+=$w_param['nb_ressource'];
 	}
 
@@ -98,7 +101,8 @@
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
                         
-					    foreach($TWorkstation as $w_id=>$w_param) {
+					    foreach($TWorkstation as $w_param) {
+					        $w_id = $w_param['id'];
                             ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
                             echo $w_param['name'].($w_param['velocity']<1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
@@ -120,7 +124,7 @@
 						
 						?>
 						<div class="projects" style="float:left;">
-						    <ul style="position:relative;width:200px; top:34px;" id="list-projects" class="task-list needToResize" >
+						    <ul style="position:relative;width:200px; top:0px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
 						</div>
@@ -130,7 +134,14 @@
 <?php
 
 _js_grid($TWorkstation, $day_height, $column_width);
-
+function _order_by_name(&$a, &$b) {
+    
+    $r = strcmp($a['name'],$b['name']);
+    if($r<0) return -1;
+    elseif($r>0) return 1;
+    else return 0;
+    
+}
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
     global $conf;
 		?>		
@@ -152,18 +163,35 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
-					 	foreach($TWorkstation as $w_name=>$w_param) {
+					 	foreach($TWorkstation as $w_param) {
+					 	    $w_id=$w_param['id'];
 					 		?>
 					 		
 					 		var w = new TWorkstation();
                             w.nb_ressource = <?php echo $w_param['nb_ressource']; ?>;
                             w.velocity = <?php echo $w_param['velocity']; ?>;
-                            w.id = "<?php echo $w_name; ?>";
+                            w.id = "<?php echo $w_id; ?>";
 					 		
 					 		document.ordo.addWorkstation(w);
 	
 					 		<?php
 						}
+
+                        if(!empty($_COOKIE['WSTogle'])) {
+                            foreach($_COOKIE['WSTogle'] as $wsid=>$visible) {
+                                
+                                if(empty($visible)) {
+                                    ?>
+                                    toggleWorkStation(<?php echo (int)$wsid; ?>);
+                                    <?php
+                                    
+                                }
+                                
+                            }
+                            
+                        }
+
+
 					 ?>
 					  
 					document.ordo.init(w_column, h_day,0.08); 		  
@@ -176,7 +204,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 function _draw_grid(&$TWorkstation, $column_width) {
 	
 	$width_table = 0;
-	foreach($TWorkstation as $w_id=>$w_param) {
+	foreach($TWorkstation as $w_param) {
+	    $w_id=$w_param['id'];
 		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
