@@ -257,7 +257,7 @@ function TOrdonnancement() {
 			$.jnotify(text_ws, "3000", "false" ,{ remove: function (){} } );
 			
 			for(fk_worstation_jo in tasks['dayOff']) {
-                if(tasks['dayOff'][fk_worstation_jo].length>0) {
+                if(fk_worstation_jo>0 && tasks['dayOff'][fk_worstation_jo].length>0) {
                     
                     $('ul[ws-id='+fk_worstation_jo+'] > li.dayoff').remove();
                     $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {
