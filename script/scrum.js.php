@@ -329,7 +329,7 @@ function pop_time(id_project, id_task) {
 								
 								jEnd = data.indexOf('"error"', jStart) - 10; 
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								$.jnotify(message, "error");
+								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
 							}
 							else {
 								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
