@@ -304,6 +304,13 @@ function pop_time(id_project, id_task) {
 								,timemonth : $(this).find('input[name=timemonth]').val()
 								,timeyear : $(this).find('input[name=timeyear]').val()
 								
+								<?php if((float) DOL_VERSION > 3.6) {
+									?>
+									,progress : $(this).find('select[name=progress]').val()
+									<?php
+								}
+								?>
+								
 								,userid : $(this).find('[name=userid]').val()
 								,timespent_note : $(this).find('textarea[name=timespent_note]').val()
 								,timespent_durationmin : $(this).find('[name=timespent_durationmin]').val()
