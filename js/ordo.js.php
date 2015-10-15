@@ -145,15 +145,15 @@ function TOrdonnancement() {
     };
     
     this.addTask = function(task) {
-        $item = $('li#task-blank');
+        $li = $('li#task-blank').clone();
 				
-		$item.attr('task-id', task.id);
+		$li.attr('task-id', task.id);
 		
-		$item.find('[rel=label]').html(task.label).attr("title", task.long_description);
-		$item.find('[rel=divers]').html(task.divers);
+		$li.find('[rel=label]').html(task.label).attr("title", task.long_description);
+		$li.find('[rel=divers]').html(task.divers);
 		
-		$item.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
-		$item.find('[rel=project]').html(task.project.title);
+		$li.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
+		$li.find('[rel=project]').html(task.project.title);
 
 		var duration = task.planned_workload;
 		var height = 1;
@@ -169,20 +169,17 @@ function TOrdonnancement() {
 		if(height<1) height = 1;
 	
 		date=new Date(task.time_date_end * 1000);
-		if(task.time_date_end>0) $item.find('[rel=time-end]').html(date.toLocaleDateString());
+		if(task.time_date_end>0) $li.find('[rel=time-end]').html(date.toLocaleDateString());
 		
-		$item.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
+		$li.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
 	   
-	    $ul = $('#list-task-'+task.fk_workstation); 	
-	   
-	    $ul.append('<li task-id="'+task.id+'" id="task-'+task.id+'" class="draggable" >'+$item.html()+'</li>');
-	   
-		/*$('li[task-id='+task.id+'] select[name=fk_workstation]').val(task.fk_workstation);*/
-		$li = $('li[task-id='+task.id+']');
-		$li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
+	    $li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
 		
 		var ordo_height = Math.round( height_day/TVelocity[task.fk_workstation]*(height/nb_hour_per_day)  );
+		
+		if(isNaN(ordo_height)) ordo_height = 100;
+		
 		$li.css('height', ordo_height);
 		
 		if(task.project.array_options.options_color!=null) {
@@ -219,6 +216,16 @@ function TOrdonnancement() {
 		.mouseleave(function() {
 			$(this).height($(this).attr('ordo-height'));
 		});
+		
+		
+		$li.attr('id', 'task-'+task.id);
+		$li.addClass('draggable');
+		
+		console.log(task.fk_workstation,$li);
+		
+		$ul = $('#list-task-'+task.fk_workstation);
+	    $ul.append($li); 	
+		
     };
     
     this.addWorkstation = function(w) {

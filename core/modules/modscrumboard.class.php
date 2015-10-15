@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  * 	\defgroup	scrumboard	scrumboard module
  * 	\brief		scrumboard module descriptor.
@@ -24,13 +23,11 @@
  * 	\brief		Description and activation file for module scrumboard
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
-
 /**
  * Description and activation class for module scrumboard
  */
 class modscrumboard extends DolibarrModules
 {
-
     /**
      * 	Constructor. Define names, constants, directories, boxes, permissions
      *
@@ -39,16 +36,13 @@ class modscrumboard extends DolibarrModules
     public function __construct($db)
     {
         global $langs, $conf;
-
         $this->db = $db;
-
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
         $this->numero = 104210; // 104000 to 104999 for ATM CONSULTING
         // Key text used to identify module (for permissions, menus, etc...)
         $this->rights_class = 'scrumboard';
-
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
         // It is used to group modules in module setup page
         $this->family = "projects";
@@ -80,7 +74,7 @@ class modscrumboard extends DolibarrModules
         // for specific css file (eg: /scrumboard/css/scrumboard.css.php)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory
-            //'triggers' => 1,
+            'triggers' => 1,
             // Set this to 1 if module has its own login method directory
             //'login' => 0,
             // Set this to 1 if module has its own substitution function file
@@ -94,19 +88,16 @@ class modscrumboard extends DolibarrModules
             // Set this to relative path of css if module has its own css file
             //'css' => '/scrumboard/css/mycss.css.php',
             // Set here all hooks context managed by module
-            //'hooks' => array('hookcontext1','hookcontext2')
+            'hooks' => array('ordercard','projectcard')
             // Set here all workflow context managed by module
             //'workflow' => array('order' => array('WORKFLOW_ORDER_AUTOCREATE_INVOICE'))
         );
-
         // Data directories to create when module is enabled.
         // Example: this->dirs = array("/scrumboard/temp");
         $this->dirs = array();
-
         // Config pages. Put here list of php pages
         // stored into scrumboard/admin directory, used to setup module.
-        $this->config_page_url = false;
-
+        $this->config_page_url = 'scrumboard_setup.php@scrumboard';
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
         $this->depends = array();
@@ -122,22 +113,12 @@ class modscrumboard extends DolibarrModules
         // (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
         // Example:
         $this->const = array(
-            //	0=>array(
-            //		'MYMODULE_MYNEWCONST1',
-            //		'chaine',
-            //		'myvalue',
-            //		'This is a constant to add',
-            //		1
-            //	),
-            //	1=>array(
-            //		'MYMODULE_MYNEWCONST2',
-            //		'chaine',
-            //		'myvalue',
-            //		'This is another constant to add',
-            //		0
-            //	)
-        );
-
+       		array('SCRUM_DEFAULT_VELOCITY','chaine', 7,'Vélocité par défaut d\'un projet',0)
+			,array('SCRUM_VELOCITY_NUMBER_OF_DAY','chaine', 14,'Vélocité calculée sur ce nombre de jour',0)
+			,array('SCRUM_SEE_DELIVERYDATE_PER_DAY','chaine', 1,'Ajoute des titres par jour',0)
+            ,array('SCRUM_SEE_DELIVERYDATE_PER_WEEK','chaine', 1,'Ajoute des titres par semaine',0)
+            ,array('SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE','chaine', 4,'tolérance de groupage des tâches par produit',0)
+     	);
         // Array to add new pages in new tabs
         // Example:
         $this->tabs = array(
@@ -212,24 +193,29 @@ class modscrumboard extends DolibarrModules
           )
           );
          */
-
         // Boxes
         // Add here list of php file(s) stored in core/boxes that contains class to show a box.
         $this->boxes = array(); // Boxes list
         $r = 0;
         // Example:
-
         $this->boxes[$r][1] = "scrumboard_box@scrumboard";
         $r ++;
         /*
           $this->boxes[$r][1] = "myboxb.php";
           $r++;
          */
-
         // Permissions
         $this->rights = array(); // Permission array used by this module
-
-
+        
+        $r = $this->numero;
+        $this->rights[]=array(
+            0=>$this->numero + $r
+            ,1=>'UseOrdonnancement'
+            ,3=>0
+            ,4=>'ordo'
+        );
+        
+        $r++;
         // Add here list of permission defined by
         // an id, a label, a boolean and two constant strings.
         // Example:
@@ -249,89 +235,59 @@ class modscrumboard extends DolibarrModules
         // Main menu entries
         $this->menus = array(); // List of menus to add
         $r = 0;
-
-        // Add here entries to declare new menus
-        //
-        // Example to declare a new Top Menu entry and its Left menu entry:
-        //$this->menu[$r]=array(
-        //	// Put 0 if this is a top menu
-        //	'fk_menu'=>0,
-        //	// This is a Top menu entry
-        //	'type'=>'top',
-        //	'titre'=>'scrumboard top menu',
-        //	'mainmenu'=>'scrumboard',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagetop.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
-        //$this->menu[$r]=array(
-        //	// Use r=value where r is index key used for the parent menu entry
-        //	// (higher parent must be a top menu entry)
-        //	'fk_menu'=>'r=0',
-        //	// This is a Left menu entry
-        //	'type'=>'left',
-        //	'titre'=>'scrumboard left menu',
-        //	'mainmenu'=>'scrumboard',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagelevel1.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
-        //
-        // Example to declare a Left Menu entry into an existing Top menu entry:
-        //$this->menu[$r]=array(
-        //	// Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy'
-        //	'fk_menu'=>'fk_mainmenu=mainmenucode',
-        //	// This is a Left menu entry
-        //	'type'=>'left',
-        //	'titre'=>'scrumboard left menu',
-        //	'mainmenu'=>'mainmenucode',
-        //	'leftmenu'=>'scrumboard',
-        //	'url'=>'/scrumboard/pagelevel2.php',
-        //	// Lang file to use (without .lang) by module.
-        //	// File must be in langs/code_CODE/ directory.
-        //	'langs'=>'mylangfile',
-        //	'position'=>100,
-        //	// Define condition to show or hide menu entry.
-        //	// Use '$conf->scrumboard->enabled' if entry must be visible if module is enabled.
-        //	// Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-        //	'enabled'=>'$conf->scrumboard->enabled',
-        //	// Use 'perms'=>'$user->rights->scrumboard->level1->level2'
-        //	// if you want your menu with a permission rules
-        //	'perms'=>'1',
-        //	'target'=>'',
-        //	// 0=Menu for internal users, 1=external users, 2=both
-        //	'user'=>2
-        //);
-        //$r++;
+       $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'Scrumboard',
+								'mainmenu'=>'project',
+								'leftmenu'=>'Scrumboard',
+								'url'=>'/scrumboard/scrum.php',
+								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+		
+      $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'The Grid',
+								'mainmenu'=>'Scrumboard',
+								'leftmenu'=>'grid',
+								'url'=>'/scrumboard/grid.php',
+								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+	   
+       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=asset',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+            'type'=>'left',         // This is a Left menu entry
+            'titre'=>$langs->trans('Ordonnancement'),
+            'mainmenu'=>'asset',
+            'leftmenu'=>'ordoGPAO',
+            'url'=>'/scrumboard/grid.php',
+            'position'=>300,
+            'perms'=>'$user->rights->scrumboard->ordo',
+            'target'=>'',
+            'user'=>2);
+        $r++;
+       
+      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=asset,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+            'type'=>'left',         // This is a Left menu entry
+            'titre'=>$langs->trans('OrdonnancementStat'),
+            'mainmenu'=>'ordoGPAO',
+            'leftmenu'=>'ordoStat',
+            'url'=>'/scrumboard/grid-stat.php',
+            'position'=>300,
+            'perms'=>'$user->rights->scrumboard->ordo',
+            'target'=>'',
+            'user'=>2);
+        $r++;
+       
+	   
         // Exports
         $r = 1;
-
         // Example:
         //$this->export_code[$r]=$this->rights_class.'_'.$r;
         //// Translation key (used only if key ExportDataset_xxx_z not found)
@@ -422,7 +378,6 @@ class modscrumboard extends DolibarrModules
         //	. 'AND f.rowid = fd.fk_facture';
         //$r++;
     }
-
     /**
      * Function called when module is enabled.
      * The init function add constants, boxes, permissions and menus
@@ -434,17 +389,36 @@ class modscrumboard extends DolibarrModules
      */
     public function init($options = '')
     {
-        $sql = array();
-
-        $result = $this->loadTables();
-
-		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
+    	global $db;
 	
-
-
-        return $this->_init($sql, $options);
+	    $sql = array();
+        $result = $this->loadTables();
+		
+		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task` 
+					ADD `grid_col` FLOAT NOT NULL DEFAULT '0',
+					ADD `grid_row` FLOAT NOT NULL DEFAULT '999999'");		
+	
+		$db->query("ALTER TABLE `".MAIN_DB_PREFIX."projet_task`
+					ADD grid_height FLOAT NOT NULL DEFAULT 0");		
+		
+		$db->query('ALTER TABLE `'.MAIN_DB_PREFIX.'projet_task`
+				ADD INDEX `grid_row_grid_col` (`grid_row`, `grid_col`)');		
+	
+			$db->query("ALTER TABLE ".MAIN_DB_PREFIX."projet_task
+				ADD date_estimated_start DATETIME NOT NULL 
+			  , ADD date_estimated_end DATETIME NOT NULL 
+			  , ADD INDEX (date_estimated_start, date_estimated_end)");
+	
+		dol_include_once('/core/class/extrafields.class.php');
+        $extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
+		
+        $extrafields=new ExtraFields($this->db);
+		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
+        $extrafields=new ExtraFields($this->db);
+		$res = $extrafields->addExtraField('needed_ressource', 'nb ressources nécessaires', 'int', 0, '', 'projet_task');
+		return $this->_init($sql, $options);
     }
-
     /**
      * Function called when module is disabled.
      * Remove from database constants, boxes and permissions from Dolibarr database.
@@ -456,10 +430,8 @@ class modscrumboard extends DolibarrModules
     public function remove($options = '')
     {
         $sql = array();
-
         return $this->_remove($sql, $options);
     }
-
     /**
      * Create tables, keys and data required by module
      * Files llx_table1.sql, llx_table1.key.sql llx_data.sql with create table, create keys

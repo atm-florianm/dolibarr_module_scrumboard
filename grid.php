@@ -204,8 +204,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 function _draw_grid(&$TWorkstation, $column_width) {
 	
 	$width_table = 0;
-	foreach($TWorkstation as $w_param) {
-	    $w_id=$w_param['id'];
+	foreach($TWorkstation as $w_id=>&$w_param) {
+	    
 		$back = empty($w_param['background']) ? '' : 'background:'.$w_param['background'].';';
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
