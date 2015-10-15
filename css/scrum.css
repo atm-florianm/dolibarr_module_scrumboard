@@ -421,7 +421,7 @@ ul {
 }
 
 ul.task-list {
-	overflow:hidden;
+	/*overflow:hidden;*/
 }
 ul#list-projects.task-list {
 	overflow:visible;

@@ -54,18 +54,16 @@ function TOrdonnancement() {
 				,drag:function(event, ui) {
 					
 					$(this).css({
-						border:'10px solid grey'
-						/*,'box-shadow': '1px 5px 5px #000'*/
-						,'z-index' : '999'
+						'box-shadow': '1px 5px 5px #000'
+						,transform: 'rotate(7deg)'
 					});
 				}
 				,stop:function(event, ui) {
 					/*sortTask($(this).attr('ordo-ws-id'));*/
 					
 					$(this).css({
-						border:'1px solid black'
-						,'box-shadow': 'none'
-						
+						'box-shadow': 'none'
+						,transform:'none'
 					});
 				}
 			 });
@@ -186,11 +184,7 @@ function TOrdonnancement() {
 			$li.css('background-color', task.project.array_options.options_color);
 			$li.attr('ordo-project-color', task.project.array_options.options_color);
 		}
-		/*
-		if(task.project.array_options.options_fk_of!=null) {
-		     $li.find('[rel=anything]').append("<div><a href="<?php echo dol_buildpath('/asset/fiche_of.php',1) ?>"</div>");    
-		}
-		*/
+		
 		$li.attr('ordo-project-date-end', task.project_date_end);
 		$li.attr('ordo-nb-hour', height);
 		$li.attr('ordo-height', ordo_height);
@@ -209,7 +203,6 @@ function TOrdonnancement() {
 		});
 		$li.find('div[rel=time-rest]').html(task.aff_time_rest);
 		
-		/*$li.find('div[rel=time-end]').html(TVelocity[task.fk_workstation]);*/
 		$li.mouseenter(function() {
 			$(this).height($(this)[0].scrollHeight);
 		})
@@ -221,7 +214,7 @@ function TOrdonnancement() {
 		$li.attr('id', 'task-'+task.id);
 		$li.addClass('draggable');
 		
-		console.log(task.fk_workstation,$li);
+		console.log(ordo_height, task.fk_workstation,$li);
 		
 		$ul = $('#list-task-'+task.fk_workstation);
 	    $ul.append($li); 	
@@ -278,7 +271,7 @@ function TOrdonnancement() {
                              $('ul[ws-id='+fk_worstation_jo+']').append('<li class="'+classOff+'" jouroff="'+i+'">'+titleOff+'</li>');
                          
                              $li = $('ul[ws-id='+fk_worstation_jo+'] > li[jouroff='+i+']');
-                             console.log(dof);
+                             //console.log(dof);
                              $li.css({
                                     top:dof.top * coef_time
                                     ,position:'absolute'
@@ -297,7 +290,7 @@ function TOrdonnancement() {
 			
 			var nb_tasks = tasks['tasks'].length;
 			$.each(tasks['tasks'], function(i, task) {
-			
+				console.log(task);
 				task_top = coef_time * task.grid_row/* / TVelocity[task.fk_workstation]*/; // vélocité déjà dans le top 
 			
 				$li = $('li[task-id='+task.id+']');
@@ -324,7 +317,7 @@ function TOrdonnancement() {
 				if(duration>0) {
 					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
 				}
-				
+				console.log('ordo', height);
 				$li.attr('ordo-height', height);
 				if(task.date_end>0) {
 					if(task.time_estimated_end > task.date_end) {
