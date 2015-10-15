@@ -40,11 +40,7 @@
         define('INC_FROM_DOLIBARR',true);
         dol_include_once('/workstation/config.php');
         $ATMdb=new TPDOdb;
-        
-        $TWorkstationList = TWorkstation::getWorstations($ATMdb,true);
-        uasort($TWorkstationList, '_order_by_name');
-        $TWorkstation=array_merge($TWorkstation, $TWorkstationList);
-        
+        $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation);
     }
     else {
         setEventMessage($langs->trans("moduleWorkstationNeeded").' : <a href="https://github.com/ATM-Consulting/dolibarr_module_workstation" target="_blank">'.$langs->trans('DownloadModule').'</a>','errors');
@@ -101,8 +97,8 @@
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
                         
-					    foreach($TWorkstation as $w_param) {
-					        $w_id = $w_param['id'];
+					    foreach($TWorkstation as $w_id=>$w_param) {
+					        
                             ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
                             echo $w_param['name'].($w_param['velocity']<1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
@@ -163,9 +159,8 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
-					 	foreach($TWorkstation as $w_param) {
-					 	    $w_id=$w_param['id'];
-					 		?>
+					 	foreach($TWorkstation as $w_id=>$w_param) {
+					 	    ?>
 					 		
 					 		var w = new TWorkstation();
                             w.nb_ressource = <?php echo $w_param['nb_ressource']; ?>;

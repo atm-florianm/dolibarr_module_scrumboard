@@ -66,8 +66,9 @@ global $conf;
                 define('INC_FROM_DOLIBARR',true);
                 dol_include_once('/workstation/config.php');
                 $ATMdb=new TPDOdb;
-                $TWorkstation=array_merge($TWorkstation, TWorkstation::getWorstations($ATMdb,true));
-                
+                $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation);
+        		
+         
             }
            //     var_dump($TWorkstation);
             $Tab = ordonnanceur( 

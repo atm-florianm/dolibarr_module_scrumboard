@@ -192,20 +192,22 @@ function _ordo_init_new_task(&$TTaskToOrder) {
 }
 
 function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour) {
-    
+    global $langs;
+	
+	
     $t_start = $time_off_start - $time_init;
             
     if($day_moment == 'ALL') {
-        $t_end = $start + 86400;
+        $t_end = $t_start + 86400;
         $height = 86400;
     }
     else if($day_moment == 'AM') {
-        $t_end = $start + 43200;
+        $t_end = $t_start + 43200;
         $height = 43200;
     }
     else {
         $t_start += 43200;
-        $t_end = $start + 43200;
+        $t_end = $t_start + 43200;
         $height = 43200;
     }
     
@@ -213,7 +215,7 @@ function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, 
     $height = $height / $nb_second_in_hour;
     $left = 0;
     
-   return array('top'=>$top,'left'=>$left,'height'=>$height,'nb_ressource'=>$nb_ressource); 
+   return array('top'=>$top,'left'=>$left,'height'=>$height,'nb_ressource'=>$nb_ressource,'title'=>$langs->trans('DontWork')); 
     
 }
 
@@ -225,6 +227,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
     $PDOdb = new TPDOdb;
     
     $ws = new TWorkstation;
+	//var_dump($fk_workstation);
     $ws->load($PDOdb, $fk_workstation);
     
 	// TODO function asshole
@@ -250,7 +253,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
     
     if($height_of_past_day>0) {
     	$smallGeoffrey->addBox(0, 0,  $height_of_past_day , $ws->nb_ressource);
-    	$TOff[] = array('top'=>0,'left'=>0,'height'=>$height_of_past_day,'nb_ressource'=>$ws->nb_ressource, 'class'=>'past','title'=>'Passé'); 
+    	$TOff[] = array('top'=>0,'left'=>0,'height'=>$height_of_past_day,'nb_ressource'=>$ws->nb_ressource, 'class'=>'past','title'=>$fk_workstation.'. Passé'); 
 	}
   //  var_dump($height_of_past_day,$smallGeoffrey );
     
@@ -320,7 +323,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
 /*
  * Refresh task position
  */
-function ordonnanceur($TTaskToOrder, $TWorkstation ,$fk_workstation_to_order=0,$update_base=true) {
+function ordonnanceur(&$TTaskToOrder, &$TWorkstation ,$fk_workstation_to_order=0,$update_base=true) {
 global $conf,$db;    
     if(isset($_REQUEST['DEBUG2'])) print count($TTaskToOrder);
     $Tab = $TTaskOrdered = array();
@@ -330,7 +333,7 @@ global $conf,$db;
     $time_day = strtotime(date('Y-m-d'));
     $time_init = time();
     $t_ecart = $time_init - $time_day;
-    
+  //  var_dump($TWorkstation );
     
     $nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
     $nb_second_in_hour = 3600 * (24 / $nb_hour_per_day);
@@ -339,9 +342,8 @@ global $conf,$db;
     
     $TDayOff=$TSmallGeoffrey = array();
     if( $fk_workstation_to_order == 0 ) {
-        foreach($TWorkstation as &$ws) {
-             $fk_workstation = $ws['id'];
-            
+        foreach($TWorkstation as $fk_workstation=> &$ws) {
+             
              if(!isset($TSmallGeoffrey[$fk_workstation])) $TSmallGeoffrey[$fk_workstation] = new TSmallGeoffrey($ws['nb_ressource'], $ws['nb_hour_before'], $ws['nb_hour_after']);
              if(!isset( $TDayOff[$fk_workstation] )) $TDayOff[$fk_workstation] = _ordo_init_dayOff($TSmallGeoffrey[$fk_workstation], $fk_workstation, $time_init, $time_day, $nb_second_in_hour, $ws['velocity']);
         }
