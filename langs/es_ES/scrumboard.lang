@@ -1,0 +1,17 @@
+Module104210Name = Scrumboard
+Module104210Desc = Gestión de proyectos en un tablero scrum
+Ideas = Ideas
+inProgress = En progreso
+toDo = A Realizar
+finish = Finalizados
+TimeAdded=Tiempo añadido
+CurrentVelocity=Velocidad actual
+HoursPerDay= h por día (se utiliza como base para el cálculo de las fechas de finalización)
+EndedThe= finalizado probablemente el
+TaskWontfinishInTime=Esta tarea no ha sido entregada a tiempo
+TaskMightNotfinishInTime=Esta tarea puede no entregarse a su debido tiempo
+TaskDateShouldDelivery=Entrega posible en la fecha si se inicia la tarea a tiempo
+BarProgressionHelp=2 barras de progresión aparecen en cada tarea. La más clara esta relacionada con la progresión porcentual de la tarea. La segunda al tiempo invertido por cada usuario. 
+ResetDateWithThisVelocity=Recalcular las fechas de finalización de las tareas actuales y futuras a partir de la velocidad siguiente
+ResetDate=¿Recalcular fechas?
+ResetDateTask=Recalcular las fechas de las tareas
