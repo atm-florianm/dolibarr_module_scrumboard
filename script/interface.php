@@ -258,23 +258,25 @@ global $user;
 }
 
 function _tasks(&$db, $id_project, $status) {
-		
+	
+	if($id_project > 0) $cond_where = " AND fk_projet=".$id_project;
+	
 	if($status=='ideas') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 AND datee IS NULL
+		WHERE  progress=0 ".$cond_where." AND datee IS NULL
 		ORDER BY rang";
 	}	
 	else if($status=='todo') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=0 ORDER BY rang";
+		WHERE progress=0 ".$cond_where." ORDER BY rang";
 	}
 	else if($status=='inprogress') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress>0 AND progress<100 ORDER BY rang";
+		WHERE progress>0 ".$cond_where." AND progress<100 ORDER BY rang";
 	}
 	else if($status=='finish') {
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE fk_projet=".$id_project." AND progress=100 
+		WHERE progress=100 ".$cond_where." 
 		ORDER BY rang";
 	}
 		
