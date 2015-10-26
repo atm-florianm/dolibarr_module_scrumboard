@@ -630,9 +630,11 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     $sql.=" AND p.fk_statut IN (0,1)"; 
         
 	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
-		
-    $sql.=" AND ex.grid_use=1 
-        ORDER BY t.grid_row, t.grid_col";
+
+   if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
+	    $sql.=" AND ex.grid_use=1 ";
+    }
+    $sql.=" ORDER BY t.grid_row, t.grid_col ";
         
     $res = $db->query($sql);    
         
