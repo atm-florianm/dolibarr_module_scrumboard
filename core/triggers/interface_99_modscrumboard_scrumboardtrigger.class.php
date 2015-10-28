@@ -138,6 +138,7 @@ class Interfacescrumboardtrigger
             if(!empty($conf->global->SCRUM_ADD_TASKS_TO_GRID)) {
                   $object->array_options['options_grid_use'] = 1;  
                   $object->update($user,1);
+	          $object->insertExtraFields();
             }
             
             dol_syslog(
