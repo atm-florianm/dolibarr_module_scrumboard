@@ -317,6 +317,7 @@ global $langs;
 }
 
 function _sort_task(&$db, $TTask, $listname) {
+	global $user;
 	
 	if(strpos($listname, 'inprogress')!==false)$step = 1000;
 	else if(strpos($listname, 'todo')!==false)$step = 2000;
@@ -326,7 +327,7 @@ function _sort_task(&$db, $TTask, $listname) {
 		$task=new Task($db);
 		$task->fetch($id);
 		$task->rang = $step + $rank;
-		$task->update($db);
+		$task->update($user);
 	}
 	
 }

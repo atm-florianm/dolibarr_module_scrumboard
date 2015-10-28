@@ -417,6 +417,10 @@ class modscrumboard extends DolibarrModules
 		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
         $extrafields=new ExtraFields($this->db);
 		$res = $extrafields->addExtraField('needed_ressource', 'nb ressources nécessaires', 'int', 0, '', 'projet_task');
+		
+		$extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('fk_workstation', 'Poste de charge', 'int', 0, '', 'projet_task');
+		
 		return $this->_init($sql, $options);
     }
     /**
