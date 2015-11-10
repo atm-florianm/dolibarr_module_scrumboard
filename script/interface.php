@@ -317,6 +317,7 @@ global $langs;
 }
 
 function _sort_task(&$db, $TTask, $listname) {
+	global $user;
 	
 	if(strpos($listname, 'inprogress')!==false)$step = 1000;
 	else if(strpos($listname, 'todo')!==false)$step = 2000;
@@ -326,7 +327,7 @@ function _sort_task(&$db, $TTask, $listname) {
 		$task=new Task($db);
 		$task->fetch($id);
 		$task->rang = $step + $rank;
-		$task->update($db);
+		$task->update($user);
 	}
 	
 }
@@ -630,9 +631,11 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     $sql.=" AND p.fk_statut IN (0,1)"; 
         
 	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
-		
-    $sql.=" AND ex.grid_use=1 
-        ORDER BY t.grid_row, t.grid_col";
+
+   if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
+	    $sql.=" AND ex.grid_use=1 ";
+    }
+    $sql.=" ORDER BY t.grid_row, t.grid_col ";
         
     $res = $db->query($sql);    
         
