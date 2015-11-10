@@ -12,7 +12,7 @@ class ActionsScrumboard
     {  
       	global $langs,$db,$conf;
 		
-		if (in_array('ordercard',explode(':',$parameters['context']))) 
+		if (in_array('ordercard',explode(':',$parameters['context'])) && !empty($conf->of->enabled) && !empty($object->id) ) 
         {
         	?>
 				<tr>
@@ -23,6 +23,7 @@ class ActionsScrumboard
 			
         	$res = $db->query("SELECT rowid FROM ".MAIN_DB_PREFIX."assetOf 
         		WHERE fk_commande = ".$object->id." AND status IN ('VALID','OPEN','CLOSE')");
+               
 			if($obj = $db->fetch_object($res)) {
 				// l'of existe déjà et est valide
 				
