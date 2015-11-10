@@ -99,6 +99,15 @@ global $conf;
 			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
+			
+		case 'select-task':
+			dol_include_once('/core/class/html.formother.class.php');
+			$formother = new FormOther($db);
+			
+			//selectProjectTasks($selectedtask='', $projectid=0, $htmlname='task_parent', $modeproject=0, $modetask=0, $mode=0, $useempty=0, $disablechildoftaskid=0)
+			echo $formother->selectProjectTasks(GETPOST('fk_task'), GETPOST('fk_project'), 'fk_project_task',0,1,0,1);
+			
+			break;
 	}
 
 }

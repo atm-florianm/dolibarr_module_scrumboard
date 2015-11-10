@@ -96,10 +96,70 @@ class ActionsScrumboard
 				</td></tr>
 				<?php
 		}
-		
+		else if (in_array('actioncard',explode(':',$parameters['context']))) 
+        {
+        	
+			$fk_task = 0;
+			if($action!='create') {
+				$object->fetchObjectLinked();
+				
+				//var_dump($object->linkedObjectsIds['task']);
+				if(!empty($object->linkedObjectsIds['task'])) {
+					list($key, $fk_task) = each($object->linkedObjectsIds['task']);	
+				}
+				
+			}
+			
+			if($action == 'edit' || $action == 'create') {
+	        	?>
+				<script type="text/javascript">
+					$('#projectid').after('<span rel="fk_task"></span>');
+				
+					$('#projectid').change(function() {
+						
+						var fk_project = $(this).val();
+						
+						$.ajax({
+							url:"<?php echo dol_buildpath('/scrumboard/script/interface.php',1) ?>"
+							,data: {
+								get:"select-task"
+								,fk_task:<?php echo $fk_task ?>
+								,fk_project : fk_project
+							}
+								
+						}).done(function(data) {
+							$('span[rel=fk_task]').html(data);	
+						});
+						
+						
+						
+						
+					});
+					$('#projectid').change();
+				</script>	
+				<?php				
+			}
+			else {
+				dol_include_once('/projet/class/task.class.php');
+				$task = new Task($db);
+				$task->fetch($fk_task);
+				?>
+				<tr>
+					<td><?php echo $langs->trans('Task'); ?></td>
+					<td rel="fk_task">
+				<?php
+					echo $task->getNomUrl(1).' '.$task->label;
+				?>
+				</td></tr>
+				<?php
+					
+			}
+
+		}
 		return 0;
 	}
      
+	
     function formEditProductOptions($parameters, &$object, &$action, $hookmanager) 
     {
 		

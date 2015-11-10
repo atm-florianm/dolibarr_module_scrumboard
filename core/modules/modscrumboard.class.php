@@ -88,7 +88,7 @@ class modscrumboard extends DolibarrModules
             // Set this to relative path of css if module has its own css file
             //'css' => '/scrumboard/css/mycss.css.php',
             // Set here all hooks context managed by module
-            'hooks' => array('ordercard','projectcard')
+            'hooks' => array('ordercard','projectcard','actioncard')
             // Set here all workflow context managed by module
             //'workflow' => array('order' => array('WORKFLOW_ORDER_AUTOCREATE_INVOICE'))
         );
