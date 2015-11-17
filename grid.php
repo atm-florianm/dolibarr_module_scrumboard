@@ -102,7 +102,7 @@
 					        
                             ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
-                            echo $w_param['name'].($w_param['velocity']<1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+                            echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
                                 <a title="Juste cette colonne" href="javascript:toggleWorkStation(<?php echo $w_id; ?>, true)">(+)</a>
                             </span><?php
                         }
