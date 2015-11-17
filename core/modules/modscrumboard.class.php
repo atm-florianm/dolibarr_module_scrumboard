@@ -404,6 +404,9 @@ class modscrumboard extends DolibarrModules
 		$db->query('ALTER TABLE `'.MAIN_DB_PREFIX.'projet_task`
 				ADD INDEX `grid_row_grid_col` (`grid_row`, `grid_col`)');		
 	
+		$db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task
+				ADD INDEX progress (progress)');		
+	
 			$db->query("ALTER TABLE ".MAIN_DB_PREFIX."projet_task
 				ADD date_estimated_start DATETIME NOT NULL 
 			  , ADD date_estimated_end DATETIME NOT NULL 
