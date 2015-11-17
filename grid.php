@@ -40,7 +40,7 @@
         define('INC_FROM_DOLIBARR',true);
         dol_include_once('/workstation/config.php');
         $ATMdb=new TPDOdb;
-        $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation);
+        $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation, true);
     }
     else {
         setEventMessage($langs->trans("moduleWorkstationNeeded").' : <a href="https://github.com/ATM-Consulting/dolibarr_module_workstation" target="_blank">'.$langs->trans('DownloadModule').'</a>','errors');
@@ -79,7 +79,8 @@
 	
 			<table id="scrum">
 				<tr>
-					<td>
+					<td style="position:relative;">
+						<div class="loading-ordo"><img src="./img/loading.gif" /></div>
 					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br />
                         <?php echo $langs->trans('HourHeight') ?> : 
@@ -113,7 +114,7 @@
 				</tr>
 				<tr>
 					<td class="gridster" id="tasks" style="position:relative;">
-						<div id="theGrid">
+						<div id="theGrid">							
 						<?php
 						
 						_draw_grid($TWorkstation, $column_width);
