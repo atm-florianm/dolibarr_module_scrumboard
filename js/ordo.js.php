@@ -468,6 +468,15 @@ function TOrdonnancement() {
     	
     	$('ul.needToResize').css('height', max_height);
 
+		$('li.dayoff').each(function(i, item) {
+			if( parseInt($(item).css('top'))> max_height) {
+				$(item).hide();
+			}
+			else{
+				$(item).show();
+			}
+		});
+
 		$('.day_delim').remove();
 		
 		date=new Date();
