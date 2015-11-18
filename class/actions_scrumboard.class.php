@@ -73,6 +73,9 @@ class ActionsScrumboard
 		}
 		else if (in_array('projectcard',explode(':',$parameters['context']))) 
         {
+        	
+			if($object->id>0) {
+			 
         	?>
 				<tr>
 					<td>Fin de production prévisionnelle</td>
@@ -95,6 +98,8 @@ class ActionsScrumboard
 				?>
 				</td></tr>
 				<?php
+				
+			}
 		}
 		else if (in_array('actioncard',explode(':',$parameters['context']))) 
         {

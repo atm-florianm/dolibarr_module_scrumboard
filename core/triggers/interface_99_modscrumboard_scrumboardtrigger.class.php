@@ -151,7 +151,8 @@ class Interfacescrumboardtrigger
 			
 			$object->fetchObjectLinked();
 			if(!empty($object->linkedObjectsIds['task'])) {
-				$fk_task = each($object->linkedObjectsIds['task'])[1];	
+				$row = each($object->linkedObjectsIds['task']);
+				$fk_task = $row[1];	
 			}
 			
 			$fk_project_task = GETPOST('fk_project_task'); 
