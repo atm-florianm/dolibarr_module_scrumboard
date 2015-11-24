@@ -422,6 +422,7 @@ ul {
 
 ul.task-list {
 	/*overflow:hidden;*/
+	/*overflow-y: hidden;*/
 }
 ul#list-projects.task-list {
 	overflow:visible;
@@ -495,3 +496,14 @@ li.past {
 	background-color: #aaa;
 	opacity:0.5;
 }
+div.loading-ordo {
+	float:left;
+	position:absolute;
+	top:0;
+	left:0;
+}
+div.loading-ordo img {
+	height:100px;
+	
+}
+

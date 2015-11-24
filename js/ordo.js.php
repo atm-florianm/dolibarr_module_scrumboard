@@ -229,7 +229,8 @@ function TOrdonnancement() {
     };
     
     var order = function(wsid, nb_ressource) {
-    	
+    	$("div.loading-ordo").show('slide', {direction: 'left'}, 500);
+    	  
     	$("a[ws-id="+wsid+"]").css("color","white");
     	
     	$.ajax({
@@ -365,7 +366,7 @@ function TOrdonnancement() {
            });
            
             	
-           
+           $("div.loading-ordo").hide('slide', {direction: 'left'}, 500);
 
 		}); 
     	
@@ -466,6 +467,15 @@ function TOrdonnancement() {
     	});
     	
     	$('ul.needToResize').css('height', max_height);
+
+		$('li.dayoff').each(function(i, item) {
+			if( parseInt($(item).css('top'))> max_height) {
+				$(item).hide();
+			}
+			else{
+				$(item).show();
+			}
+		});
 
 		$('.day_delim').remove();
 		
