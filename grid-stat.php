@@ -7,8 +7,8 @@
      */
     
     
-    if(!$conf->workstation->enabled) accessforbidden( $lang->trans( 'moduleWorkstationNeeded' ) );
-    if(!$conf->report->enabled) accessforbidden( $lang->trans( 'moduleReportNeeded' ) );
+    if(!$conf->workstation->enabled) accessforbidden( $langs->trans( 'moduleWorkstationNeeded' ) );
+    if(!$conf->report->enabled) accessforbidden( $langs->trans( 'moduleReportNeeded' ) );
     
     
     
