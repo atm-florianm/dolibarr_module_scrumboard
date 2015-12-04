@@ -389,10 +389,15 @@ global $user, $langs,$conf;
 		
 	}
 	
-	$task->aff_time = convertSecondToTime($task->duration_effective);
-	$task->aff_planned_workload = convertSecondToTime($task->planned_workload);
+	$dayInSecond = 86400;
+	if($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY){
+		$dayInSecond = 60*60*$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY;
+	}
+	
+	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
+	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
     $task->time_rest = $task->planned_workload * (1 - ($task->progress / 100) );
-    $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
+    $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest,'all',$dayInSecond);
 
 	$task->long_description=$task->divers='';
    
