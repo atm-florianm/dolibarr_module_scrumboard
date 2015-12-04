@@ -414,14 +414,13 @@ function pop_time(id_project, id_task) {
 								project_velocity(id_project);	
 							}
 							
+							task = project_get_task(id_project, id_task);
+							task.status = 'inprogress';
+							project_refresh_task(id_project, task);
+							
 						});
 						
 						$("#saisie").dialog('close');
-						
-						
-						task = project_get_task(id_project, id_task);
-						task.status = 'inprogress';
-						project_refresh_task(id_project, task);
 	
 						return false;
 					
