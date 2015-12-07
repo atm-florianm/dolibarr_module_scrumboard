@@ -153,16 +153,19 @@ class ActionsScrumboard
 				dol_include_once('/projet/class/task.class.php');
 				$task = new Task($db);
 				$task->fetch($fk_task);
+				if(!empty($task->id))
+				{
 				?>
 				<tr>
 					<td><?php echo $langs->trans('Task'); ?></td>
 					<td rel="fk_task">
+					<?php
+						echo $task->getNomUrl(1).' '.$task->label;
+					?>
+					</td>
+				</tr>
 				<?php
-					echo $task->getNomUrl(1).' '.$task->label;
-				?>
-				</td></tr>
-				<?php
-					
+				}
 			}
 
 		}
