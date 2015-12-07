@@ -89,7 +89,12 @@ class ActionsScrumboard
 						
 					if($obj = $db->fetch_object($res)) {
 						$t = strtotime($obj->date_estimated_end);
-						print dol_print_date($t,'day').img_info('Temps actuel présent dans l\'ordonnancement. Attention, peut-être revu à tout moment');
+						if($t != '-62169987208'){
+							print dol_print_date($t,'day').img_info('Temps actuel présent dans l\'ordonnancement. Attention, peut-être revu à tout moment');
+						}
+						else {
+							print 'Pas de tâche ordonnancée';
+						}
 					}
 					else {
 						print 'Pas de tâche ordonnancée';

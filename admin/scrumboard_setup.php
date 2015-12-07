@@ -157,15 +157,6 @@ function showParameters() {
             <td><?php echo $langs->trans('NumberOfWorkingHourInDay') ?></td>
             <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY ?>" name="TDivers[TIMESHEET_WORKING_HOUR_PER_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
-        <tr>
-            <td><?php echo $langs->trans('ScheduleOfWorkingHourInDay') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_SCHEDULE ?>" name="TDivers[TIMESHEET_WORKING_SCHEDULE]" size="80" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-
-        <tr>
-            <td><?php echo $langs->trans('DayNoWorking') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_DAYOFF ?>" name="TDivers[TIMESHEET_DAYOFF]" size="30" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
 
         <tr>
             <td><?php echo $langs->trans('UseProjectPriority') ?></td><td><?php
