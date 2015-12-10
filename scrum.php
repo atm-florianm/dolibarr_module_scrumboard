@@ -26,10 +26,12 @@
 
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/js/scrum.js.php'));
 	
-	$id_projet = (int)GETPOST('id');
+	$id_projet = (int) GETPOST('id');
 
 	$object = new Project($db);
 	$object->fetch($id_projet);
+	// Debug en cas de id 0 et non admin
+	if(empty($object->id)) $object->id=0;
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
 	if($id_projet>0) {
@@ -133,16 +135,13 @@
 	print '<div class="tabsAction">';
 
 	if( (float)DOL_VERSION > 3.4 ) {
-		
-	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
-	{
-		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+		if ($user->rights->projet->all->creer || $user->rights->projet->creer)
 		{
-			print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+			{
+				print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			}
 		}
-	}
-		
-		
 	}
 
 	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
