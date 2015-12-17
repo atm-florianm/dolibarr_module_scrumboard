@@ -364,8 +364,18 @@ function create_task(id_projet) {
 }
 		
 function pop_time(id_project, id_task) {
-	$("#saisie")
-				.load('<?php echo dol_buildpath('/projet/tasks/time.php',2) ?>?id='+id_task+' div.fiche form'
+	
+	$.ajax({
+		url:"<?php echo dol_buildpath('/scrumboard/script/interface.php',1) ?>"
+		,data:{
+			put:'set-user-task'
+			,taskid:id_task
+			,userid:<?php echo $user->id; ?>
+		}
+		
+	}).done(function() {
+		$("#saisie")
+				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'
 				,function() {
 					$('textarea[name=timespent_note]').attr('cols',25);
 					
@@ -407,7 +417,7 @@ function pop_time(id_project, id_task) {
 								
 								jEnd = data.indexOf('"error"', jStart) - 10; 
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
+								$.jnotify(message, "error");
 							}
 							else {
 								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
@@ -433,6 +443,10 @@ function pop_time(id_project, id_task) {
 					,minHeight:200
 					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
 				});
+		
+	});
+	
+		
 }
 
 function reset_the_dates(id_project) {
