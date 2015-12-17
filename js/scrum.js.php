@@ -415,9 +415,18 @@ function pop_time(id_project, id_task) {
 							if(jStart>0) {
 								jStart=jStart+11;
 								
-								jEnd = data.indexOf('"error"', jStart) - 10; 
-								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								$.jnotify(message, "error");
+								jEnd = data.indexOf('"error"', jStart) - 10;
+								
+								if(jEnd>0) {
+									message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
+									$.jnotify(message, "error");
+								}
+								else{
+									
+									$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
+									
+								} 
+								
 							}
 							else {
 								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
