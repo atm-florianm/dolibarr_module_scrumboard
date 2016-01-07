@@ -131,7 +131,7 @@ function showParameters() {
         <tr>
             <td><?php echo $langs->trans('SetSCRUM_ALLOW_ALL_TASK_IN_GRID') ?></td><td><?php
             
-                if($conf->global->SCRUM_ADD_TASKS_TO_GRID==0) {
+                if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
                     
                      ?><a href="?action=save&TDivers[SCRUM_ALLOW_ALL_TASK_IN_GRID]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
                     
