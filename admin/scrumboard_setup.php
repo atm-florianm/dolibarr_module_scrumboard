@@ -127,6 +127,23 @@ function showParameters() {
             
             ?></td>             
         </tr>
+        SCRUM_ALLOW_ALL_TASK_IN_GRID
+        <tr>
+            <td><?php echo $langs->trans('SetSCRUM_ALLOW_ALL_TASK_IN_GRID') ?></td><td><?php
+            
+                if($conf->global->SCRUM_ADD_TASKS_TO_GRID==0) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_ALLOW_ALL_TASK_IN_GRID]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_ALLOW_ALL_TASK_IN_GRID]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
+
         <tr>
             <td><?php echo $langs->trans('SetSCRUM_ADD_TASKS_TO_GRID') ?></td><td><?php
             
