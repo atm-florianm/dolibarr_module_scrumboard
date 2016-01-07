@@ -121,7 +121,7 @@
 						
 						?>
 						<div class="projects" style="float:left;">
-						    <ul style="position:relative;width:200px; top:0px;" id="list-projects" class="task-list needToResize" >
+						    <ul style="position:relative;width:200px; top:38px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
 						</div>
