@@ -127,7 +127,7 @@ function showParameters() {
             
             ?></td>             
         </tr>
-        SCRUM_ALLOW_ALL_TASK_IN_GRID
+        
         <tr>
             <td><?php echo $langs->trans('SetSCRUM_ALLOW_ALL_TASK_IN_GRID') ?></td><td><?php
             
