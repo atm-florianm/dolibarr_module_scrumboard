@@ -330,6 +330,42 @@ function project_addDayAndWeek(mask) {
 
 }
 
+function pop_edit_task(fk_task, callback) {
+	
+	if($('#dialog-edit-task').length==0) {
+		$('body').append('<div id="dialog-edit-task"></div>');
+	}
+	var url ="<?php echo  dol_buildpath('/projet/tasks/task.php?action=edit&id=',1) ?>"+fk_task
+		
+	$('#dialog-edit-task').load(url+" div.fiche form",function() {
+		
+		$('#dialog-edit-task input[name=cancel]').remove();
+		$('#dialog-edit-task form').submit(function() {
+			
+			$.post($(this).attr('action'), $(this).serialize(), function() {
+				
+				if(callback) {
+					eval(callback);
+				}
+				
+			});
+		
+			$('#dialog-edit-task').dialog('close');			
+			
+			return false;
+	
+			
+		});
+		
+		$(this).dialog({
+			title: "<?php echo $langs->trans('EditTask') ?>"
+			,width:"80%"
+			,modal:true
+		});
+		
+	});
+	
+}
 
 function create_task(id_projet) {
 	

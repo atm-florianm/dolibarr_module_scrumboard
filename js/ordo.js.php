@@ -150,7 +150,9 @@ function TOrdonnancement() {
 		$li.find('[rel=label]').html(task.label).attr("title", task.long_description);
 		$li.find('[rel=divers]').html(task.divers);
 		
-		$li.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
+		$li.find('[rel=ref]').html(task.ref)
+				.attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
+		$li.find('[rel=task-link]').after(' <a href="javascript:OrdoQuickEditTask('+task.id+'); "><?php echo img_picto('', 'uparrow'); ?></a>');
 		$li.find('[rel=project]').html(task.project.title);
 
 		var duration = task.planned_workload;
@@ -228,6 +230,10 @@ function TOrdonnancement() {
         
     };
     
+    this.Order = function(wsid, nb_ressource) {
+    	order(wsid, nb_ressource);	
+    }
+    
     var order = function(wsid, nb_ressource) {
     	$("div.loading-ordo").show('slide', {direction: 'left'}, 500);
     	  
@@ -246,7 +252,7 @@ function TOrdonnancement() {
 			,dataType: 'json'
 		})
 		.done(function (tasks) {
-			//console.log(tasks);
+			//console.log(tasks);document.ordo
 			var coef_time = height_day / nb_hour_per_day;
 			
 			
@@ -261,7 +267,7 @@ function TOrdonnancement() {
                 if(fk_worstation_jo>0 && tasks['dayOff'][fk_worstation_jo].length>0) {
                     
                     $('ul[ws-id='+fk_worstation_jo+'] > li.dayoff').remove();
-                    $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {
+                    $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {order
                               
                              var classOff = 'dayoff';
                              if(dof.class!=null)classOff+=' '+ dof.class;
@@ -551,7 +557,7 @@ toggleWorkStation = function (fk_ws, justMe) {
         $('#columm-header1-'+fk_ws).removeClass('hiddenWS');
 	}
 	else if($('#columm-ws-'+fk_ws).is(':visible')) {
-		$('#columm-ws-'+fk_ws).hide();
+		$('#columm-wsordoQuickEditTask-'+fk_ws).hide();
 		$('#columm-header1-'+fk_ws).addClass('hiddenWS');
 	}
 	else{
@@ -687,6 +693,14 @@ OrdoSplitTask = function(taskid, min, max) {
 			$("#splitSlider label").attr("tache2", max - val);
 		}
 	});
+	
+};
+
+OrdoQuickEditTask = function(fk_task) {
+    	
+    $li = $('li#task-'+fk_task); 
+    
+	pop_edit_task(fk_task,'document.ordo.Order('+$li.attr('ordo-ws-id')+','+$li.attr('ordo-needed-ressource')+')');
 	
 };
 
