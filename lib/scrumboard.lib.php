@@ -436,6 +436,7 @@ global $conf,$db;
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
+			   $task['grid_height'] = $grid_height;
 	  
       //TODO prendre en compte les jours non travaillé
                $task['time_estimated_start'] = $time_day + ($row * $nb_second_in_hour);

@@ -206,6 +206,23 @@ function showParameters() {
             <td><?php echo $langs->trans('WhenEndOrdo') ?> (hh:mm)</td>
             <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_ORDO_END ?>" name="TDivers[SCRUM_TIME_ORDO_END]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
+        
+        <tr>
+            <td><?php echo $langs->trans('heightOfTaskIsDividedByRessource') ?></td><td><?php
+            
+                if(empty($conf->global->SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE)) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
+
 	</table>
 	</form>
 	

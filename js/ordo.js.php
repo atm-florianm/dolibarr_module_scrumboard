@@ -321,11 +321,21 @@ function TOrdonnancement() {
 				
 				var duration = task.planned_workload;
 				var height = 1;
-				if(duration>0) {
-					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
+				
+				if(task.grid_height) {
+					height = task.grid_height*coef_time;					
+				}
+				else {
+					if(duration>0) {
+						height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
+					}
 				}
 				console.log('ordo', height);
 				$li.attr('ordo-height', height);
+				
+				$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
+				$li.attr('ordo-needed-ressource',task.needed_ressource); 
+				
 				if(task.date_end>0) {
 					if(task.time_estimated_end > task.date_end) {
 						$('li[task-id='+task.id+']').addClass('taskLate');

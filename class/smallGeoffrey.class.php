@@ -174,11 +174,18 @@ class TSmallGeoffrey {
     }    
         
     function getNextPlace($h, $w, $fk_task_parent = 0, $y_min = 0) {
+    	global $conf;
+		
         if($this->debug) {
         	print "<hr><strong> getNextPlace($h, $w)";
 			print '<br />'.$this->debug_info.'</strong><hr>';
 		}
-        list($yParent,$xParent) = $this->getMinY($fk_task_parent);
+		
+		if(!empty($conf->global->SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE)) {
+			$h = $h/$w; // hauteur divisé par nombre de ressource nécessaire
+		}
+		
+		list($yParent,$xParent) = $this->getMinY($fk_task_parent);
 		$yParent-=$this->nb_hour_before;
 		$h+=$this->nb_hour_after;
 		
