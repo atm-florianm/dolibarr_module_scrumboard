@@ -171,7 +171,7 @@ function TOrdonnancement() {
 		date=new Date(task.time_date_end * 1000);
 		if(task.time_date_end>0) $li.find('[rel=time-end]').html(date.toLocaleDateString());
 		
-		$li.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
+		$li.find('header').html(task.project.title+' <span class="duration">'+(Math.round(duration / 3600 *100)/100)+'</span>h à <span class="progress">'+task.progress+'</span>%');
 	   
 	    $li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
@@ -334,7 +334,12 @@ function TOrdonnancement() {
 				$li.attr('ordo-height', height);
 				
 				$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
-				$li.attr('ordo-needed-ressource',task.needed_ressource); 
+				$li.attr('ordo-needed-ressource',task.needed_ressource);
+				
+				$li.find('header span.progress').html(task.progress); 
+				$li.attr('ordo-progress', task.progress);
+				
+				$li.find('[rel=label]').html(task.label);
 				
 				if(task.date_end>0) {
 					if(task.time_estimated_end > task.date_end) {
