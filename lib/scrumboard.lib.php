@@ -415,7 +415,7 @@ global $conf,$db;
 				    $TSmallGeoffrey[$fk_workstation]->debug_info = 'Taskid='. $task['id'];
 			   }
 
-               if($task['date_start']>$time_day) {
+               if($task['date_start']>$time_day && $fk_workstation>0) {
                    // la date de début est dans le future
                    $t_start_ecart =  $task['date_start'] - $time_day;
                    $y_start_ecart = $t_start_ecart / $nb_second_in_hour;
@@ -424,7 +424,6 @@ global $conf,$db;
                else {
                    $y_start_ecart = 0;
                }
-
 
                list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] , $y_start_ecart);
                
