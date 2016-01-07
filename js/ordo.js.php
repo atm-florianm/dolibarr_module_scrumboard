@@ -49,6 +49,7 @@ function TOrdonnancement() {
 				snap: true
 				,containment: "table#scrum td#tasks table"
 				,handle: "header"
+				,helper: "original"
 				,snapTolerance: 30
 				, distance: 10
 				,drag:function(event, ui) {
@@ -56,6 +57,7 @@ function TOrdonnancement() {
 					$(this).css({
 						'box-shadow': '1px 5px 5px #000'
 						,transform: 'rotate(7deg)'
+						
 					});
 				}
 				,stop:function(event, ui) {
@@ -64,6 +66,7 @@ function TOrdonnancement() {
 					$(this).css({
 						'box-shadow': 'none'
 						,transform:'none'
+
 					});
 				}
 			 });

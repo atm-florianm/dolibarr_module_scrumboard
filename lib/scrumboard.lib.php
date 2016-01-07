@@ -191,6 +191,43 @@ function _ordo_init_new_task(&$TTaskToOrder) {
     
 }
 
+function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_workstation, $nb_ressource_max, $time_init,$nb_second_in_hour,$t_start_ordo, $t_end_ordo) {
+	
+	if($fk_workstation<=0) return false;
+	
+	/*$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
+	FROM ".MAIN_DB_PREFIX."actioncomm ac LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_extrafields acex ON (acex.fk_object=ac.id)
+	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."' AND acex.fk_workstation=".$fk_workstation;
+	//var_dump($sql,$time_init);
+	$Tab = $PDOdb->ExecuteAsArray($sql);
+	
+	foreach($Tab as $row) {
+		$nb_ressource = $row->needed_ressource;
+		if($nb_ressource<=0 || $nb_ressource > $nb_ressource_max) $nb_ressource = $nb_ressource_max;
+		
+		$time_start = strtotime($row->date_deb);
+		$time_end = strtotime($row->date_fin);
+		
+		if(date('Hi', $time_start)<date('Hi', $t_start_ordo)) $time_start = strtotime( date('Y-m-d ', $time_start ).' '.date('H:i:s',$t_start_ordo) );
+		if(date('Hi', $time_end)>date('Hi', $t_end_ordo)) $time_end = strtotime( date('Y-m-d ', $time_end ).' '.date('H:i:s',$t_end_ordo) );
+		
+		if($time_end<$time_start) continue; // pas de date de fin
+		
+		$height = $time_end - $time_start;
+		
+		$t_start = $time_start - $time_init;
+		
+		$top = $t_start / $nb_second_in_hour;
+    	$height = $height / 3600;
+		
+		$TOff[] = array('top'=>$top,'left'=>0,'height'=>$height,'nb_ressource'=>$nb_ressource,'title'=>$row->label, 'class'=>'event'); 
+		$smallGeoffrey->addBox($top, 0, $height, $nb_ressource);
+		
+	}
+	*/
+	return true;
+}
+
 function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour) {
     global $langs;
 	
@@ -295,7 +332,9 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         
     }
     
-
+	/*
+	 * Jour non travaillé
+	 */
     $t_end_3month = strtotime('+3month', $time_day);
     $t_current = $time_init;
     
@@ -328,6 +367,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         $t_current = strtotime('+1day', $t_current);   
     }
    
+    _ido_add_immobilisation_event($PDOdb, $smallGeoffrey, $TOff, $fk_workstation, $ws->nb_ressource, $time_init,$nb_second_in_hour,$t_start_ordo, $t_end_ordo);
    
   
     //if(!empty($TPlanned)) $TFree = _ordo_gnc_get_free_place($TPlanned, $ws->nb_ressource,true);

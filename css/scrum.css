@@ -496,6 +496,10 @@ li.past {
 	background-color: #aaa;
 	opacity:0.5;
 }
+li.event {
+	background-color: #aaffaa;
+	opacity:0.5;
+}
 div.loading-ordo {
 	float:left;
 	position:absolute;
