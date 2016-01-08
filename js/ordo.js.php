@@ -20,7 +20,17 @@ function TOrdonnancement() {
        height_day = h_day;
        swap_time = sw_time;
        
- 	   $('.fixedHeader').makeFixed();
+ 	   $('.fixedHeader').makeFixed({
+ 	   	onFixed:function(el) {
+ 	   		var initLeft = parseInt( $(el).attr('data-mfx-left') );
+ 	   		var leftScroll = parseInt($(document).scrollLeft());
+ 	   		var newLeft = initLeft - leftScroll;
+ 	   		console.log(initLeft,leftScroll,newLeft);
+ 	   		$(el).css({
+ 	   			left : newLeft
+ 	   		});
+ 	   	}	
+ 	   });
 
        
        $.ajax({
@@ -56,7 +66,7 @@ function TOrdonnancement() {
 					
 					$(this).css({
 						'box-shadow': '1px 5px 5px #000'
-						,transform: 'rotate(7deg)'
+						,transform: 'rotate(7deg) '
 						
 					});
 				}
