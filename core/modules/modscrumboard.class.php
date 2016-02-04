@@ -269,6 +269,7 @@ class modscrumboard extends DolibarrModules
             'url'=>'/scrumboard/grid.php',
             'position'=>300,
             'perms'=>'$user->rights->scrumboard->ordo',
+            'lang'=>'scrumboard@scrumboard',
             'target'=>'',
             'user'=>2);
         $r++;
@@ -281,6 +282,7 @@ class modscrumboard extends DolibarrModules
             'url'=>'/scrumboard/grid-stat.php',
             'position'=>300,
             'perms'=>'$user->rights->scrumboard->ordo',
+            'lang'=>'scrumboard@scrumboard',
             'target'=>'',
             'user'=>2);
         $r++;
