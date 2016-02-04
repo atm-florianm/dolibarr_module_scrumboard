@@ -195,12 +195,15 @@ function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_wor
 	
 	if($fk_workstation<=0) return false;
 	
-	/*$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
+	$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
 	FROM ".MAIN_DB_PREFIX."actioncomm ac LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_extrafields acex ON (acex.fk_object=ac.id)
-	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."' AND acex.fk_workstation=".$fk_workstation;
+	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
+	
+	$sql.=" AND acex.fk_workstation=".$fk_workstation;
+	
 	//var_dump($sql,$time_init);
 	$Tab = $PDOdb->ExecuteAsArray($sql);
-	
+	//var_dump($sql,$Tab);
 	foreach($Tab as $row) {
 		$nb_ressource = $row->needed_ressource;
 		if($nb_ressource<=0 || $nb_ressource > $nb_ressource_max) $nb_ressource = $nb_ressource_max;
@@ -208,23 +211,31 @@ function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_wor
 		$time_start = strtotime($row->date_deb);
 		$time_end = strtotime($row->date_fin);
 		
-		if(date('Hi', $time_start)<date('Hi', $t_start_ordo)) $time_start = strtotime( date('Y-m-d ', $time_start ).' '.date('H:i:s',$t_start_ordo) );
-		if(date('Hi', $time_end)>date('Hi', $t_end_ordo)) $time_end = strtotime( date('Y-m-d ', $time_end ).' '.date('H:i:s',$t_end_ordo) );
+		if(date('Hi', $time_start)<date('Hi', $t_start_ordo)) {
+			$time_start = strtotime( date('Y-m-d ', $time_start ).' '.date('H:i:00',$t_start_ordo) );
+			//print '$time_start='.date('Y-m-d H:i:s',$time_start);
+		}
+		if(date('Hi', $time_end)>date('Hi', $t_end_ordo)) {
+			$time_end = strtotime( date('Y-m-d ', $time_end ).' '.date('H:i:00',$t_end_ordo) );
+			//print '$time_end='.date('Y-m-d H:i:s',$time_end);
+		}
 		
-		if($time_end<$time_start) continue; // pas de date de fin
+		if($time_end<$time_start) continue; // pas de date de fin ou régulation ex : 8h-8h30 n'a rien à faire ici si ordo débute à 9h
 		
 		$height = $time_end - $time_start;
 		
-		$t_start = $time_start - $time_init;
+		$t_start = $time_start - $t_start_ordo;
 		
 		$top = $t_start / $nb_second_in_hour;
     	$height = $height / 3600;
+		
+		//var_dump(date('Y-m-d H:i:s',$t_start_ordo), date('Y-m-d H:i:s',$time_init),date('Y-m-d H:i:s', $t_start),date('Y-m-d H:i:s', $time_end),$height, $top);exit;
 		
 		$TOff[] = array('top'=>$top,'left'=>0,'height'=>$height,'nb_ressource'=>$nb_ressource,'title'=>$row->label, 'class'=>'event'); 
 		$smallGeoffrey->addBox($top, 0, $height, $nb_ressource);
 		
 	}
-	*/
+	
 	return true;
 }
 
