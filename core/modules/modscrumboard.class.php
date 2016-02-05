@@ -262,7 +262,7 @@ class modscrumboard extends DolibarrModules
 		$r++;
 	   
        $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=gpao',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
-            'type'=>'left',         // This is a Left menu entry
+            'type'=>'gpao',         // This is a Left menu entry
             'titre'=>$langs->trans('Ordonnancement'),
             'mainmenu'=>'asset',
             'leftmenu'=>'ordoGPAO',
