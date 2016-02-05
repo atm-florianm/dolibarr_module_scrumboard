@@ -2,6 +2,10 @@
 
 require ('../config.php');
 
+if($conf->of->enabled)dol_include_once('/of/class/ordre_fabrication_asset.class.php');
+else if($conf->asset->enabled) dol_include_once('/asset/class/ordre_fabrication_asset.class.php'); //OLD
+			
+
 $get = GETPOST('get','alpha');
 $put = GETPOST('put','alpha');
 	
@@ -403,17 +407,13 @@ global $user, $langs,$conf;
    
 	if((int)$task->array_options['options_fk_of']>0) {
 	 
-    		define('INC_FROM_DOLIBARR',true);
-			dol_include_once('/asset/config.php');
-			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
-			
-			if(!isset($PDOdb))$PDOdb = new TPDOdb;
+    		if(!isset($PDOdb))$PDOdb = new TPDOdb;
 			
 			$of=new TAssetOF;
 			$of->withChild = false;
 			$of->load($PDOdb, $task->array_options['options_fk_of']);
 			
-			$link_of = dol_buildpath('/asset/fiche_of.php?id='.$task->array_options['options_fk_of']);
+			$link_of =  !empty($conf->of->enabled) ? dol_buildpath('/of/fiche_of.php?id='.$task->array_options['options_fk_of']) : dol_buildpath('/asset/fiche_of.php?id='.$task->array_options['options_fk_of']);
 			
 			if($of->fk_soc > 0) {
 				$soc=new Societe($db);
