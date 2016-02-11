@@ -192,21 +192,28 @@ function _ordo_init_new_task(&$TTaskToOrder) {
 }
 
 function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_workstation, $nb_ressource_max, $time_init,$nb_second_in_hour,$t_start_ordo, $t_end_ordo) {
+	//TODO simplify
+	global $conf;
 	
 	if($fk_workstation<=0) return false;
 	
 	$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
 	FROM ".MAIN_DB_PREFIX."actioncomm ac LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_extrafields acex ON (acex.fk_object=ac.id)
-	WHERE ac.datep2>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
+	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
 	
 	$sql.=" AND acex.fk_workstation=".$fk_workstation;
 	
+	$time_day = strtotime('midnight');
+	$nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
 	//var_dump($sql,$time_init);
 	$Tab = $PDOdb->ExecuteAsArray($sql);
 	//var_dump($sql,$Tab);
 	foreach($Tab as $row) {
 		$nb_ressource = $row->needed_ressource;
 		if($nb_ressource<=0 || $nb_ressource > $nb_ressource_max) $nb_ressource = $nb_ressource_max;
+		
+		$date_deb = new DateTime($row->date_deb);
+		$date_fin = new DateTime($row->date_fin);
 		
 		$time_start = strtotime($row->date_deb);
 		$time_end = strtotime($row->date_fin);
@@ -219,22 +226,35 @@ function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_wor
 			$time_end = strtotime( date('Y-m-d ', $time_end ).' '.date('H:i:00',$t_end_ordo) );
 			//print '$time_end='.date('Y-m-d H:i:s',$time_end);
 		}
-		
+	//	var_dump($row->date_deb);
 		if($time_end<$time_start) continue; // pas de date de fin ou régulation ex : 8h-8h30 n'a rien à faire ici si ordo débute à 9h
 		
-		$height = $time_end - $time_start;
+		$height = ($time_end - $time_start) / 3600;
 		
-		$t_start = $time_start - $t_start_ordo;
+		$t_start_day = strtotime(date('Y-m-d',$t_start_ordo).' '.date('H:i:s', $time_start));
+		$t_start = ($t_start_day - $time_day)   ;
+		$datetime1 = new DateTime(date('Y-m-d'));
+		$datetime2 = new DateTime(date('Y-m-d',$time_start));
+		$interval = $datetime1->diff($datetime2)->days;
 		
-		$top = $t_start / $nb_second_in_hour;
-    	$height = $height / 3600;
+		$top = (($t_start + ($interval * $nb_second_in_hour * $nb_hour_per_day)) / $nb_second_in_hour);
+	//	var_dump( $top, $t_start_day , $t_start_ordo,$height,$t_start,'********');
 		
-		//var_dump(date('Y-m-d H:i:s',$t_start_ordo), date('Y-m-d H:i:s',$time_init),date('Y-m-d H:i:s', $t_start),date('Y-m-d H:i:s', $time_end),$height, $top);exit;
+		
+		
+		//if($time_start>strtotime('midnight +1 day'))$t_start = $time_start - $t_start_ordo;
+		
+	//	var_dump($interval,round($t_start / 3600,1).' - '.date('Ymd H:i:s',$time_start).' - '.date('Ymd H:i:s',$t_start_ordo),$height,$t_start,$nb_second_in_hour,'----------');
+		
+    	//var_dump($height, $top);exit;
+		//var_dump(date('Y-m-d H:i:s',$t_start_ordo), date('Y-m-d H:i:s',$time_init),date('Y-m-d H:i:s', $t_start),date('Y-m-d H:i:s', $time_end),'----------');exit;
 		
 		$TOff[] = array('top'=>$top,'left'=>0,'height'=>$height,'nb_ressource'=>$nb_ressource,'title'=>$row->label, 'class'=>'event'); 
+		
 		$smallGeoffrey->addBox($top, 0, $height, $nb_ressource);
 		
 	}
+	
 	
 	return true;
 }
