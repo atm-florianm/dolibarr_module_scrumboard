@@ -197,7 +197,7 @@ function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_wor
 	
 	$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
 	FROM ".MAIN_DB_PREFIX."actioncomm ac LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_extrafields acex ON (acex.fk_object=ac.id)
-	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
+	WHERE ac.datep2>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
 	
 	$sql.=" AND acex.fk_workstation=".$fk_workstation;
 	

@@ -25,7 +25,7 @@ function TOrdonnancement() {
  	   		var initLeft = parseInt( $(el).attr('data-mfx-left') );
  	   		var leftScroll = parseInt($(document).scrollLeft());
  	   		var newLeft = initLeft - leftScroll;
- 	   		console.log(initLeft,leftScroll,newLeft);
+ 	   		//console.log(initLeft,leftScroll,newLeft);
  	   		$(el).css({
  	   			left : newLeft
  	   		});
@@ -229,7 +229,7 @@ function TOrdonnancement() {
 		$li.attr('id', 'task-'+task.id);
 		$li.addClass('draggable');
 		
-		console.log(ordo_height, task.fk_workstation,$li);
+		//console.log(ordo_height, task.fk_workstation,$li);
 		
 		$ul = $('#list-task-'+task.fk_workstation);
 	    $ul.append($li); 	
