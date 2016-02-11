@@ -364,21 +364,9 @@ function TOrdonnancement() {
 					
 				}
 				
-				if(i>10) {
-					 
-					 $li.css({
-                        	top:task_top
-                        	,left:(width_column * task.grid_col)
-                        	,height: height
-                	 });
-					 
-					 /*if(i+1 == nb_tasks) {
-					 	afterAnimationOrder();
-					 }*/
-					 
-				}
-				else {
-					
+				current_position = $li.position();
+				if( current_position.top!=task_top || current_position.left!=width_column * task.grid_col || $li.height()!=height ) {
+					//console.log('animate',i, current_position, task_top, width_column * task.grid_col, $li.height(),height);
 					$li.animate({
                         	top:task_top
                         	,left:(width_column * task.grid_col)
@@ -386,14 +374,14 @@ function TOrdonnancement() {
                     }
                     ,{	
                     	complete : function() {
-                    		if(i+1 == nb_tasks || i==10) {
+                    		if(i+1 == nb_tasks || i == 0) {
                     			afterAnimationOrder();
                     		}
                     	}
                     	
                 	});
-
-				}	 
+					
+				}
 				
 				$li.removeClass('loading');				
     
