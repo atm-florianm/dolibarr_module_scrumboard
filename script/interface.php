@@ -18,7 +18,7 @@ global $conf;
 	switch ($case) {
 		case 'tasks' :
 			
-			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 ? true : false;
+			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 && empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID) ? true : false;
 			
 			$var = explode('|',GETPOST('status'));
 			$Tab=array();
@@ -646,7 +646,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
         
 	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
 
-   if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
+    if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
 	    $sql.=" AND ex.grid_use=1 ";
     }
     $sql.=" ORDER BY t.grid_row, t.grid_col ";

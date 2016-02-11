@@ -250,7 +250,7 @@ class modscrumboard extends DolibarrModules
 		
       $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
 								'type'=>'left',			                // This is a Top menu entry
-								'titre'=>'The Grid',
+								'titre'=>'Ordonnancement',
 								'mainmenu'=>'Scrumboard',
 								'leftmenu'=>'grid',
 								'url'=>'/scrumboard/grid.php',
@@ -263,7 +263,7 @@ class modscrumboard extends DolibarrModules
 	   
        $this->menu[$r]=array( 'fk_menu'=>'fk_mainmenu=gpao',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'gpao',         // This is a Left menu entry
-            'titre'=>$langs->trans('Ordonnancement'),
+            'titre'=>'Ordonnancement',
             'mainmenu'=>'gpao',
             'leftmenu'=>'ordoGPAO',
             'url'=>'/scrumboard/grid.php',
@@ -276,7 +276,7 @@ class modscrumboard extends DolibarrModules
        
       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=gpao,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
-            'titre'=>$langs->trans('OrdonnancementStat'),
+            'titre'=>'OrdonnancementStat',
             'mainmenu'=>'ordoGPAO',
             'leftmenu'=>'ordoStat',
             'url'=>'/scrumboard/grid-stat.php',
