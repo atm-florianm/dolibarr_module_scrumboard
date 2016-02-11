@@ -310,7 +310,7 @@ function TOrdonnancement() {
 			
 			var nb_tasks = tasks['tasks'].length;
 			$.each(tasks['tasks'], function(i, task) {
-				console.log(task);
+				//console.log(task);
 				task_top = coef_time * task.grid_row/* / TVelocity[task.fk_workstation]*/; // vélocité déjà dans le top 
 			
 				$li = $('li[task-id='+task.id+']');
@@ -343,7 +343,7 @@ function TOrdonnancement() {
 						height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
 					}
 				}
-				console.log('ordo', height);
+				//console.log('ordo', height);
 				$li.attr('ordo-height', height);
 				
 				$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
