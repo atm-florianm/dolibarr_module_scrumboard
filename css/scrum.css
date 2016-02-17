@@ -511,3 +511,39 @@ div.loading-ordo img {
 	
 }
 
+#printedTask {
+	width:90%;
+	background-color: #fff;
+	position:absolute;
+	list-style-type:none;
+	padding:0 0 0 0;
+}
+#printedTask>li{
+	border:1px solid #000;
+	margin-bottom:30px;
+	list-style-type:none;
+}
+#printedTask>li img{
+	display:none;	
+}
+#printedTask>li header {
+	font-weight:bold;
+	padding : 10px;
+	border-bottom: 2px solid #000;
+	font-size:14px;
+}
+#printedTask div[rel=time-projection] {
+	width:50%;
+	float:left;
+	clear:left;	
+}
+#printedTask div[rel=time-rest] {
+	width:50%;
+	float:left;	
+}
+#printedTask div[rel=users] {
+	clear:left;	
+}
+#printedTask>li div[rel=time-end] {
+	text-align: right;	
+}

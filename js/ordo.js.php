@@ -326,7 +326,7 @@ function TOrdonnancement() {
 				if(task.TUser!=null) {
 					for(idUser in task.TUser) {
 						var tUser = task.TUser[idUser];
-						$li.find('[rel=users]').append('<input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label><br />' );
+						$li.find('[rel=users]').append('<div rel="user-check-'+task.id+'-'+idUser+'"><input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label></div>' );
 						
 					}
 					
@@ -586,6 +586,45 @@ toggleWorkStation = function (fk_ws, justMe) {
 	    var id = $(item).find('ul.task-list').attr('ws-id');
 	    var visible = ($(item).css('display') != 'none' ) ? 1 : 0;
 	    document.cookie="WSTogle["+id+"]="+visible;
+	    
+	});
+	
+	
+	
+};
+
+printWorkStation = function (fk_ws) {
+	
+	$('#printedFrame,#printedTask').remove();
+	$('body').append('<ul id="printedTask"></ul>');
+	
+	$('ul[ws-id='+fk_ws+']>li[task-id]').each(function (i,item) {
+		
+		$(item).clone()
+			.removeAttr("style")
+			.removeAttr("id")
+			.removeClass("draggable ui-draggable")
+			.appendTo("#printedTask");
+	});
+	
+	$("#printedTask").find(".button,.picto").remove();
+	
+	$("#printedTask").find("[rel=users]>div>input").not(":checked").each(function(i,item) {
+		
+		var taskid = $(item).attr('taskid');
+		var userid = $(item).attr('userid');
+		$('#printedTask div[rel="user-check-'+taskid+'-'+userid+'"]').remove();
+		
+	});
+	
+	$('<iframe id="printedFrame" name="printedFrame">').appendTo("body").ready(function(){
+	    setTimeout(function(){
+	    	
+	    	$('#printedFrame').contents().find('body').append('<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',2) ?>">');
+	    	$('#printedFrame').contents().find('body').append($("#printedTask"));
+	        window.frames["printedFrame"].focus();
+			window.frames["printedFrame"].print();
+	    },50);
 	    
 	});
 	

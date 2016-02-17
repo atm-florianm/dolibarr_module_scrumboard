@@ -446,7 +446,7 @@ global $user, $langs,$conf;
             $w_cell = 27;
             $h_cell = 28;
             
-            $task->divers.='<div style="float:left; margin-left:3px; background-image:url(./img/'.(!empty($conf->global->SCRUMBOARD_ICON_SET) ? $conf->global->SCRUMBOARD_ICON_SET:'animal-icons-mini').'.png);background-position:'.($w_cell * -$x_picto).'px '.($h_cell * -$y_picto).'px;width:'.$w_cell.'px; height:'.$h_cell.'px;"></div>';
+            $task->divers.='<div class="picto" style="float:left; margin-left:3px; background-image:url(./img/'.(!empty($conf->global->SCRUMBOARD_ICON_SET) ? $conf->global->SCRUMBOARD_ICON_SET:'animal-icons-mini').'.png);background-position:'.($w_cell * -$x_picto).'px '.($h_cell * -$y_picto).'px;width:'.$w_cell.'px; height:'.$h_cell.'px;"></div>';
             //var_dump(array($nb_picto,$y_picto, $x_picto,$task->divers));
         }
             

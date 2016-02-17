@@ -102,8 +102,9 @@
 					        
                             ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
-                            echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+                            	echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
                                 <a title="Juste cette colonne" href="javascript:toggleWorkStation(<?php echo $w_id; ?>, true)">(+)</a>
+                                <a href="javascript:printWorkStation(<?php echo $w_id; ?>);"><?php echo img_printer(); ?></a>
                             </span><?php
                         }
                         
@@ -207,7 +208,11 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		$width_table+=$w_column;	
 		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;z-index:1;">
-		        <div style="width:<?php echo $column_width ?>px; z-index:1;"><span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a></span></div>
+		        <div style="width:<?php echo $column_width ?>px; z-index:1;">
+		        	<span class="fixedHeader columnHeader">
+		        		<a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+		        	</span>
+		        </div>
 				<ul style="position:relative;min-height: 500px;min-width:<?php echo round($w_column); ?>z-index:10;" id="list-task-<?php echo $w_id; ?>" ws-id="<?php echo $w_id; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>
