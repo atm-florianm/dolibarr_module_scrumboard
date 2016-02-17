@@ -275,7 +275,10 @@ ul {
     line-height: 100%;
     float:left;
     width:200px;
-    border:1px solid black;
+    border-bottom:1px solid #888;
+    border-top:1px solid #ccc;
+    border-right:1px solid #888;
+    border-left:1px solid #ccc;
     position: relative;
     margin-bottom:5px;
 }
@@ -330,7 +333,8 @@ ul {
 	padding:0px 0 0 0px;
 }
 .gridster li header {
-    background: #333 url("../img/grip.png") center;
+    background: #333 /*url("../img/grip.png") center*/;
+    border-bottom:1px solid #ccc;
     color:#fff;
     display: block;
     font-size: 12px;
