@@ -216,6 +216,10 @@ function showParameters() {
             <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_MORE_PREVISION ?>" name="TDivers[SCRUM_TIME_MORE_PREVISION]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
         <tr>
+            <td><?php echo $langs->trans('TimeMoreForPrevisionPropal') ?></td>
+            <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_MORE_PREVISION_PROPAL ?>" name="TDivers[SCRUM_TIME_MORE_PREVISION_PROPAL]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
+        </tr>
+        <tr>
             <td><?php echo $langs->trans('WhenBeginOrdo') ?> (hh:mm)</td>
             <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_ORDO_START ?>" name="TDivers[SCRUM_TIME_ORDO_START]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>

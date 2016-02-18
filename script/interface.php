@@ -33,8 +33,8 @@ global $conf;
 			if($conf->workstation->enabled) {
                 define('INC_FROM_DOLIBARR',true);
                 dol_include_once('/workstation/config.php');
-                $ATMdb=new TPDOdb;
-                $TWorkstation=TWorkstation::getWorstations($ATMdb,true);
+                $PDOdb=new TPDOdb;
+                $TWorkstation=TWorkstation::getWorstations($PDOdb,true);
                 
             }
 			else {
@@ -42,10 +42,13 @@ global $conf;
 				exit;
 			}
            
+		    $type_object =  GETPOST('type_object');
+		    $TTaskObject = ($type_object == 'propal') ? _task_propal($db, GETPOST('fk_object')) : _task_commande($db, GETPOST('fk_object'));
+		   
 		    $Tab = ordonnanceur( 
     			array_merge(
     				_tasks_ordo($db, $TWorkstation, 'inprogress|todo', 0)
-					,_task_commande($db, GETPOST('fk_commande'))
+					,$TTaskObject
 				)
     			, $TWorkstation
     			, 0
@@ -57,8 +60,12 @@ global $conf;
 				if($task['time_estimated_end']> $time_max) $time_max =(int)$task['time_estimated_end']; 
 			}
 			
-			print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION * 86400), 'day');
-			
+			if($type_object == 'propal') {
+				print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION_PROPAL * 86400), 'day');	
+			}
+			else {
+				print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION * 86400), 'day');	
+			}
 			
 			break;
         case 'tasks-ordo':
@@ -69,8 +76,8 @@ global $conf;
             if($conf->workstation->enabled) {
                 define('INC_FROM_DOLIBARR',true);
                 dol_include_once('/workstation/config.php');
-                $ATMdb=new TPDOdb;
-                $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation);
+                $PDOdb=new TPDOdb;
+                $TWorkstation = TWorkstation::getWorstations($PDOdb,true,false,$TWorkstation);
         		
          
             }
@@ -596,22 +603,85 @@ global $user;
 	$project->update($user);
 
 }
+
+function _task_from_line_object(&$PDOdb, &$TLine,$type_object) {
+	
+	$TTask = array();
+	
+	foreach($TLine as &$line) {
+		
+		$n = new TNomenclature;
+		$n->loadByObjectId($PDOdb, $fk_commande, $type_object,true,$line->fk_product, $line->qty);		
+
+		foreach($n->TNomenclatureWorkstation as &$ws) {
+		
+			$TTask[] = array(
+                'status'=>1
+                ,'id'=>1
+                ,'fk_projet'=>1
+                ,'label'=>'Simul'
+                ,'ref'=>'TKSIMUL'
+                , 'grid_col'=>0
+                , 'grid_row'=>999999
+                ,'fk_workstation'=>$ws->fk_workstation
+                ,'fk_product'=>$line->fk_product
+                ,'fk_task_parent'=>0
+                ,'needed_ressource'=>1 
+                ,'planned_workload'=>$ws->nb_hour
+                ,'progress'=>0
+                ,'fk_soc'=>0
+                ,'TUser'=>array()
+                ,'date_start'=>time()
+                ,'date_end'=>0
+                ,'date_estimated_end'=>0
+         	);
+			
+		}		
+
+	}
+	//var_dump($TTask);
+	
+	return $TTask;
+	
+}
+
 function _task_commande(&$db, $fk_commande) {
+global $conf,$langs, $user;
+
+	if(empty($conf->nomenclature->enabled)) return array();
+	
+	$PDOdb=new TPDOdb;
 	
 	dol_include_once('/commande/class/commande.class.php');
+	dol_include_once('/nomenclature/class/nomenclature.class.php');
 	
 	$c = new Commande($db);
 	$c->fetch($fk_commande);
 	
-	$TTask=array();
-	
-	foreach($c->lines as &$line) {
-		
-		
-		
-	}
+	$TTask = _task_from_line_object($PDOdb, $c->lines, 'commande');
 	
 	return $TTask;
+	
+	
+}
+function _task_propal(&$db, $fk_propal) {
+	
+	global $conf,$langs, $user;
+
+	if(empty($conf->nomenclature->enabled)) return array();
+	
+	$PDOdb=new TPDOdb;
+	
+	dol_include_once('/comm/propal/class/propal.class.php');
+	dol_include_once('/nomenclature/class/nomenclature.class.php');
+	
+	$o = new Propal($db);
+	$o->fetch($fk_propal);
+	
+	$TTask = _task_from_line_object($PDOdb, $o->lines, 'propal');
+	
+	return $TTask;
+	
 	
 	
 }

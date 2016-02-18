@@ -55,7 +55,7 @@ class modscrumboard extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Description of module scrumboard";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '2.0';
+        $this->version = '2.1';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -88,7 +88,7 @@ class modscrumboard extends DolibarrModules
             // Set this to relative path of css if module has its own css file
             //'css' => '/scrumboard/css/mycss.css.php',
             // Set here all hooks context managed by module
-            'hooks' => array('ordercard','projectcard','actioncard')
+            'hooks' => array('ordercard','propalcard','projectcard','actioncard')
             // Set here all workflow context managed by module
             //'workflow' => array('order' => array('WORKFLOW_ORDER_AUTOCREATE_INVOICE'))
         );
@@ -168,7 +168,8 @@ class modscrumboard extends DolibarrModules
           'tablib'=>array("Table1","Table2","Table3"),
           // Request to select fields
           'tabsql'=>array(
-          'SELECT f.rowid as rowid, f.code, f.label, f.active'
+          'SELECT f.rowid as rowid, f.code, f.la			$this->date_lancement = strtotime('+'.$delai.' day midnight');
+		 * bel, f.active'
           . ' FROM ' . MAIN_DB_PREFIX . 'table1 as f',
           'SELECT f.rowid as rowid, f.code, f.label, f.active'
           . ' FROM ' . MAIN_DB_PREFIX . 'table2 as f',
@@ -227,7 +228,8 @@ class modscrumboard extends DolibarrModules
         //$this->rights[$r][3] = 1;
         //// In php code, permission will be checked by test
         //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][4] = 'level1';
+        //$this->rights[$r][4] = 'level1';			$this->date_lancement = strtotime('+'.$delai.' day midnight');
+        
         //// In php code, permission will be checked by test
         //// if ($user->rights->permkey->level1->level2)
         //$this->rights[$r][5] = 'level2';
