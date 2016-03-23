@@ -55,3 +55,4 @@ TimeMoreForPrevisionPropal=Ajout de temps prévisionnel fixe pour l'estimation e
 WhenBeginOrdo=Heure où débute l'ordonnancement
 WhenEndOrdo=Heure où fini l'ordonnancement
 SetSCRUM_ALLOW_ALL_TASK_IN_GRID=Ordonnancer toutes les tâches sans distinction
+hideProjectsOnTheRight=Masquer la liste des projets sur la droite de l'ordonnancement

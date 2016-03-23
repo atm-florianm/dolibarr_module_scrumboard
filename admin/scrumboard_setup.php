@@ -243,6 +243,22 @@ function showParameters() {
             
             ?></td>             
         </tr>
+        
+        <tr>
+            <td><?php echo $langs->trans('hideProjectsOnTheRight') ?></td><td><?php
+            
+                if(empty($conf->global->SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT)) {
+                    
+                     ?><a href="?action=save&TDivers[SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+                    
+                }
+                else {
+                     ?><a href="?action=save&TDivers[SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+                    
+                }
+            
+            ?></td>             
+        </tr>
 
 	</table>
 	</form>
