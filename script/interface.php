@@ -500,7 +500,7 @@ function _split_task($taskid, $task1time, $task2time) {
     
     $task =new Task($db);
     $task->fetch($taskid);
-    $task->fetch_optionals();
+    $task->fetch_optionals($task->id); // Nécessaire de préciser l'id jusqu'à la version 3.8
     
     $task->planned_workload = $task1time * 3600;
     $task->update($user);
