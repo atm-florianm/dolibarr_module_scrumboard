@@ -412,7 +412,7 @@ global $user, $langs,$conf;
 
 	$task->long_description=$task->divers='';
    
-	if((int)$task->array_options['options_fk_of']>0) {
+	if((int)$task->array_options['options_fk_of']>0 && $conf->of->enabled) {
 	 
     		if(!isset($PDOdb))$PDOdb = new TPDOdb;
 			
