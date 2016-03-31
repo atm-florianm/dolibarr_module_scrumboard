@@ -625,7 +625,7 @@ printWorkStation = function (fk_ws) {
 		
 	});
 	
-	$('<iframe id="printedFrame" name="printedFrame">').appendTo("body").ready(function(){
+	$('<iframe id="printedFrame" name="printedFrame" style="display:none;">').appendTo("body").ready(function(){
 	    setTimeout(function(){
 	    	
 	    	$('#printedFrame').contents().find('body').append('<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',2) ?>">');
