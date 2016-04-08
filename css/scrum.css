@@ -551,3 +551,7 @@ div.loading-ordo img {
 #printedTask>li div[rel=time-end] {
 	text-align: right;	
 }
+
+.font-small {
+	font-size:11px;
+}

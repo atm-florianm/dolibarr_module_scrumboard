@@ -190,7 +190,8 @@
 				<span rel="time"></span>
 				</div>
 				
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<br /><span class="font-small" rel="list_of_user_affected"></span> 
 			</li>
 			</ul>
 			
