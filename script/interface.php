@@ -815,6 +815,8 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     
 }
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
+	global $hookmanager;
+	$hookmanager->initHooks(array('scrumboardgettasks'));
 	
 	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end', t.note_private
 		FROM ".MAIN_DB_PREFIX."projet_task t 
@@ -847,25 +849,32 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
     }
     else{
         $sql.=" ORDER BY rang";    
-    }	
-		
-	$res = $db->query($sql);	
-		
+    }
+	
+	$parameters=array('action'=>'_tasks_before_exec_sql', 'sql'=>&$sql, 'status'=>$status, 'fk_project'=>$id_project, 'onlyUseGrid'=>$onlyUseGrid);
+	$reshook=$hookmanager->executeHooks('doScrumActions',$parameters);
+
+	$res = $db->query($sql);
 	$TTask = array();
-	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( 
-			_task($db, $obj->rowid)
-		 	, array(
-		 		'status'=>$status
-		 		, 'grid_col'=>$obj->grid_col
-		 		, 'grid_row'=>$obj->grid_row
-		 		,'fk_workstation'=>(int)$obj->fk_workstation
-		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
-		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
-		 		,'project_date_end'=>strtotime($obj->project_date_end) 
-			)
-		 );
+	
+	if ($res)
+	{
+		while($obj = $db->fetch_object($res)) {
+			$TTask[] = array_merge( 
+				_task($db, $obj->rowid)
+			 	, array(
+			 		'status'=>$status
+			 		, 'grid_col'=>$obj->grid_col
+			 		, 'grid_row'=>$obj->grid_row
+			 		,'fk_workstation'=>(int)$obj->fk_workstation
+			 		,'fk_task_parent'=>(int)$obj->fk_task_parent
+			 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
+			 		,'project_date_end'=>strtotime($obj->project_date_end) 
+				)
+			 );
+		}	
 	}
+	
 	
 	return $TTask;
 }
