@@ -135,7 +135,7 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
-                WHERE tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
+                WHERE t.entity=".$conf->entity." AND tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
                 AND t.date_estimated_start<'".date('Y-m-d 23:59:59', $tFin)."' 
                 AND t.date_estimated_end>'".date('Y-m-d 00:00:00', $tDeb)."'
                 ORDER BY  t.date_estimated_start  ";
@@ -147,7 +147,7 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
-                WHERE tex.fk_workstation=".$id_ws." AND t.datee < NOW()
+                WHERE t.entity=".$conf->entity." AND tex.fk_workstation=".$id_ws." AND t.datee < NOW()
                 AND t.dateo<'".date('Y-m-d 23:59:59', $tFin)."' 
                 AND t.datee>'".date('Y-m-d 00:00:00', $tDeb)."'
                 ORDER BY  t.dateo  ";
