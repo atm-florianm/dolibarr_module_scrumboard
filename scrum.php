@@ -32,7 +32,7 @@
 	$object->fetch($id_projet);
 	// Debug en cas de id 0 et non admin
 	if(empty($object->id)) $object->id=0;
-	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
+	$object->fetch_thirdparty();
 
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
@@ -70,7 +70,7 @@
 		// Customer
 		print "<tr><td>".$langs->trans("Company")."</td>";
 		print '<td colspan="3">';
-		if ($object->societe->id > 0) print $object->societe->getNomUrl(1);
+		if ($object->thirdparty->id > 0) print $object->thirdparty->getNomUrl(1);
 		else print '&nbsp;';
 		print '</td></tr>';
 
