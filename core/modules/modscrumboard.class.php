@@ -243,7 +243,7 @@ class modscrumboard extends DolibarrModules
 								'mainmenu'=>'project',
 								'leftmenu'=>'Scrumboard',
 								'url'=>'/scrumboard/scrum.php',
-								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
 								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
@@ -256,7 +256,7 @@ class modscrumboard extends DolibarrModules
 								'mainmenu'=>'Scrumboard',
 								'leftmenu'=>'grid',
 								'url'=>'/scrumboard/grid.php',
-								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
 								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
@@ -289,13 +289,13 @@ class modscrumboard extends DolibarrModules
             'user'=>2);
         $r++;
 		
-		$this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
-								'type'=>'left',			                // This is a Top menu entry
-								'titre'=>'Projets par Chef de projet',
-								'mainmenu'=>'Scrumboard',
-								'leftmenu'=>'grid',
-								'url'=>'/scrumboard/nb_proj_cdp.php',
-								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+	$this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
+							'type'=>'left',			                // This is a Top menu entry
+							'titre'=>'Projets par Chef de projet',
+							'mainmenu'=>'Scrumboard',
+							'leftmenu'=>'grid',
+							'url'=>'/scrumboard/nb_proj_cdp.php',
+							'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>110,
 								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
