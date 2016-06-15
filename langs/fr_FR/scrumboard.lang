@@ -57,3 +57,6 @@ WhenEndOrdo=Heure où fini l'ordonnancement
 SetSCRUM_ALLOW_ALL_TASK_IN_GRID=Ordonnancer toutes les tâches sans distinction
 hideProjectsOnTheRight=Masquer la liste des projets sur la droite de l'ordonnancement
 showLinkedContactToTask=Afficher les contacts liés
+
+#NOMBRE DE PROJETS PAR CHEF DE PROJET 
+graphProjectCDP=Nombre de projets par chef de projet
