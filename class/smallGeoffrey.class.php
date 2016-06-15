@@ -14,17 +14,16 @@ class TSmallGeoffrey {
         $this->debug = false;
     }
 
-	function getMinY($fk_task_parent) {
-	    global $db; 
+    function getMinY($fk_task_parent) {
+	global $db, $conf; 
 	    
         $yMin = 0; 
-        
         if($fk_task_parent>0) {
 	        // dans la même file ? 
 	        foreach($this->TBox as &$box) {
 	            if($box->taskid == $fk_task_parent) {
 	                $yMin = $box->top + $box->height ;
-                    break;
+                    	break;
 	            }
 	        }
 	    
@@ -32,7 +31,10 @@ class TSmallGeoffrey {
                 $sql = "SELECT t.grid_row,t.grid_height,t.planned_workload,t.progress,tex.fk_workstation 
                     FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
-                    WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND tex.grid_use = 1";
+                    WHERE t.rowid = ".$fk_task_parent." AND t.progress<100";
+
+		if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) $sql.=" AND tex.grid_use = 1";
+
                 $res = $db->query($sql);    
                 
                 $obj = $db->fetch_object($res);
@@ -43,10 +45,10 @@ class TSmallGeoffrey {
             }
 	           
             
-	    }
-	    
-	    return array($yMin,0);
 	}
+	    
+	return array($yMin,0);
+    }
 
     function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0) {
         
