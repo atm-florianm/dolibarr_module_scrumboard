@@ -81,8 +81,8 @@
 				<tr>
 					<td style="position:relative;">
 						<div class="loading-ordo"><img src="./img/loading.gif" /></div>
-					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
-					    <br />
+					    <!-- <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
+					    <br /> -->
                         <?php echo $langs->trans('HourHeight') ?> : 
                         <a class="columnHeader columnHeaderMini" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
                         <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
@@ -94,22 +94,22 @@
                         <a class="columnHeader columnHeaderMini" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
-                        <br />
+                        <div id="ws-list-top">
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
                         
 					    foreach($TWorkstation as $w_id=>$w_param) {
 					        
-                            ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
+                            ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id;  
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
                             	echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
                                 <a title="Juste cette colonne" href="javascript:toggleWorkStation(<?php echo $w_id; ?>, true)">(+)</a>
                                 <a href="javascript:printWorkStation(<?php echo $w_id; ?>);"><?php echo img_printer(); ?></a>
                             </span><?php
                         }
-                        
                      /*   ?><a href="javascript:OrdoReorderAll();" class="columnHeader"><?php echo $langs->trans('Refresh'); ?></a><?php */
 					    ?>
+                        </div>
 					    
 					</td>
 				</tr>
@@ -150,14 +150,15 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		            var TDayOff = new Array( <?php echo $conf->global->TIMESHEET_DAYOFF; ?> );
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js.php"></script>
-                <script type="text/javascript" src="./js/makefixed.js"></script>
-                <script type="text/javascript">
+	                <script type="text/javascript" src="./js/makefixed.js"></script>
+        	        <script type="text/javascript">
 				var TVelocity = [];
 				
 				document.ordo = {};
 				
 				$(document).ready(function(){
-				
+  					$('#ws-list-top').width($( window ).width());
+
 				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
