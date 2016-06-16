@@ -420,7 +420,7 @@ global $user, $langs,$conf;
 			$of->withChild = false;
 			$of->load($PDOdb, $task->array_options['options_fk_of']);
 			
-			$link_of =  !empty($conf->of->enabled) ? dol_buildpath('/of/fiche_of.php?id='.$task->array_options['options_fk_of']) : dol_buildpath('/asset/fiche_of.php?id='.$task->array_options['options_fk_of']);
+			$link_of =  !empty($conf->of->enabled) ? dol_buildpath('/of/fiche_of.php?id='.$task->array_options['options_fk_of'],1) : '';
 			
 			if($of->fk_soc > 0) {
 				$soc=new Societe($db);
@@ -439,7 +439,7 @@ global $user, $langs,$conf;
 			
 	}
 
-    if((int)$task->array_options['options_fk_product']>0) {
+    if((int)$task->array_options['options_fk_product']>0 && (empty($conf->global->SCRUMBOARD_ICON_SET) || $conf->global->SCRUMBOARD_ICON_SET!='null')) {
         dol_include_once('/product/class/product.class.php');
         
         $product = new Product($db);

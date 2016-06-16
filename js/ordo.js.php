@@ -166,7 +166,10 @@ function TOrdonnancement() {
 		$li.find('[rel=ref]').html(task.ref)
 				.attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
 		$li.find('[rel=task-link]').after(' <a href="javascript:OrdoQuickEditTask('+task.id+'); "><?php echo img_picto('', 'uparrow'); ?></a>');
-		$li.find('[rel=project]').html(task.project.title);
+		
+		var project_title = (task.project) ? task.project.title : "undefined";
+		
+		$li.find('[rel=project]').html(project_title);
 
 		var duration = task.planned_workload;
 		var height = 1;
@@ -184,7 +187,7 @@ function TOrdonnancement() {
 		date=new Date(task.time_date_end * 1000);
 		if(task.time_date_end>0) $li.find('[rel=time-end]').html(date.toLocaleDateString());
 		
-		$li.find('header').html(task.project.title+' <span class="duration">'+(Math.round(duration / 3600 *100)/100)+'</span>h à <span class="progress">'+task.progress+'</span>%');
+		$li.find('header').html(project_title+' <span class="duration">'+(Math.round(duration / 3600 *100)/100)+'</span>h à <span class="progress">'+task.progress+'</span>%');
 	   
 	    $li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
@@ -195,7 +198,7 @@ function TOrdonnancement() {
 		
 		$li.css('height', ordo_height);
 		
-		if(task.project.array_options.options_color!=null) {
+		if(task.project && task.project.array_options.options_color!=null) {
 			$li.css('background-color', task.project.array_options.options_color);
 			$li.attr('ordo-project-color', task.project.array_options.options_color);
 		}
@@ -644,7 +647,7 @@ ToggleProject = function(fk_project, showAll) {
 	
 	$('li[task-id]').each(function(i,item) {
     	$li = $(item);
-    	$li.fadeTo(400,1);
+    	$li.css("opacity",1);
  	});
 	 	
 	if(fk_project==0) {
@@ -658,7 +661,7 @@ ToggleProject = function(fk_project, showAll) {
 		
 		$('li[task-id][ordo-fk-project!='+fk_project+']').each(function(i,item) {
 	    	$li = $(item);
-	    	$li.fadeTo(400,.2);
+	    	$li.css("opacity",.2);
 	 	});
 		
 	}
@@ -732,10 +735,11 @@ OrdoSplitTask = function(taskid, min, max) {
                        
                    } 
                 }).done(function(task) {
+                	console.log(task);
                     document.ordo.addTask(task);
                     
                     $li = $('li#task-'+taskid);
-                    document.ordo.order( $li.attr("ordo-ws-id"), $li.attr("ordo-needed-ressource")  );
+                    document.ordo.Order( $li.attr("ordo-ws-id"), $li.attr("ordo-needed-ressource")  );
                 });  
                   
                 $( this ).dialog( "close" );
