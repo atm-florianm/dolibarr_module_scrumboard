@@ -821,22 +821,24 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end', t.note_private
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
-		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
+		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object)
+		WHERE t.planned_workload>0
+		 ";	
 		
 	if($status=='ideas') {
-		$sql.=" WHERE t.progress=0 AND t.datee IS NULL";
+		$sql.=" AND t.progress=0 AND t.datee IS NULL";
 	}	
 	else if($status=='todo') {
-		$sql.=" WHERE t.progress=0";
+		$sql.=" AND t.progress=0";
 	}
 	else if($status=='inprogress|todo') {
-		$sql.=" WHERE t.progress>=0 AND t.progress<100";
+		$sql.=" AND t.progress>=0 AND t.progress<100";
 	}
 	else if($status=='inprogress') {
-		$sql.=" WHERE t.progress>0 AND t.progress<100";
+		$sql.=" AND t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql.=" WHERE t.progress=100 
+		$sql.=" AND t.progress=100 
 		";
 	}
 	
