@@ -5,18 +5,18 @@
     /*
      * Statistique sur les postes de travail de l'ordonnancement
      */
+     
+    dol_include_once('/abricot/inc.core.php');
+     
+  	if(ABRICOT_VERSION<1.5) accessforbidden( $langs->trans( 'abricotNeed15version' ) ); 
     
-    
-    if(!$conf->workstation->enabled) accessforbidden( $lang->trans( 'moduleWorkstationNeeded' ) );
-    if(!$conf->report->enabled) accessforbidden( $lang->trans( 'moduleReportNeeded' ) );
-    
-    
+   // if(!$conf->report->enabled) accessforbidden( $langs->trans( 'moduleReportNeeded' ) );
+    if(!$conf->workstation->enabled) accessforbidden( $langs->trans( 'moduleWorkstationNeeded' ) );
     
     define('INC_FROM_DOLIBARR',true);
     dol_include_once('/workstation/config.php');
-    dol_include_once('/report/class/dashboard.class.php');
-    
-    
+	//dol_include_once('/report/class/dashboard.class.php');
+   
     $PDOdb = new TPDOdb;
 
     $TWS = TWorkstation::getWorstations($PDOdb, false);
@@ -135,7 +135,7 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
-                WHERE tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
+                WHERE t.entity=".$conf->entity." AND tex.fk_workstation=".$id_ws." AND t.date_estimated_end > NOW() AND progress<100
                 AND t.date_estimated_start<'".date('Y-m-d 23:59:59', $tFin)."' 
                 AND t.date_estimated_end>'".date('Y-m-d 00:00:00', $tDeb)."'
                 ORDER BY  t.date_estimated_start  ";
@@ -147,7 +147,7 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
                 FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
                     
-                WHERE tex.fk_workstation=".$id_ws." AND t.datee < NOW()
+                WHERE t.entity=".$conf->entity." AND tex.fk_workstation=".$id_ws." AND t.datee < NOW()
                 AND t.dateo<'".date('Y-m-d 23:59:59', $tFin)."' 
                 AND t.datee>'".date('Y-m-d 00:00:00', $tDeb)."'
                 ORDER BY  t.dateo  ";
@@ -162,15 +162,16 @@ function _get_data_ws(&$PDOdb, $id_ws, $tDeb, $tFin,$nb_ressource) {
     
     foreach($TAxis as &$val) { $val = round( $val / $nb_second_in_hour / $nb_ressource / $nb_hour_per_day * 100 ); }
     
-    $Tab['series']= array(
-        0=>array(
-            'data'=>array_values($TAxis)
-            ,'name'=>'Usage'    
-        )
-    );
-    
-    $Tab['axis'] = array_values($TSerie);
-    
+    $Tab = array();
+	foreach($TSerie as $k=>$v) {
+		
+			$Tab[] = array(
+				'Jour'=>$v
+				,'Usage'=>$TAxis[$k]
+			);
+		
+	}
+	
     return $Tab;
     
 }
@@ -181,7 +182,7 @@ function _stat_wd(&$PDOdb, $id_ws, $tDeb, $tFin) {
     $ws->load($PDOdb, $id_ws);
     
     $TData = _get_data_ws($PDOdb, $id_ws, $tDeb, $tFin, $ws->nb_ressource);
-    
+   // var_dump($TData);
     ?>
     <table class="border" style="margin-top:20px;width:100%;">
         <tr>
@@ -191,13 +192,14 @@ function _stat_wd(&$PDOdb, $id_ws, $tDeb, $tFin) {
         </tr>
         <tr>
             <td>
-                <div id="stat-ws-<?php echo $id_ws; ?>"></div>
                 <?php
             
-                    $d = new TReport_dashboard();
-                    $d->format='area';
-                    
-                    $d->getChart('stat-ws-'.$id_ws , false , '' , $TData);
+                    $l=new TListviewTBS('stat_ws_'.$id_ws);
+                	echo $l->renderArray($PDOdb, $TData,array(
+						'type'=>'chart'
+						,'chartType'=>'AreaChart'
+					));
+                
                     
                 ?></td>
         </tr>

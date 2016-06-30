@@ -13,6 +13,7 @@
 }
 .gridster li div[rel=content] {
 	font-size: 9px;
-
-
+}
+.gridster li div[rel=divers],.gridster li div[rel=time-projection],.gridster li div[rel=time-rest],.gridster li div[rel=users],.gridster li div[rel=time-end],.gridster li .button {
+	display:none;
 }

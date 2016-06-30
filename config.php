@@ -1,11 +1,7 @@
 <?php
 
 		
-	if(is_file('../main.inc.php'))$dir = '../';
-	else  if(is_file('../../../main.inc.php'))$dir = '../../../';
-	else $dir = '../../';
-
-	include($dir."main.inc.php");
+	require __DIR__.'/config.default.php';
 	
 	dol_include_once('/projet/class/project.class.php');
 	dol_include_once('/projet/class/task.class.php');

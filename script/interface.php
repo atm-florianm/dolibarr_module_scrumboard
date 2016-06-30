@@ -2,6 +2,10 @@
 
 require ('../config.php');
 
+if($conf->of->enabled)dol_include_once('/of/class/ordre_fabrication_asset.class.php');
+else if($conf->asset->enabled) dol_include_once('/asset/class/ordre_fabrication_asset.class.php'); //OLD
+			
+
 $get = GETPOST('get','alpha');
 $put = GETPOST('put','alpha');
 	
@@ -14,7 +18,7 @@ global $conf;
 	switch ($case) {
 		case 'tasks' :
 			
-			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 ? true : false;
+			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 && empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID) ? true : false;
 			
 			$var = explode('|',GETPOST('status'));
 			$Tab=array();
@@ -29,8 +33,8 @@ global $conf;
 			if($conf->workstation->enabled) {
                 define('INC_FROM_DOLIBARR',true);
                 dol_include_once('/workstation/config.php');
-                $ATMdb=new TPDOdb;
-                $TWorkstation=TWorkstation::getWorstations($ATMdb,true);
+                $PDOdb=new TPDOdb;
+                $TWorkstation=TWorkstation::getWorstations($PDOdb,true);
                 
             }
 			else {
@@ -38,10 +42,13 @@ global $conf;
 				exit;
 			}
            
+		    $type_object =  GETPOST('type_object');
+		    $TTaskObject = ($type_object == 'propal') ? _task_propal($db, GETPOST('fk_object')) : _task_commande($db, GETPOST('fk_object'));
+		   
 		    $Tab = ordonnanceur( 
     			array_merge(
     				_tasks_ordo($db, $TWorkstation, 'inprogress|todo', 0)
-					,_task_commande($db, GETPOST('fk_commande'))
+					,$TTaskObject
 				)
     			, $TWorkstation
     			, 0
@@ -53,8 +60,12 @@ global $conf;
 				if($task['time_estimated_end']> $time_max) $time_max =(int)$task['time_estimated_end']; 
 			}
 			
-			print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION * 86400), 'day');
-			
+			if($type_object == 'propal') {
+				print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION_PROPAL * 86400), 'day');	
+			}
+			else {
+				print dol_print_date($time_max + ($conf->global->SCRUM_TIME_MORE_PREVISION * 86400), 'day');	
+			}
 			
 			break;
         case 'tasks-ordo':
@@ -65,8 +76,8 @@ global $conf;
             if($conf->workstation->enabled) {
                 define('INC_FROM_DOLIBARR',true);
                 dol_include_once('/workstation/config.php');
-                $ATMdb=new TPDOdb;
-                $TWorkstation = TWorkstation::getWorstations($ATMdb,true,false,$TWorkstation);
+                $PDOdb=new TPDOdb;
+                $TWorkstation = TWorkstation::getWorstations($PDOdb,true,false,$TWorkstation);
         		
          
             }
@@ -97,6 +108,15 @@ global $conf;
 		case 'velocity':
 			
 			print json_encode(_velocity($db, (int)GETPOST('id_project')));
+			
+			break;
+			
+		case 'select-task':
+			dol_include_once('/core/class/html.formother.class.php');
+			$formother = new FormOther($db);
+			
+			//selectProjectTasks($selectedtask='', $projectid=0, $htmlname='task_parent', $modeproject=0, $modetask=0, $mode=0, $useempty=0, $disablechildoftaskid=0)
+			echo $formother->selectProjectTasks(GETPOST('fk_task'), GETPOST('fk_project'), 'fk_project_task',0,1,0,1);
 			
 			break;
 	}
@@ -317,6 +337,7 @@ global $langs;
 }
 
 function _sort_task(&$db, $TTask, $listname) {
+	global $user;
 	
 	if(strpos($listname, 'inprogress')!==false)$step = 1000;
 	else if(strpos($listname, 'todo')!==false)$step = 2000;
@@ -326,7 +347,7 @@ function _sort_task(&$db, $TTask, $listname) {
 		$task=new Task($db);
 		$task->fetch($id);
 		$task->rang = $step + $rank;
-		$task->update($db);
+		$task->update($user);
 	}
 	
 }
@@ -379,26 +400,27 @@ global $user, $langs,$conf;
 		
 	}
 	
-	$task->aff_time = convertSecondToTime($task->duration_effective);
-	$task->aff_planned_workload = convertSecondToTime($task->planned_workload);
+	$dayInSecond = 86400;
+	if($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY){
+		$dayInSecond = 60*60*$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY;
+	}
+	
+	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
+	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
     $task->time_rest = $task->planned_workload * (1 - ($task->progress / 100) );
-    $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest);
+    $task->aff_time_rest = $langs->trans('TimeRest').' : '.convertSecondToTime($task->time_rest,'all',$dayInSecond);
 
 	$task->long_description=$task->divers='';
    
-	if((int)$task->array_options['options_fk_of']>0) {
+	if((int)$task->array_options['options_fk_of']>0 && $conf->of->enabled) {
 	 
-    		define('INC_FROM_DOLIBARR',true);
-			dol_include_once('/asset/config.php');
-			dol_include_once('/asset/class/ordre_fabrication_asset.class.php');
-			
-			if(!isset($PDOdb))$PDOdb = new TPDOdb;
+    		if(!isset($PDOdb))$PDOdb = new TPDOdb;
 			
 			$of=new TAssetOF;
 			$of->withChild = false;
 			$of->load($PDOdb, $task->array_options['options_fk_of']);
 			
-			$link_of = dol_buildpath('/asset/fiche_of.php?id='.$task->array_options['options_fk_of']);
+			$link_of =  !empty($conf->of->enabled) ? dol_buildpath('/of/fiche_of.php?id='.$task->array_options['options_fk_of'],1) : '';
 			
 			if($of->fk_soc > 0) {
 				$soc=new Societe($db);
@@ -417,7 +439,7 @@ global $user, $langs,$conf;
 			
 	}
 
-    if((int)$task->array_options['options_fk_product']>0) {
+    if((int)$task->array_options['options_fk_product']>0 && (empty($conf->global->SCRUMBOARD_ICON_SET) || $conf->global->SCRUMBOARD_ICON_SET!='null')) {
         dol_include_once('/product/class/product.class.php');
         
         $product = new Product($db);
@@ -431,7 +453,7 @@ global $user, $langs,$conf;
             $w_cell = 27;
             $h_cell = 28;
             
-            $task->divers.='<div style="float:left; margin-left:3px; background-image:url(./img/'.(!empty($conf->global->SCRUMBOARD_ICON_SET) ? $conf->global->SCRUMBOARD_ICON_SET:'animal-icons-mini').'.png);background-position:'.($w_cell * -$x_picto).'px '.($h_cell * -$y_picto).'px;width:'.$w_cell.'px; height:'.$h_cell.'px;"></div>';
+            $task->divers.='<div class="picto" style="float:left; margin-left:3px; background-image:url(./img/'.(!empty($conf->global->SCRUMBOARD_ICON_SET) ? $conf->global->SCRUMBOARD_ICON_SET:'animal-icons-mini').'.png);background-position:'.($w_cell * -$x_picto).'px '.($h_cell * -$y_picto).'px;width:'.$w_cell.'px; height:'.$h_cell.'px;"></div>';
             //var_dump(array($nb_picto,$y_picto, $x_picto,$task->divers));
         }
             
@@ -450,8 +472,45 @@ global $user, $langs,$conf;
 	$task->project->fetch($task->fk_project);
 	$task->project->fetch_optionals($task->fk_project,'color');
 	
+	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) getTContact($task);
 	
 	return _as_array($task);
+}
+
+function getTContact(&$task)
+{
+	global $db;
+	
+	$TInternalContact = $task->liste_contact(-1, 'internal');
+	$TExternalContact = $task->liste_contact(-1, 'external');
+	
+	$task->internal_contacts = '';
+	$task->external_contacts = '';
+	if (!empty($TInternalContact)) 
+	{
+		dol_include_once('/user/class/user.class.php');
+		$user = new User($db);
+		foreach ($TInternalContact as &$row) 
+		{
+			$user->id = $row['id'];
+			$user->lastname = $row['lastname'];
+			$user->firstname = $row['firstname'];
+			$task->internal_contacts .= $user->getNomUrl(1).'&nbsp;';
+		}
+	}
+	
+	if (!empty($TExternalContact))
+	{
+		dol_include_once('/contact/class/contact.class.php');
+		$contact = new Contact($db);
+		foreach ($TExternalContact as &$row)
+		{
+			$contact->id = $row['id'];
+			$contact->lastname = $row['lastname'];
+			$contact->firstname = $row['firstname'];
+			$task->internal_contacts .= $contact->getNomUrl(1).'&nbsp;';
+		}
+	}
 }
 
 function _get_task_just_before(&$db, &$task) {
@@ -478,7 +537,7 @@ function _split_task($taskid, $task1time, $task2time) {
     
     $task =new Task($db);
     $task->fetch($taskid);
-    $task->fetch_optionals();
+    $task->fetch_optionals($task->id); // Nécessaire de préciser l'id jusqu'à la version 3.8
     
     $task->planned_workload = $task1time * 3600;
     $task->update($user);
@@ -581,22 +640,85 @@ global $user;
 	$project->update($user);
 
 }
+
+function _task_from_line_object(&$PDOdb, &$TLine,$type_object) {
+	
+	$TTask = array();
+	
+	foreach($TLine as &$line) {
+		
+		$n = new TNomenclature;
+		$n->loadByObjectId($PDOdb, $fk_commande, $type_object,true,$line->fk_product, $line->qty);		
+
+		foreach($n->TNomenclatureWorkstation as &$ws) {
+		
+			$TTask[] = array(
+                'status'=>1
+                ,'id'=>1
+                ,'fk_projet'=>1
+                ,'label'=>'Simul'
+                ,'ref'=>'TKSIMUL'
+                , 'grid_col'=>0
+                , 'grid_row'=>999999
+                ,'fk_workstation'=>$ws->fk_workstation
+                ,'fk_product'=>$line->fk_product
+                ,'fk_task_parent'=>0
+                ,'needed_ressource'=>1 
+                ,'planned_workload'=>$ws->nb_hour
+                ,'progress'=>0
+                ,'fk_soc'=>0
+                ,'TUser'=>array()
+                ,'date_start'=>time()
+                ,'date_end'=>0
+                ,'date_estimated_end'=>0
+         	);
+			
+		}		
+
+	}
+	//var_dump($TTask);
+	
+	return $TTask;
+	
+}
+
 function _task_commande(&$db, $fk_commande) {
+global $conf,$langs, $user;
+
+	if(empty($conf->nomenclature->enabled)) return array();
+	
+	$PDOdb=new TPDOdb;
 	
 	dol_include_once('/commande/class/commande.class.php');
+	dol_include_once('/nomenclature/class/nomenclature.class.php');
 	
 	$c = new Commande($db);
 	$c->fetch($fk_commande);
 	
-	$TTask=array();
-	
-	foreach($c->lines as &$line) {
-		
-		
-		
-	}
+	$TTask = _task_from_line_object($PDOdb, $c->lines, 'commande');
 	
 	return $TTask;
+	
+	
+}
+function _task_propal(&$db, $fk_propal) {
+	
+	global $conf,$langs, $user;
+
+	if(empty($conf->nomenclature->enabled)) return array();
+	
+	$PDOdb=new TPDOdb;
+	
+	dol_include_once('/comm/propal/class/propal.class.php');
+	dol_include_once('/nomenclature/class/nomenclature.class.php');
+	
+	$o = new Propal($db);
+	$o->fetch($fk_propal);
+	
+	$TTask = _task_from_line_object($PDOdb, $o->lines, 'propal');
+	
+	return $TTask;
+	
 	
 	
 }
@@ -631,7 +753,7 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
         
 	if($fk_workstation>0)$sql.=" AND ex.fk_workstation=".(int)$fk_workstation;
 
-   if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
+    if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) {
 	    $sql.=" AND ex.grid_use=1 ";
     }
     $sql.=" ORDER BY t.grid_row, t.grid_col ";
@@ -693,26 +815,30 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     
 }
 function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
+	global $hookmanager;
+	$hookmanager->initHooks(array('scrumboardgettasks'));
 	
 	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end', t.note_private
 		FROM ".MAIN_DB_PREFIX."projet_task t 
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
-		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";	
+		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object)
+		WHERE t.planned_workload>0
+		 ";	
 		
 	if($status=='ideas') {
-		$sql.=" WHERE t.progress=0 AND t.datee IS NULL";
+		$sql.=" AND t.progress=0 AND t.datee IS NULL";
 	}	
 	else if($status=='todo') {
-		$sql.=" WHERE t.progress=0";
+		$sql.=" AND t.progress=0";
 	}
 	else if($status=='inprogress|todo') {
-		$sql.=" WHERE t.progress>=0 AND t.progress<100";
+		$sql.=" AND t.progress>=0 AND t.progress<100";
 	}
 	else if($status=='inprogress') {
-		$sql.=" WHERE t.progress>0 AND t.progress<100";
+		$sql.=" AND t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql.=" WHERE t.progress=100 
+		$sql.=" AND t.progress=100 
 		";
 	}
 	
@@ -725,25 +851,32 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
     }
     else{
         $sql.=" ORDER BY rang";    
-    }	
-		
-	$res = $db->query($sql);	
-		
+    }
+	
+	$parameters=array('action'=>'_tasks_before_exec_sql', 'sql'=>&$sql, 'status'=>$status, 'fk_project'=>$id_project, 'onlyUseGrid'=>$onlyUseGrid);
+	$reshook=$hookmanager->executeHooks('doScrumActions',$parameters);
+
+	$res = $db->query($sql);
 	$TTask = array();
-	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( 
-			_task($db, $obj->rowid)
-		 	, array(
-		 		'status'=>$status
-		 		, 'grid_col'=>$obj->grid_col
-		 		, 'grid_row'=>$obj->grid_row
-		 		,'fk_workstation'=>(int)$obj->fk_workstation
-		 		,'fk_task_parent'=>(int)$obj->fk_task_parent
-		 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
-		 		,'project_date_end'=>strtotime($obj->project_date_end) 
-			)
-		 );
+	
+	if ($res)
+	{
+		while($obj = $db->fetch_object($res)) {
+			$TTask[] = array_merge( 
+				_task($db, $obj->rowid)
+			 	, array(
+			 		'status'=>$status
+			 		, 'grid_col'=>$obj->grid_col
+			 		, 'grid_row'=>$obj->grid_row
+			 		,'fk_workstation'=>(int)$obj->fk_workstation
+			 		,'fk_task_parent'=>(int)$obj->fk_task_parent
+			 		,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1)
+			 		,'project_date_end'=>strtotime($obj->project_date_end) 
+				)
+			 );
+		}	
 	}
+	
 	
 	return $TTask;
 }

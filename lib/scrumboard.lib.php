@@ -191,12 +191,80 @@ function _ordo_init_new_task(&$TTaskToOrder) {
     
 }
 
+function _ido_add_immobilisation_event(&$PDOdb, &$smallGeoffrey, &$TOff, $fk_workstation, $nb_ressource_max, $time_init,$nb_second_in_hour,$t_start_ordo, $t_end_ordo) {
+	//TODO simplify
+	global $conf;
+	
+	if($fk_workstation<=0) return false;
+	
+	$sql = "SELECT ac.label, acex.needed_ressource, ac.datep as 'date_deb', ac.datep2 as 'date_fin' 
+	FROM ".MAIN_DB_PREFIX."actioncomm ac LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_extrafields acex ON (acex.fk_object=ac.id)
+	WHERE ac.datep>='".date('Y-m-d',$time_init)."' AND ac.datep2<='".date('Y-m-d',$time_init + 86400 * 90 )."'";
+	
+	$sql.=" AND acex.fk_workstation=".$fk_workstation;
+	
+	$time_day = strtotime('midnight');
+	$nb_hour_per_day = !empty($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY) ? $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY : 7;
+	//var_dump($sql,$time_init);
+	$Tab = $PDOdb->ExecuteAsArray($sql);
+	//var_dump($sql,$Tab);
+	foreach($Tab as $row) {
+		$nb_ressource = $row->needed_ressource;
+		if($nb_ressource<=0 || $nb_ressource > $nb_ressource_max) $nb_ressource = $nb_ressource_max;
+		
+		$date_deb = new DateTime($row->date_deb);
+		$date_fin = new DateTime($row->date_fin);
+		
+		$time_start = strtotime($row->date_deb);
+		$time_end = strtotime($row->date_fin);
+		
+		if(date('Hi', $time_start)<date('Hi', $t_start_ordo)) {
+			$time_start = strtotime( date('Y-m-d ', $time_start ).' '.date('H:i:00',$t_start_ordo) );
+			//print '$time_start='.date('Y-m-d H:i:s',$time_start);
+		}
+		if(date('Hi', $time_end)>date('Hi', $t_end_ordo)) {
+			$time_end = strtotime( date('Y-m-d ', $time_end ).' '.date('H:i:00',$t_end_ordo) );
+			//print '$time_end='.date('Y-m-d H:i:s',$time_end);
+		}
+	//	var_dump($row->date_deb);
+		if($time_end<$time_start) continue; // pas de date de fin ou régulation ex : 8h-8h30 n'a rien à faire ici si ordo débute à 9h
+		
+		$height = ($time_end - $time_start) / 3600;
+		
+		$t_start_day = strtotime(date('Y-m-d',$t_start_ordo).' '.date('H:i:s', $time_start));
+		$t_start = ($t_start_day - $time_day)   ;
+		$datetime1 = new DateTime(date('Y-m-d'));
+		$datetime2 = new DateTime(date('Y-m-d',$time_start));
+		$interval = $datetime1->diff($datetime2)->days;
+		
+		$top = (($t_start + ($interval * $nb_second_in_hour * $nb_hour_per_day)) / $nb_second_in_hour);
+	//	var_dump( $top, $t_start_day , $t_start_ordo,$height,$t_start,'********');
+		
+		
+		
+		//if($time_start>strtotime('midnight +1 day'))$t_start = $time_start - $t_start_ordo;
+		
+	//	var_dump($interval,round($t_start / 3600,1).' - '.date('Ymd H:i:s',$time_start).' - '.date('Ymd H:i:s',$t_start_ordo),$height,$t_start,$nb_second_in_hour,'----------');
+		
+    	//var_dump($height, $top);exit;
+		//var_dump(date('Y-m-d H:i:s',$t_start_ordo), date('Y-m-d H:i:s',$time_init),date('Y-m-d H:i:s', $t_start),date('Y-m-d H:i:s', $time_end),'----------');exit;
+		
+		$TOff[] = array('top'=>$top,'left'=>0,'height'=>$height,'nb_ressource'=>$nb_ressource,'title'=>$row->label, 'class'=>'event'); 
+		
+		$smallGeoffrey->addBox($top, 0, $height, $nb_ressource);
+		
+	}
+	
+	
+	return true;
+}
+
 function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour) {
     global $langs;
 	
 	
     $t_start = $time_off_start - $time_init;
-            
+//            var_dump($time_off_start, $day_moment, $nb_ressource, $time_init, $nb_second_in_hour);exit;
     if($day_moment == 'ALL') {
         $t_end = $t_start + 86400;
         $height = 86400;
@@ -205,6 +273,16 @@ function _ordo_ido_get($time_off_start, $day_moment, $nb_ressource, $time_init, 
         $t_end = $t_start + 43200;
         $height = 43200;
     }
+    else if($day_moment == 'TINY_AM') {
+	$t_end = $start + 43199;
+	$height = $nb_second_in_hour;
+    }
+    else if($day_moment == 'TINY_PM') {
+	$t_start += 86399;
+        $t_end = $start + 1;
+	$height = 1;
+    }
+
     else {
         $t_start += 43200;
         $t_end = $t_start + 43200;
@@ -275,6 +353,8 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
            
            if($sc->day_moment == 'AM')$TDayWeekOff[$sc->week_day]['AM'] = 1;
            else if($sc->day_moment == 'PM')$TDayWeekOff[$sc->week_day]['PM'] = 1;
+           else if($sc->day_moment == 'TINY_PM')$TDayWeekOff[$sc->week_day]['TINY_PM'] = 1;
+           else if($sc->day_moment == 'TINY_AM')$TDayWeekOff[$sc->week_day]['TINY_AM'] = 1;
            else $TDayWeekOff[$sc->week_day]['AM'] = $TDayWeekOff[$sc->week_day]['PM'] = 1; 
             
            if($TDayWeekOff[$sc->week_day]['nb_ressource']<$sc->nb_ressource)$TDayWeekOff[$sc->week_day]['nb_ressource'] = $sc->nb_ressource;
@@ -283,7 +363,9 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         
     }
     
-
+	/*
+	 * Jour non travaillé
+	 */
     $t_end_3month = strtotime('+3month', $time_day);
     $t_current = $time_init;
     
@@ -302,7 +384,12 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         else if(!empty($TDayWeekOff[$dw]['PM'])) {
             $TRow = _ordo_ido_get($t_current, 'PM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
         } 
-        
+        else if(!empty($TDayWeekOff[$dw]['TINY_AM'])) {
+            $TRow = _ordo_ido_get($t_current, 'TINY_AM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        }
+	else if(!empty($TDayWeekOff[$dw]['TINY_PM'])) {
+            $TRow = _ordo_ido_get($t_current, 'TINY_PM', $TDayWeekOff[$dw]['nb_ressource'], $time_init, $nb_second_in_hour);
+        }
         if(!empty($TRow)) {
            $TOff[]=$TRow;  
            $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
@@ -311,6 +398,7 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
         $t_current = strtotime('+1day', $t_current);   
     }
    
+    _ido_add_immobilisation_event($PDOdb, $smallGeoffrey, $TOff, $fk_workstation, $ws->nb_ressource, $time_init,$nb_second_in_hour,$t_start_ordo, $t_end_ordo);
    
   
     //if(!empty($TPlanned)) $TFree = _ordo_gnc_get_free_place($TPlanned, $ws->nb_ressource,true);
@@ -398,7 +486,7 @@ global $conf,$db;
 				    $TSmallGeoffrey[$fk_workstation]->debug_info = 'Taskid='. $task['id'];
 			   }
 
-               if($task['date_start']>$time_day) {
+               if($task['date_start']>$time_day && $fk_workstation>0) {
                    // la date de début est dans le future
                    $t_start_ecart =  $task['date_start'] - $time_day;
                    $y_start_ecart = $t_start_ecart / $nb_second_in_hour;
@@ -408,10 +496,9 @@ global $conf,$db;
                    $y_start_ecart = 0;
                }
 
-
                list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] , $y_start_ecart);
                
-               $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $height, $t_nb_ressource, $task['id'], $task['fk_parent']);
+               $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $grid_height, $t_nb_ressource, $task['id'], $task['fk_parent']);
                
 	   		   //list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
                
@@ -419,6 +506,7 @@ global $conf,$db;
                
 	  		   $task['grid_col'] = $col;
        		   $task['grid_row'] = $row;
+			   $task['grid_height'] = $grid_height;
 	  
       //TODO prendre en compte les jours non travaillé
                $task['time_estimated_start'] = $time_day + ($row * $nb_second_in_hour);

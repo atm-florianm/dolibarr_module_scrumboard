@@ -275,7 +275,10 @@ ul {
     line-height: 100%;
     float:left;
     width:200px;
-    border:1px solid black;
+    border-bottom:1px solid #888;
+    border-top:1px solid #ccc;
+    border-right:1px solid #888;
+    border-left:1px solid #ccc;
     position: relative;
     margin-bottom:5px;
 }
@@ -330,7 +333,8 @@ ul {
 	padding:0px 0 0 0px;
 }
 .gridster li header {
-    background: #333 url("../img/grip.png") center;
+    background: #333 /*url("../img/grip.png") center*/;
+    border-bottom:1px solid #ccc;
     color:#fff;
     display: block;
     font-size: 12px;
@@ -496,6 +500,10 @@ li.past {
 	background-color: #aaa;
 	opacity:0.5;
 }
+li.event {
+	background-color: #aaffaa;
+	opacity:0.5;
+}
 div.loading-ordo {
 	float:left;
 	position:absolute;
@@ -507,3 +515,43 @@ div.loading-ordo img {
 	
 }
 
+#printedTask {
+	width:90%;
+	background-color: #fff;
+	position:absolute;
+	list-style-type:none;
+	padding:0 0 0 0;
+}
+#printedTask>li{
+	border:1px solid #000;
+	margin-bottom:30px;
+	list-style-type:none;
+}
+#printedTask>li img{
+	display:none;	
+}
+#printedTask>li header {
+	font-weight:bold;
+	padding : 10px;
+	border-bottom: 2px solid #000;
+	font-size:14px;
+}
+#printedTask div[rel=time-projection] {
+	width:50%;
+	float:left;
+	clear:left;	
+}
+#printedTask div[rel=time-rest] {
+	width:50%;
+	float:left;	
+}
+#printedTask div[rel=users] {
+	clear:left;	
+}
+#printedTask>li div[rel=time-end] {
+	text-align: right;	
+}
+
+.font-small {
+	font-size:11px;
+}

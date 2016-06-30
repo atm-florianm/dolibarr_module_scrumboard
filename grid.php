@@ -81,8 +81,8 @@
 				<tr>
 					<td style="position:relative;">
 						<div class="loading-ordo"><img src="./img/loading.gif" /></div>
-					    <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
-					    <br />
+					    <!-- <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
+					    <br /> -->
                         <?php echo $langs->trans('HourHeight') ?> : 
                         <a class="columnHeader columnHeaderMini" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
                         <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
@@ -94,21 +94,22 @@
                         <a class="columnHeader columnHeaderMini" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
-                        <br />
+                        <div id="ws-list-top">
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
                         
 					    foreach($TWorkstation as $w_id=>$w_param) {
 					        
-                            ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id; 
+                            ?><span class="columnHeader columnHeaderMini" id="columm-header1-<?php echo $w_id;  
                             ?>"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)"><?php 
-                            echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+                            	echo $w_param['name'].($w_param['velocity']!=1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
                                 <a title="Juste cette colonne" href="javascript:toggleWorkStation(<?php echo $w_id; ?>, true)">(+)</a>
+                                <a href="javascript:printWorkStation(<?php echo $w_id; ?>);"><?php echo img_printer(); ?></a>
                             </span><?php
                         }
-                        
                      /*   ?><a href="javascript:OrdoReorderAll();" class="columnHeader"><?php echo $langs->trans('Refresh'); ?></a><?php */
 					    ?>
+                        </div>
 					    
 					</td>
 				</tr>
@@ -121,7 +122,7 @@
 						
 						?>
 						<div class="projects" style="float:left;">
-						    <ul style="position:relative;width:200px; top:0px;" id="list-projects" class="task-list needToResize" >
+						    <ul style="position:relative;width:200px; top:38px;" id="list-projects" class="task-list needToResize" >
                         
                             </ul>
 						</div>
@@ -149,14 +150,15 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		            var TDayOff = new Array( <?php echo $conf->global->TIMESHEET_DAYOFF; ?> );
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js.php"></script>
-                <script type="text/javascript" src="./js/makefixed.js"></script>
-                <script type="text/javascript">
+	                <script type="text/javascript" src="./js/makefixed.js"></script>
+        	        <script type="text/javascript">
 				var TVelocity = [];
 				
 				document.ordo = {};
 				
 				$(document).ready(function(){
-				
+  					$('#ws-list-top').width($( window ).width());
+
 				     document.ordo = new TOrdonnancement();
 					 
 					 <?php
@@ -207,7 +209,11 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		
 		$width_table+=$w_column;	
 		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;z-index:1;">
-		        <div style="width:<?php echo $column_width ?>px; z-index:1;"><span class="fixedHeader columnHeader"><a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a></span></div>
+		        <div style="width:<?php echo $column_width ?>px; z-index:1;">
+		        	<span class="fixedHeader columnHeader">
+		        		<a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
+		        	</span>
+		        </div>
 				<ul style="position:relative;min-height: 500px;min-width:<?php echo round($w_column); ?>z-index:10;" id="list-task-<?php echo $w_id; ?>" ws-id="<?php echo $w_id; ?>" class="task-list droppable connectedSortable needToResize" rel="all-task" ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 						
 				</ul>

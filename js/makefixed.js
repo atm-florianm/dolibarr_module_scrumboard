@@ -104,7 +104,6 @@ $.fn.makeFixed = function (options)
 				el.css
 				({
 					position:   'fixed',
-					left:       el.attr(attr.fLeft),
 					top:        (el.attr(attr.fTopPos)) ? el.attr(attr.fTopPos) + 'px' : defOpts.defTopPos,
 					width:      el.attr(attr.fWidth),
 					zIndex:     defOpts.defZIndex
@@ -122,7 +121,6 @@ $.fn.makeFixed = function (options)
 				el.css
 				({
 					position:   el.attr(attr.cPosition),
-					left:       el.attr(attr.cLeft),
 					top:        el.attr(attr.cTop),
 					width:      el.attr(attr.cWidth),
 					zIndex:     el.attr(attr.cZIndex)

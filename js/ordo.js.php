@@ -20,7 +20,17 @@ function TOrdonnancement() {
        height_day = h_day;
        swap_time = sw_time;
        
- 	   $('.fixedHeader').makeFixed();
+ 	   $('.fixedHeader').makeFixed({
+ 	   	onFixed:function(el) {
+ 	   		var initLeft = parseInt( $(el).attr('data-mfx-left') );
+ 	   		var leftScroll = parseInt($(document).scrollLeft());
+ 	   		var newLeft = initLeft - leftScroll;
+ 	   		//console.log(initLeft,leftScroll,newLeft);
+ 	   		$(el).css({
+ 	   			left : newLeft
+ 	   		});
+ 	   	}	
+ 	   });
 
        
        $.ajax({
@@ -49,13 +59,15 @@ function TOrdonnancement() {
 				snap: true
 				,containment: "table#scrum td#tasks table"
 				,handle: "header"
+				,helper: "original"
 				,snapTolerance: 30
 				, distance: 10
 				,drag:function(event, ui) {
 					
 					$(this).css({
 						'box-shadow': '1px 5px 5px #000'
-						,transform: 'rotate(7deg)'
+						,transform: 'rotate(7deg) '
+						
 					});
 				}
 				,stop:function(event, ui) {
@@ -64,6 +76,7 @@ function TOrdonnancement() {
 					$(this).css({
 						'box-shadow': 'none'
 						,transform:'none'
+
 					});
 				}
 			 });
@@ -150,8 +163,13 @@ function TOrdonnancement() {
 		$li.find('[rel=label]').html(task.label).attr("title", task.long_description);
 		$li.find('[rel=divers]').html(task.divers);
 		
-		$li.find('[rel=ref]').html(task.ref).attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
-		$li.find('[rel=project]').html(task.project.title);
+		$li.find('[rel=ref]').html(task.ref)
+				.attr("href",'<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?id='+task.id+'&withproject=1');
+		$li.find('[rel=task-link]').after(' <a href="javascript:OrdoQuickEditTask('+task.id+'); "><?php echo img_picto('', 'uparrow'); ?></a>');
+		
+		var project_title = (task.project) ? task.project.title : "undefined";
+		
+		$li.find('[rel=project]').html(project_title);
 
 		var duration = task.planned_workload;
 		var height = 1;
@@ -169,7 +187,7 @@ function TOrdonnancement() {
 		date=new Date(task.time_date_end * 1000);
 		if(task.time_date_end>0) $li.find('[rel=time-end]').html(date.toLocaleDateString());
 		
-		$li.find('header').html(task.project.title+' '+(Math.round(duration / 3600 *100)/100)+'h à '+task.progress+'%');
+		$li.find('header').html(project_title+' <span class="duration">'+(Math.round(duration / 3600 *100)/100)+'</span>h à <span class="progress">'+task.progress+'</span>%');
 	   
 	    $li.css('margin-bottom', Math.round( swap_time / nb_hour_per_day * height_day ));
 		$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
@@ -180,7 +198,7 @@ function TOrdonnancement() {
 		
 		$li.css('height', ordo_height);
 		
-		if(task.project.array_options.options_color!=null) {
+		if(task.project && task.project.array_options.options_color!=null) {
 			$li.css('background-color', task.project.array_options.options_color);
 			$li.attr('ordo-project-color', task.project.array_options.options_color);
 		}
@@ -214,7 +232,7 @@ function TOrdonnancement() {
 		$li.attr('id', 'task-'+task.id);
 		$li.addClass('draggable');
 		
-		console.log(ordo_height, task.fk_workstation,$li);
+		//console.log(ordo_height, task.fk_workstation,$li);
 		
 		$ul = $('#list-task-'+task.fk_workstation);
 	    $ul.append($li); 	
@@ -227,6 +245,10 @@ function TOrdonnancement() {
         TVelocity[w.id] = w.velocity;
         
     };
+    
+    this.Order = function(wsid, nb_ressource) {
+    	order(wsid, nb_ressource);	
+    }
     
     var order = function(wsid, nb_ressource) {
     	$("div.loading-ordo").show('slide', {direction: 'left'}, 500);
@@ -246,7 +268,7 @@ function TOrdonnancement() {
 			,dataType: 'json'
 		})
 		.done(function (tasks) {
-			//console.log(tasks);
+			//console.log(tasks);document.ordo
 			var coef_time = height_day / nb_hour_per_day;
 			
 			
@@ -261,7 +283,7 @@ function TOrdonnancement() {
                 if(fk_worstation_jo>0 && tasks['dayOff'][fk_worstation_jo].length>0) {
                     
                     $('ul[ws-id='+fk_worstation_jo+'] > li.dayoff').remove();
-                    $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {
+                    $.each(tasks['dayOff'][fk_worstation_jo], function(i, dof) {order
                               
                              var classOff = 'dayoff';
                              if(dof.class!=null)classOff+=' '+ dof.class;
@@ -291,7 +313,7 @@ function TOrdonnancement() {
 			
 			var nb_tasks = tasks['tasks'].length;
 			$.each(tasks['tasks'], function(i, task) {
-				console.log(task);
+				//console.log(task);
 				task_top = coef_time * task.grid_row/* / TVelocity[task.fk_workstation]*/; // vélocité déjà dans le top 
 			
 				$li = $('li[task-id='+task.id+']');
@@ -307,7 +329,7 @@ function TOrdonnancement() {
 				if(task.TUser!=null) {
 					for(idUser in task.TUser) {
 						var tUser = task.TUser[idUser];
-						$li.find('[rel=users]').append('<input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label><br />' );
+						$li.find('[rel=users]').append('<div rel="user-check-'+task.id+'-'+idUser+'"><input taskid="'+task.id+'" userid="'+idUser+'" type="checkbox" id="TUser['+task.id+']['+idUser+']" name="TUser['+task.id+']['+idUser+']" value="1" onchange="OrdoToggleContact($(this));" '+(tUser.selected==1 ? 'checked="checked"':''  )+'/> <label for="TUser['+task.id+']['+idUser+']">'+tUser.name+'</label></div>' );
 						
 					}
 					
@@ -315,11 +337,26 @@ function TOrdonnancement() {
 				
 				var duration = task.planned_workload;
 				var height = 1;
-				if(duration>0) {
-					height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
+				
+				if(task.grid_height) {
+					height = task.grid_height*coef_time;					
 				}
-				console.log('ordo', height);
+				else {
+					if(duration>0) {
+						height = Math.round( duration * (1- (task.progress / 100)) /TVelocity[task.fk_workstation]*coef_time  );
+					}
+				}
+				//console.log('ordo', height);
 				$li.attr('ordo-height', height);
+				
+				$li.css('width', Math.round( (width_column*task.needed_ressource)-2 ));
+				$li.attr('ordo-needed-ressource',task.needed_ressource);
+				
+				$li.find('header span.progress').html(task.progress); 
+				$li.attr('ordo-progress', task.progress);
+				
+				$li.find('[rel=label]').html(task.label);
+				
 				if(task.date_end>0) {
 					if(task.time_estimated_end > task.date_end) {
 						$('li[task-id='+task.id+']').addClass('taskLate');
@@ -330,21 +367,9 @@ function TOrdonnancement() {
 					
 				}
 				
-				if(i>10) {
-					 
-					 $li.css({
-                        	top:task_top
-                        	,left:(width_column * task.grid_col)
-                        	,height: height
-                	 });
-					 
-					 /*if(i+1 == nb_tasks) {
-					 	afterAnimationOrder();
-					 }*/
-					 
-				}
-				else {
-					
+				current_position = $li.position();
+				if(current_position && (current_position.top!=task_top || current_position.left!=width_column * task.grid_col || $li.height()!=height) ) {
+					//console.log('animate',i, current_position, task_top, width_column * task.grid_col, $li.height(),height);
 					$li.animate({
                         	top:task_top
                         	,left:(width_column * task.grid_col)
@@ -352,14 +377,14 @@ function TOrdonnancement() {
                     }
                     ,{	
                     	complete : function() {
-                    		if(i+1 == nb_tasks || i==10) {
+                    		if(i+1 == nb_tasks || i == 0) {
                     			afterAnimationOrder();
                     		}
                     	}
                     	
                 	});
-
-				}	 
+					
+				}
 				
 				$li.removeClass('loading');				
     
@@ -502,7 +527,15 @@ function TOrdonnancement() {
 
 			project = TProject[idProject];
 			
-			$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;"><a href="<?php echo dol_buildpath('/projet/card.php',1) ?>?id='+idProject+'">'+project.name+'</a> '+project.progress+'%</span></li>');	
+			<?php 
+				if(empty($conf->global->SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT)) { 
+			?>
+			
+				$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;"><a href="<?php echo dol_buildpath('/projet/'.((float)DOL_VERSION > 3.6 ? 'card.php' : 'fiche.php'),1) ?>?id='+idProject+'">'+project.name+'</a> '+project.progress+'%</span></li>');
+			
+			<?php 
+				} 
+			?>	
 			
 			
 			if(project.hasLateTask) $('#list-projects li[fk-project='+idProject+']').addClass('projectLate');
@@ -543,7 +576,7 @@ TWorkstation = function() {
 };
 
 toggleWorkStation = function (fk_ws, justMe) {
-	
+	console.log(fk_ws, $('#columm-ws-'+fk_ws).is(':visible'));
 	if(justMe!=null && justMe == true) {
 	    $('div[id^="columm-ws-"]').hide();
 	    $('#columm-ws-'+fk_ws).show();
@@ -571,11 +604,50 @@ toggleWorkStation = function (fk_ws, justMe) {
 	
 };
 
+printWorkStation = function (fk_ws) {
+	
+	$('#printedFrame,#printedTask').remove();
+	$('body').append('<ul id="printedTask"></ul>');
+	
+	$('ul[ws-id='+fk_ws+']>li[task-id]').each(function (i,item) {
+		
+		$(item).clone()
+			.removeAttr("style")
+			.removeAttr("id")
+			.removeClass("draggable ui-draggable")
+			.appendTo("#printedTask");
+	});
+	
+	$("#printedTask").find(".button,.picto").remove();
+	
+	$("#printedTask").find("[rel=users]>div>input").not(":checked").each(function(i,item) {
+		
+		var taskid = $(item).attr('taskid');
+		var userid = $(item).attr('userid');
+		$('#printedTask div[rel="user-check-'+taskid+'-'+userid+'"]').remove();
+		
+	});
+	
+	$('<iframe id="printedFrame" name="printedFrame" style="visibility:hidden;">').appendTo("body").ready(function(){
+	    setTimeout(function(){
+	    	console.log($('#printedFrame').contents().find('body'));
+	    	$('#printedFrame').contents().find('head').append('<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',2) ?>">');
+	    	$('#printedFrame').contents().find('body').append($("#printedTask"));
+	        window.frames["printedFrame"].focus();
+			window.frames["printedFrame"].print();
+	    },50);
+	    
+	});
+	
+	
+	
+};
+
 ToggleProject = function(fk_project, showAll) {
 	
 	$('li[task-id]').each(function(i,item) {
     	$li = $(item);
-    	$li.fadeTo(400,1);
+    	$li.css("opacity",1);
  	});
 	 	
 	if(fk_project==0) {
@@ -589,7 +661,7 @@ ToggleProject = function(fk_project, showAll) {
 		
 		$('li[task-id][ordo-fk-project!='+fk_project+']').each(function(i,item) {
 	    	$li = $(item);
-	    	$li.fadeTo(400,.2);
+	    	$li.css("opacity",.2);
 	 	});
 		
 	}
@@ -663,10 +735,11 @@ OrdoSplitTask = function(taskid, min, max) {
                        
                    } 
                 }).done(function(task) {
+                	console.log(task);
                     document.ordo.addTask(task);
                     
                     $li = $('li#task-'+taskid);
-                    document.ordo.order( $li.attr("ordo-ws-id"), $li.attr("ordo-needed-ressource")  );
+                    document.ordo.Order( $li.attr("ordo-ws-id"), $li.attr("ordo-needed-ressource")  );
                 });  
                   
                 $( this ).dialog( "close" );
@@ -687,6 +760,14 @@ OrdoSplitTask = function(taskid, min, max) {
 			$("#splitSlider label").attr("tache2", max - val);
 		}
 	});
+	
+};
+
+OrdoQuickEditTask = function(fk_task) {
+    	
+    $li = $('li#task-'+fk_task); 
+    
+	pop_edit_task(fk_task,'document.ordo.Order('+$li.attr('ordo-ws-id')+','+$li.attr('ordo-needed-ressource')+')');
 	
 };
 
