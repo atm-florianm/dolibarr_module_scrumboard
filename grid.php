@@ -150,7 +150,9 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 		            var TDayOff = new Array( <?php echo $conf->global->TIMESHEET_DAYOFF; ?> );
 		        </script>
 		        <script type="text/javascript" src="./js/ordo.js.php"></script>
-	                <script type="text/javascript" src="./js/makefixed.js"></script>
+	            <script type="text/javascript" src="./js/makefixed.js"></script>
+	            <script type="text/javascript" src="./js/svg.js"></script>
+	            
         	        <script type="text/javascript">
 				var TVelocity = [];
 				

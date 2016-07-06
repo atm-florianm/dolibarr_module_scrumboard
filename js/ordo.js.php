@@ -223,9 +223,21 @@ function TOrdonnancement() {
 		
 		$li.mouseenter(function() {
 			$(this).height($(this)[0].scrollHeight);
+			
+			var $sourceDiv =  $(this);
+			var $targetDiv = $("#task-"+$(this).attr('ordo-fktaskparent'));
+			
+			if($sourceDiv.length>0 && $targetDiv.length>0) {
+				if($('#container-svg-'+$(this).attr('id')).length == 0) {
+					$('body').append('<div id="container-svg-'+$(this).attr('id')+'" rel="container-svg" style="position:absolute;top:0;left:0;z-index: -1;opacity: 0.8; width:1px;height:1px;overflow:visible;"><svg stroke-dasharray="10,10" id="svg-'+$(this).attr('id')+'" width="0" height="0"  style="position:absolute;top:0;left:0;"><path id="path-'+$(this).attr('id')+'" d="M0 0" stroke="#000" fill="none" stroke-width="12px";/></div>');
+				}
+			/*	console.log('connectDiv',$sourceDiv,$targetDiv,$('#svg-'+$(this).attr('id')),$('#path-'+$(this).attr('id')));*/
+				connectElements( $('#svg-'+$(this).attr('id')), $('#path-'+$(this).attr('id')),$sourceDiv, $targetDiv);
+			}
 		})
 		.mouseleave(function() {
 			$(this).height($(this).attr('ordo-height'));
+			$('#container-svg-'+$(this).attr('id')).remove();
 		});
 		
 		
@@ -400,6 +412,8 @@ function TOrdonnancement() {
     var afterAnimationOrder=function() {
     	resizeUL();
     	ToggleProject(0,true);
+    	
+    	$("div[rel=container-svg]").remove();
     };
     
     var reOrderTaskWithConstraint = function() {
