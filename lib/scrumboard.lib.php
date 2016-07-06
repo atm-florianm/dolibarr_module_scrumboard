@@ -498,7 +498,7 @@ global $conf,$db;
 
                list($col, $row, $grid_height) = $TSmallGeoffrey[$fk_workstation]->getNextPlace($height,$t_nb_ressource, (int)$task['fk_task_parent'] , $y_start_ecart);
                
-               $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $grid_height, $t_nb_ressource, $task['id'], $task['fk_parent']);
+               $TSmallGeoffrey[$fk_workstation]->addBox($row,$col, $grid_height, $t_nb_ressource, $task['id'], $task['fk_parent'], $task['TUser']);
                
 	   		   //list($col, $row) = _ordonnanceur_get_next_coord($TWorkstation, $TPlan[$fk_workstation], $task, $height);  
                

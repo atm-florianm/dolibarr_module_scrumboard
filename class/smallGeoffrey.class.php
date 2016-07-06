@@ -31,9 +31,9 @@ class TSmallGeoffrey {
                 $sql = "SELECT t.grid_row,t.grid_height,t.planned_workload,t.progress,tex.fk_workstation 
                     FROM ".MAIN_DB_PREFIX."projet_task t 
                     LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (t.rowid=tex.fk_object)
-                    WHERE t.rowid = ".$fk_task_parent." AND t.progress<100";
+                    WHERE t.rowid = ".$fk_task_parent." AND t.progress<100 AND t.planned_workload>0";
 
-		if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) $sql.=" AND tex.grid_use = 1";
+				if(empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID)) $sql.=" AND tex.grid_use = 1";
 
                 $res = $db->query($sql);    
                 
@@ -50,7 +50,7 @@ class TSmallGeoffrey {
 	return array($yMin,0);
     }
 
-    function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0) {
+    function addBox($top,$left,$height,$width, $taskid=0, $fk_task_parent=0, $TUser=array()) {
         
         $box = new stdClass;
         $box->top = $top;
@@ -59,6 +59,7 @@ class TSmallGeoffrey {
         $box->width = $width;
         $box->taskid = $taskid;
         $box->fk_task_parent = $fk_task_parent;
+        $box->$TUser = $TUser;
         
         $this->TBox[] = $box;
         
