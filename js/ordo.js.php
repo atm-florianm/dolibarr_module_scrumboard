@@ -113,10 +113,29 @@ function TOrdonnancement() {
 							
 						}
 						,dataType: 'json'
-					}).done(function() {
-						sortTask(wsid);
-						if(wsid!=old_wsid)order(old_wsid);
+					}).done(function(data) {
 						
+						var TWSid = [wsid];
+						if(TWSid.indexOf(old_wsid)) TWSid.push(old_wsid);
+						
+						var init_top = parseInt($("li#task-"+taskid).css('top'));
+						console.log(init_top);
+						for(x in data) {
+						
+							taskid_l = data[x];
+							
+							wsid_l = $("li#task-"+taskid_l).attr("ordo-ws-id");
+							if(TWSid.indexOf(wsid_l)) TWSid.push(wsid_l);
+							
+							init_top++;
+							$("li#task-"+taskid_l).appendTo("ul#list-task-"+wsid).attr("ordo-ws-id",wsid).css('top',init_top);
+							
+						}
+						
+						for(x in TWSid) {
+							wsid = TWSid[x];
+							sortTask(wsid);
+						}
 					});
 						
 					

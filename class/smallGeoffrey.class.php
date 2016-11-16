@@ -264,8 +264,9 @@ class TSmallGeoffrey {
 	
 		  $resultset = $db->query("SELECT t.fk_projet as fk_project, t.grid_col,t.grid_row,t.grid_height,tex.fk_workstation
 			FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (tex.fk_object = t.rowid)
-			WHERE rowid=".$taskid."");
-			$task = $db->fetch_object($resultset);
+			WHERE t.rowid=".$taskid."");
+			
+		  $task = $db->fetch_object($resultset);
 	
 		  $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
 	            fk_workstation=".(int)$fk_workstation."
@@ -275,18 +276,21 @@ class TSmallGeoffrey {
 		  $TIdTask[]=$taskid;
 		  
 		  if(!empty($conf->global->SCRUM_SNAP_MODE) && $conf->global->SCRUM_SNAP_MODE == 'SAME_PROJECT_AFTER') {
-		  	
-				
-			
-				$res = $db->query("SELECT t.rowid FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (tex.fk_object = t.rowid)
-				WHERE t.fk_projet=".$task->fk_project." AND tex.fk_workstation= ".$task->fk_workstation." 
-				AND t.grid_row>=".$task->grid_row." AND t.grid_row<=".($task->grid_row + $task->grid_height));
+		  	$task->grid_row = round($task->grid_row,5);
+			$task->grid_height = round($task->grid_height,5);
+			  
+			//var_dump($task->grid_row,$task->grid_row + $task->grid_height);
+				$res = $db->query("SELECT t.rowid FROM ".MAIN_DB_PREFIX."projet_task t 
+						LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (tex.fk_object = t.rowid)
+						WHERE t.fk_projet=".$task->fk_project." AND tex.fk_workstation= ".$task->fk_workstation." 
+						AND t.grid_row>=".($task->grid_row-0.001)." AND t.grid_row<=".($task->grid_row + $task->grid_height + 0.001));
+						
 				while($obj = $db->fetch_object($res)) {
-					
+				//	var_dump($obj->rowid,$TIdTask);
 					if(!in_array($obj->rowid, $TIdTask)) {
 						
 						$lvl++;
-						//var_dump($obj->rowid);
+						
 						self::setTaskWS($TIdTask,$obj->rowid, $fk_workstation, $lvl);
 						//exit;
 					}	

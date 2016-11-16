@@ -287,19 +287,18 @@ function showParameters() {
 	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
 	print '</td></tr>';
 
+	$TSnapMode=array(''=>$langs->trans('None'), 'SAME_PROJECT_AFTER'=>$langs->trans('SnapTaskFromSameProjectAfter'));
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
-            <td><?php echo $langs->trans('SnapMode') ?></td>
-            <td><?php
-            
-            
-            	$TSnapMode=array(''=>$langs->trans('None'), 'SAME_PROJECT_AFTER'=>$langs->trans('SnapTaskFromSameProjectAfter'));
-            
-            	echo $html->selectarray('TDivers[SCRUM_SNAP_MODE]', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
-            ?><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-	
-	
+	print '<td>'.$langs->trans("SnapMode").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_SNAP_MODE">';
+	print $html->selectarray('SCRUM_SNAP_MODE', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
+    print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
 	print '</table>';
 	
 }
