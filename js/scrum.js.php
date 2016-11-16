@@ -117,6 +117,7 @@ function project_refresh_task(id_project, task) {
 	
 	$item.find('[rel=label]').html(task.label).attr("title", task.long_description).tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 	$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+	$item.find('[rel=list_of_user_affected]').html(task.internal_contacts).append(task.external_contacts);
 	
 	$item.find('[rel=time]').html('<span rel="real_time" class="nodisplaybutinprogress">'+task.aff_time + '</span><br /><span rel="planned_time">' + task.aff_planned_workload + '</span>').attr('task-id', task.id).off().on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).attr('task-id'));
@@ -330,6 +331,42 @@ function project_addDayAndWeek(mask) {
 
 }
 
+function pop_edit_task(fk_task, callback) {
+	
+	if($('#dialog-edit-task').length==0) {
+		$('body').append('<div id="dialog-edit-task"></div>');
+	}
+	var url ="<?php echo  dol_buildpath('/projet/tasks/task.php?action=edit&id=',1) ?>"+fk_task
+		
+	$('#dialog-edit-task').load(url+" div.fiche form",function() {
+		
+		$('#dialog-edit-task input[name=cancel]').remove();
+		$('#dialog-edit-task form').submit(function() {
+			
+			$.post($(this).attr('action'), $(this).serialize(), function() {
+				
+				if(callback) {
+					eval(callback);
+				}
+				
+			});
+		
+			$('#dialog-edit-task').dialog('close');			
+			
+			return false;
+	
+			
+		});
+		
+		$(this).dialog({
+			title: "<?php echo $langs->trans('EditTask') ?>"
+			,width:"80%"
+			,modal:true
+		});
+		
+	});
+	
+}
 
 function create_task(id_projet) {
 	
@@ -364,8 +401,18 @@ function create_task(id_projet) {
 }
 		
 function pop_time(id_project, id_task) {
-	$("#saisie")
-				.load('<?php echo dol_buildpath('/projet/tasks/time.php',2) ?>?id='+id_task+' div.fiche form'
+	
+	$.ajax({
+		url:"<?php echo dol_buildpath('/scrumboard/script/interface.php',1) ?>"
+		,data:{
+			put:'set-user-task'
+			,taskid:id_task
+			,userid:<?php echo $user->id; ?>
+		}
+		
+	}).done(function() {
+		$("#saisie")
+				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'
 				,function() {
 					$('textarea[name=timespent_note]').attr('cols',25);
 					
@@ -405,23 +452,31 @@ function pop_time(id_project, id_task) {
 							if(jStart>0) {
 								jStart=jStart+11;
 								
-								jEnd = data.indexOf('"error"', jStart) - 10; 
-								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
+								jEnd = data.indexOf('"error"', jStart) - 10;
+								
+								if(jEnd>0) {
+									message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
+									$.jnotify(message, "error");
+								}
+								else{
+									
+									$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
+									
+								} 
+								
 							}
 							else {
 								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
 								project_velocity(id_project);	
 							}
 							
+							task = project_get_task(id_project, id_task);
+							task.status = 'inprogress';
+							project_refresh_task(id_project, task);
+							
 						});
 						
 						$("#saisie").dialog('close');
-						
-						
-						task = project_get_task(id_project, id_task);
-						task.status = 'inprogress';
-						project_refresh_task(id_project, task);
 	
 						return false;
 					
@@ -430,10 +485,14 @@ function pop_time(id_project, id_task) {
 				)
 				.dialog({
 					modal:true
-					,minWidth:800
+					,width:1200
 					,minHeight:200
 					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
 				});
+		
+	});
+	
+		
 }
 
 function reset_the_dates(id_project) {

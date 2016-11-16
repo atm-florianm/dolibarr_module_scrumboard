@@ -38,28 +38,46 @@ if (! $user->admin) {
 // Parameters
 $action = GETPOST('action', 'alpha');
 
-if($action=='save') {
-	
-	foreach($_REQUEST['TDivers'] as $name=>$param) {
-		
-		dolibarr_set_const($db, $name, $param);
-		
-        if($name == 'SCRUM_USE_PROJECT_PRIORITY' && $param == 1) {
-            $extrafields=new ExtraFields($db);
+if (preg_match('/set_(.*)/',$action,$reg))
+{
+	$code=$reg[1];
+	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	{
+		if ($code == 'SCRUM_USE_PROJECT_PRIORITY')
+		{
+			$extrafields=new ExtraFields($db);
             $default_value = array('options'=> array(0=>$langs->trans('Normal'), 1=>$langs->trans('Important')));
             $res = $extrafields->addExtraField('priority', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
-        }
-        /*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
+		}
+		/*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
             $extrafields=new ExtraFields($db);
             $res = $extrafields->addExtraField('grou', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
         }*/
         
-        
+        setEventMessage( $langs->trans('RegisterSuccess') );
+		header("Location: ".$_SERVER["PHP_SELF"]);
+		exit;
 	}
-	
-	setEventMessage( $langs->trans('RegisterSuccess') );
+	else
+	{
+		dol_print_error($db);
+	}
 }
-
+	
+if (preg_match('/del_(.*)/',$action,$reg))
+{
+	$code=$reg[1];
+	if (dolibarr_del_const($db, $code, 0) > 0)
+	{
+		setEventMessage( $langs->trans('RegisterSuccess') );
+		Header("Location: ".$_SERVER["PHP_SELF"]);
+		exit;
+	}
+	else
+	{
+		dol_print_error($db);
+	}
+}
 
 llxHeader('','Gestion de scrumboard, à propos','');
 
@@ -69,153 +87,208 @@ print_fiche_titre('Scrumboard',$linkback,'setup');
 showParameters();
 
 function showParameters() {
-	global $db,$conf,$langs;
+	global $db,$conf,$langs,$bc;
 	
 	$html=new Form($db);
 	
-	?><form action="<?=$_SERVER['PHP_SELF'] ?>" name="form1" method="POST" enctype="multipart/form-data">
-		<input type="hidden" name="action" value="save" />
-	<table width="100%" class="noborder" style="background-color: #fff;">
-		<tr class="liste_titre">
-			<td colspan="2"><?php echo $langs->trans('Parameters') ?></td>
-		</tr>
-		
-		<tr>
-			<td><?php echo $langs->trans('ActivateTitleDatePerDay') ?></td><td><?php
-			
-				if($conf->global->SCRUM_SEE_DELIVERYDATE_PER_DAY==0) {
-					
-					 ?><a href="?action=save&TDivers[SCRUM_SEE_DELIVERYDATE_PER_DAY]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-					
-				}
-				else {
-					 ?><a href="?action=save&TDivers[SCRUM_SEE_DELIVERYDATE_PER_DAY]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-					
-				}
-			
-			?></td>				
-		</tr>
+	$var=false;
+	print '<table class="noborder" width="100%">';
+	print '<tr class="liste_titre">';
+	print '<td>'.$langs->trans("Parameters").'</td>'."\n";
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="100">'.$langs->trans("Value").'</td>'."\n";
 
-		<tr>
-			<td><?php echo $langs->trans('ActivateTitleDatePerWeek') ?></td><td><?php
-			
-				if($conf->global->SCRUM_SEE_DELIVERYDATE_PER_WEEK==0) {
-					
-					 ?><a href="?action=save&TDivers[SCRUM_SEE_DELIVERYDATE_PER_WEEK]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-					
-				}
-				else {
-					 ?><a href="?action=save&TDivers[SCRUM_SEE_DELIVERYDATE_PER_WEEK]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-					
-				}
-			
-			?></td>				
-		</tr>
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("ActivateTitleDatePerDay").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SEE_DELIVERYDATE_PER_DAY');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("ActivateTitleDatePerWeek").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SEE_DELIVERYDATE_PER_WEEK');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SetDeliveryDateByOtherTask").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SetSCRUM_ALLOW_ALL_TASK_IN_GRID").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_ALLOW_ALL_TASK_IN_GRID');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SetSCRUM_ADD_TASKS_TO_GRID").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_ADD_TASKS_TO_GRID');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("DefaultVelocity").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_DEFAULT_VELOCITY">';
+	print '<input type="text" name="SCRUM_DEFAULT_VELOCITY" value="'.$conf->global->SCRUM_DEFAULT_VELOCITY.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("NumberOfDayForVelocity").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_VELOCITY_NUMBER_OF_DAY">';
+	print '<input type="text" name="SCRUM_VELOCITY_NUMBER_OF_DAY" value="'.$conf->global->SCRUM_VELOCITY_NUMBER_OF_DAY.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("NumberOfWorkingHourInDay").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_TIMESHEET_WORKING_HOUR_PER_DAY">';
+	print '<input type="text" name="TIMESHEET_WORKING_HOUR_PER_DAY" value="'.$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("UseProjectPriority").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_USE_PROJECT_PRIORITY">';
+	print $html->selectyesno("SCRUM_USE_PROJECT_PRIORITY",$conf->global->SCRUM_USE_PROJECT_PRIORITY,1);
+	print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
 
-        <tr>
-            <td><?php echo $langs->trans('SetDeliveryDateByOtherTask') ?></td><td><?php
-            
-                if($conf->global->SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK==0) {
-                    
-                     ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-                    
-                }
-                else {
-                     ?><a href="?action=save&TDivers[SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-                    
-                }
-            
-            ?></td>             
-        </tr>
-        <tr>
-            <td><?php echo $langs->trans('SetSCRUM_ADD_TASKS_TO_GRID') ?></td><td><?php
-            
-                if($conf->global->SCRUM_ADD_TASKS_TO_GRID==0) {
-                    
-                     ?><a href="?action=save&TDivers[SCRUM_ADD_TASKS_TO_GRID]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-                    
-                }
-                else {
-                     ?><a href="?action=save&TDivers[SCRUM_ADD_TASKS_TO_GRID]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-                    
-                }
-            
-            ?></td>             
-        </tr>
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("GroupTaskByProduct").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_PRODUCT');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("ProductTolerance").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE">';
+	print '<input type="text" name="SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE" value="'.$conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("TimeMoreForPrevision").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_TIME_MORE_PREVISION">';
+	print '<input type="text" name="SCRUM_TIME_MORE_PREVISION" value="'.$conf->global->SCRUM_TIME_MORE_PREVISION.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("TimeMoreForPrevisionPropal").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_TIME_MORE_PREVISION_PROPAL">';
+	print '<input type="text" name="SCRUM_TIME_MORE_PREVISION_PROPAL" value="'.$conf->global->SCRUM_TIME_MORE_PREVISION_PROPAL.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("WhenBeginOrdo").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_TIME_ORDO_START">';
+	print '<input type="text" name="SCRUM_TIME_ORDO_START" value="'.$conf->global->SCRUM_TIME_ORDO_START.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("WhenEndOrdo").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_TIME_ORDO_END">';
+	print '<input type="text" name="SCRUM_TIME_ORDO_END" value="'.$conf->global->SCRUM_TIME_ORDO_END.'" size="3" />&nbsp;';
+	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("heightOfTaskIsDividedByRessource").'</td>&nbsp;';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("hideProjectsOnTheRight").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT');
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("showLinkedContactToTask").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
+	print '</td></tr>';
 
-		<tr>
-			<td><?php echo $langs->trans('DefaultVelocity') ?></td>
-			<td><input type="text" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY ?>" name="TDivers[SCRUM_DEFAULT_VELOCITY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>				
-		</tr>
-
-        <tr>
-            <td><?php echo $langs->trans('NumberOfDayForVelocity') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->SCRUM_VELOCITY_NUMBER_OF_DAY ?>" name="TDivers[SCRUM_VELOCITY_NUMBER_OF_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-
-        <tr>
-            <td><?php echo $langs->trans('NumberOfWorkingHourInDay') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_HOUR_PER_DAY ?>" name="TDivers[TIMESHEET_WORKING_HOUR_PER_DAY]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-        <tr>
-            <td><?php echo $langs->trans('ScheduleOfWorkingHourInDay') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_WORKING_SCHEDULE ?>" name="TDivers[TIMESHEET_WORKING_SCHEDULE]" size="80" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-
-        <tr>
-            <td><?php echo $langs->trans('DayNoWorking') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->TIMESHEET_DAYOFF ?>" name="TDivers[TIMESHEET_DAYOFF]" size="30" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-
-        <tr>
-            <td><?php echo $langs->trans('UseProjectPriority') ?></td><td><?php
-            
-                if($conf->global->SCRUM_USE_PROJECT_PRIORITY==0) {
-                    
-                     ?><a href="?action=save&TDivers[SCRUM_USE_PROJECT_PRIORITY]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-                    
-                }
-                else {
-                     ?><a href="?action=save&TDivers[SCRUM_USE_PROJECT_PRIORITY]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-                    
-                }
-            
-            ?></td>             
-        </tr>
-
-		<tr>
-            <td><?php echo $langs->trans('GroupTaskByProduct') ?></td><td><?php
-            
-                if($conf->global->SCRUM_GROUP_TASK_BY_PRODUCT==0) {
-                    
-                     ?><a href="?action=save&TDivers[SCRUM_GROUP_TASK_BY_PRODUCT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-                    
-                }
-                else {
-                     ?><a href="?action=save&TDivers[SCRUM_GROUP_TASK_BY_PRODUCT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-                    
-                }
-            
-            ?></td>             
-        </tr>
-        
-        <tr>
-            <td><?php echo $langs->trans('ProductTolerance') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE ?>" name="TDivers[SCRUM_GROUP_TASK_BY_PRODUCT_TOLERANCE]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-        <tr>
-            <td><?php echo $langs->trans('TimeMoreForPrevision') ?></td>
-            <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_MORE_PREVISION ?>" name="TDivers[SCRUM_TIME_MORE_PREVISION]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-        <tr>
-            <td><?php echo $langs->trans('WhenBeginOrdo') ?> (hh:mm)</td>
-            <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_ORDO_START ?>" name="TDivers[SCRUM_TIME_ORDO_START]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-        <tr>
-            <td><?php echo $langs->trans('WhenEndOrdo') ?> (hh:mm)</td>
-            <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_ORDO_END ?>" name="TDivers[SCRUM_TIME_ORDO_END]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
-        </tr>
-       <tr>
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
             <td><?php echo $langs->trans('SnapMode') ?></td>
             <td><?php
             
@@ -225,14 +298,13 @@ function showParameters() {
             	echo $html->selectarray('TDivers[SCRUM_SNAP_MODE]', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
             ?><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
-	</table>
-	</form>
 	
-	<br /><br />
-	<?php
+	
+	print '</table>';
+	
 }
 ?>
-
+<br /><br />
 <table width="100%" class="noborder">
 	<tr class="liste_titre">
 		<td>A propos</td>

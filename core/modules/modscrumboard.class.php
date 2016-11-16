@@ -55,7 +55,7 @@ class modscrumboard extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Description of module scrumboard";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '2.0';
+        $this->version = '2.1';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -88,7 +88,7 @@ class modscrumboard extends DolibarrModules
             // Set this to relative path of css if module has its own css file
             //'css' => '/scrumboard/css/mycss.css.php',
             // Set here all hooks context managed by module
-            'hooks' => array('ordercard','projectcard')
+            'hooks' => array('ordercard','propalcard','projectcard','actioncard')
             // Set here all workflow context managed by module
             //'workflow' => array('order' => array('WORKFLOW_ORDER_AUTOCREATE_INVOICE'))
         );
@@ -168,7 +168,8 @@ class modscrumboard extends DolibarrModules
           'tablib'=>array("Table1","Table2","Table3"),
           // Request to select fields
           'tabsql'=>array(
-          'SELECT f.rowid as rowid, f.code, f.label, f.active'
+          'SELECT f.rowid as rowid, f.code, f.la			$this->date_lancement = strtotime('+'.$delai.' day midnight');
+		 * bel, f.active'
           . ' FROM ' . MAIN_DB_PREFIX . 'table1 as f',
           'SELECT f.rowid as rowid, f.code, f.label, f.active'
           . ' FROM ' . MAIN_DB_PREFIX . 'table2 as f',
@@ -227,7 +228,8 @@ class modscrumboard extends DolibarrModules
         //$this->rights[$r][3] = 1;
         //// In php code, permission will be checked by test
         //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][4] = 'level1';
+        //$this->rights[$r][4] = 'level1';			$this->date_lancement = strtotime('+'.$delai.' day midnight');
+        
         //// In php code, permission will be checked by test
         //// if ($user->rights->permkey->level1->level2)
         //$this->rights[$r][5] = 'level2';
@@ -241,7 +243,7 @@ class modscrumboard extends DolibarrModules
 								'mainmenu'=>'project',
 								'leftmenu'=>'Scrumboard',
 								'url'=>'/scrumboard/scrum.php',
-								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
 								'perms'=>'1',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
@@ -250,40 +252,55 @@ class modscrumboard extends DolibarrModules
 		
       $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
 								'type'=>'left',			                // This is a Top menu entry
-								'titre'=>'The Grid',
+								'titre'=>'Ordonnancement',
 								'mainmenu'=>'Scrumboard',
 								'leftmenu'=>'grid',
 								'url'=>'/scrumboard/grid.php',
-								'langs'=>'mantis@mantis',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
 								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
 	   
-       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=gpao',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=of',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
             'titre'=>$langs->trans('Ordonnancement'),
-            'mainmenu'=>'gpao',
+            'mainmenu'=>'of',
             'leftmenu'=>'ordoGPAO',
             'url'=>'/scrumboard/grid.php',
             'position'=>300,
             'perms'=>'$user->rights->scrumboard->ordo',
+            'lang'=>'scrumboard@scrumboard',
             'target'=>'',
             'user'=>2);
         $r++;
        
-      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=asset,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=of,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
-            'titre'=>$langs->trans('OrdonnancementStat'),
+            'titre'=>'OrdonnancementStat',
             'mainmenu'=>'ordoGPAO',
             'leftmenu'=>'ordoStat',
             'url'=>'/scrumboard/grid-stat.php',
             'position'=>300,
             'perms'=>'$user->rights->scrumboard->ordo',
+            'lang'=>'scrumboard@scrumboard',
             'target'=>'',
             'user'=>2);
         $r++;
+		
+	$this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=Scrumboard',			                // Put 0 if this is a top menu
+							'type'=>'left',			                // This is a Top menu entry
+							'titre'=>'Projets par Chef de projet',
+							'mainmenu'=>'Scrumboard',
+							'leftmenu'=>'grid',
+							'url'=>'/scrumboard/nb_proj_cdp.php',
+							'langs'=>'scrumboard@scrumboard',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>110,
+								'perms'=>'$user->rights->scrumboard->ordo',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
        
 	   
         // Exports
@@ -420,9 +437,22 @@ class modscrumboard extends DolibarrModules
         $res = $extrafields->addExtraField('color', 'Couleur du projet', 'varchar', 1, 8, 'projet', false, false, '');
 		
         $extrafields=new ExtraFields($this->db);
-		$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
+	$res = $extrafields->addExtraField('grid_use', 'Afficher sur la grille de planning', 'boolean', 0, '', 'projet_task');
         $extrafields=new ExtraFields($this->db);
-		$res = $extrafields->addExtraField('needed_ressource', 'nb ressources nécessaires', 'int', 0, '', 'projet_task');
+	$res = $extrafields->addExtraField('needed_ressource', 'nb ressources nécessaires', 'int', 0, '', 'projet_task');
+	$extrafields=new ExtraFields($this->db);
+	$res = $extrafields->addExtraField('fk_workstation', 'Poste de charge', 'sellist', 0, '', 'projet_task',0,0,'',serialize(array('options'=>array('workstation:name:rowid'=>null))));
+
+     	$extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('fk_of', 'Ordre de Fabrication', 'sellist', 0, '', 'projet_task',0,0,'',serialize(array('options'=>array('assetOf:numero:rowid'=>null))));
+        $extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('fk_product', 'Produit à fabriquer', 'sellist', 0, '', 'projet_task',0,0,'',serialize(array('options'=>array('product:label:rowid'=>null))));
+
+	$extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('fk_workstation', 'Poste de charge immobilisé', 'sellist', 0, '', 'actioncomm',0,0,'',serialize(array('options'=>array('workstation:name:rowid'=>null))));
+     	$extrafields=new ExtraFields($this->db);
+        $res = $extrafields->addExtraField('needed_ressource', 'nb ressources immobilisées', 'int', 0, '', 'actioncomm');
+		
 		return $this->_init($sql, $options);
     }
     /**

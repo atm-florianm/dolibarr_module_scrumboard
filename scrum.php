@@ -26,11 +26,13 @@
 
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/js/scrum.js.php'));
 	
-	$id_projet = (int)GETPOST('id');
+	$id_projet = (int) GETPOST('id');
 
 	$object = new Project($db);
 	$object->fetch($id_projet);
-	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
+	// Debug en cas de id 0 et non admin
+	if(empty($object->id)) $object->id=0;
+	$object->fetch_thirdparty();
 
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
@@ -68,7 +70,7 @@
 		// Customer
 		print "<tr><td>".$langs->trans("Company")."</td>";
 		print '<td colspan="3">';
-		if ($object->societe->id > 0) print $object->societe->getNomUrl(1);
+		if ($object->thirdparty->id > 0) print $object->thirdparty->getNomUrl(1);
 		else print '&nbsp;';
 		print '</td></tr>';
 
@@ -133,16 +135,13 @@
 	print '<div class="tabsAction">';
 
 	if( (float)DOL_VERSION > 3.4 ) {
-		
-	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
-	{
-		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+		if ($user->rights->projet->all->creer || $user->rights->projet->creer)
 		{
-			print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+			{
+				print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			}
 		}
-	}
-		
-		
 	}
 
 	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
@@ -191,7 +190,8 @@
 				<span rel="time"></span>
 				</div>
 				
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<br /><span class="font-small" rel="list_of_user_affected"></span> 
 			</li>
 			</ul>
 			

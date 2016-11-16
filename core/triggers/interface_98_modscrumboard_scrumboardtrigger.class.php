@@ -138,13 +138,46 @@ class Interfacescrumboardtrigger
             if(!empty($conf->global->SCRUM_ADD_TASKS_TO_GRID)) {
                   $object->array_options['options_grid_use'] = 1;  
                   $object->update($user,1);
+	          $object->insertExtraFields();
             }
             
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
        }
-       
+	   else if($action === 'ACTION_CREATE' || $action =='ACTION_MODIFY') {
+	   	
+			$fk_task = 0;
+			
+			$object->fetchObjectLinked();
+			if(!empty($object->linkedObjectsIds['task'])) {
+				$row = each($object->linkedObjectsIds['task']);
+				$fk_task = $row[1];	
+			}
+			
+			$fk_project_task = GETPOST('fk_project_task'); 
+			
+			if(!empty($fk_project_task)) {
+				
+				list($fk_project, $fk_task) = explode('_',$fk_project_task);
+				
+				if(!empty($fk_task)) {
+					if(!empty($object->linkedObjectsIds['task'])) {
+						$object->updateObjectLinked( $fk_task , 'task');
+					}
+					else{
+						$object->add_object_linked( 'task' , $fk_task );	
+					}	
+					
+				}
+				
+			}
+			/*var_dump($object);
+			exit('!');
+	*/
+			
+		
+	   }
        
         return 0;
     }
