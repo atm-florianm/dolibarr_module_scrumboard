@@ -215,6 +215,16 @@ function showParameters() {
             <td><?php echo $langs->trans('WhenEndOrdo') ?> (hh:mm)</td>
             <td><input type="text" value="<?php echo $conf->global->SCRUM_TIME_ORDO_END ?>" name="TDivers[SCRUM_TIME_ORDO_END]" size="3" /><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
         </tr>
+       <tr>
+            <td><?php echo $langs->trans('SnapMode') ?></td>
+            <td><?php
+            
+            
+            	$TSnapMode=array(''=>$langs->trans('None'), 'SAME_PROJECT_AFTER'=>$langs->trans('SnapTaskFromSameProjectAfter'));
+            
+            	echo $html->selectarray('TDivers[SCRUM_SNAP_MODE]', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
+            ?><input type="submit" value="<?php echo $langs->trans('Modify'); ?>" name="bt_submit" /></td>               
+        </tr>
 	</table>
 	</form>
 	

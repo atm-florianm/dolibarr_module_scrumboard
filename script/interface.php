@@ -139,7 +139,7 @@ function _put(&$db, $case) {
             break;
 		
         case 'ws':
-            print _task_ws($db, GETPOST('taskid'), GETPOST('fk_workstation'));
+            print json_encode( _task_ws($db, GETPOST('taskid'), GETPOST('fk_workstation')) );
         
             break;	
 		case 'resize':
@@ -194,12 +194,10 @@ function _sort_task_ws(&$db, &$TTaskId) {
 }
 
 function  _task_ws(&$db, $taskid, $fk_workstation) {
-    
-      $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
-            fk_workstation=".(int)$fk_workstation."
-        WHERE fk_object = ".(int)$taskid;
-      $db->query($sql);
-      return 1;
+     
+	  $TIdTask = array();
+	  TSmallGeoffrey::setTaskWS($TIdTask,$taskid,$fk_workstation);     
+      return $TIdTask;
 
 }
 function _coord(&$db, $TCoord) {

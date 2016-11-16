@@ -46,3 +46,5 @@ OrdonnancementEnding=Ordonnancement des tâches terminé
 ordonnanced=ordonné
 Workstations=Postes de travail
 DontWork=N/A
+SnapMode=Mode collant
+SnapTaskFromSameProjectAfter=Coller les tâches ultérieure du même projet

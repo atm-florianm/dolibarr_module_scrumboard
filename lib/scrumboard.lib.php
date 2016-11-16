@@ -258,31 +258,32 @@ function _ordo_init_dayOff(&$smallGeoffrey, $fk_workstation, $time_init, $time_d
   //  var_dump($height_of_past_day,$smallGeoffrey );
     
     $TDayWeekOff=array();
-    foreach($ws->TWorkstationSchedule as &$sc) {
-    
-        if($sc->nb_ressource == 0) $sc->nb_ressource = $ws->nb_ressource; 
-    
-        if($sc->date_off>0) {
-            
-           $TRow = _ordo_ido_get($sc->date_off, $sc->day_moment, $sc->nb_ressource, $time_init, $nb_second_in_hour);
-           $TOff[]=$TRow;  
-           $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
-           
-        }     
-        else{
-           
-           if(!isset($TDayWeekOff[$sc->week_day]))$TDayWeekOff[$sc->week_day] = array('AM'=>0,'PM'=>0, 'nb_ressource'=>0);
-           
-           if($sc->day_moment == 'AM')$TDayWeekOff[$sc->week_day]['AM'] = 1;
-           else if($sc->day_moment == 'PM')$TDayWeekOff[$sc->week_day]['PM'] = 1;
-           else $TDayWeekOff[$sc->week_day]['AM'] = $TDayWeekOff[$sc->week_day]['PM'] = 1; 
-            
-           if($TDayWeekOff[$sc->week_day]['nb_ressource']<$sc->nb_ressource)$TDayWeekOff[$sc->week_day]['nb_ressource'] = $sc->nb_ressource;
-            
-        }
-        
+	if(!empty($ws->TWorkstationSchedule)) {
+	    foreach($ws->TWorkstationSchedule as &$sc) {
+	    
+	        if($sc->nb_ressource == 0) $sc->nb_ressource = $ws->nb_ressource; 
+	    
+	        if($sc->date_off>0) {
+	            
+	           $TRow = _ordo_ido_get($sc->date_off, $sc->day_moment, $sc->nb_ressource, $time_init, $nb_second_in_hour);
+	           $TOff[]=$TRow;  
+	           $smallGeoffrey->addBox($TRow['top'], $TRow['left'], $TRow['height'], $TRow['nb_ressource']);
+	           
+	        }     
+	        else{
+	           
+	           if(!isset($TDayWeekOff[$sc->week_day]))$TDayWeekOff[$sc->week_day] = array('AM'=>0,'PM'=>0, 'nb_ressource'=>0);
+	           
+	           if($sc->day_moment == 'AM')$TDayWeekOff[$sc->week_day]['AM'] = 1;
+	           else if($sc->day_moment == 'PM')$TDayWeekOff[$sc->week_day]['PM'] = 1;
+	           else $TDayWeekOff[$sc->week_day]['AM'] = $TDayWeekOff[$sc->week_day]['PM'] = 1; 
+	            
+	           if($TDayWeekOff[$sc->week_day]['nb_ressource']<$sc->nb_ressource)$TDayWeekOff[$sc->week_day]['nb_ressource'] = $sc->nb_ressource;
+	            
+	        }
+	        
+	    }
     }
-    
 
     $t_end_3month = strtotime('+3month', $time_day);
     $t_current = $time_init;
