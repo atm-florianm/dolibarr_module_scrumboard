@@ -119,7 +119,6 @@ function TOrdonnancement() {
 						if(TWSid.indexOf(old_wsid)) TWSid.push(old_wsid);
 						
 						var init_top = parseInt($("li#task-"+taskid).css('top'));
-						console.log(init_top);
 						for(x in data) {
 						
 							taskid_l = data[x];
