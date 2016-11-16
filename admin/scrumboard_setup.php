@@ -286,8 +286,19 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
 	print '</td></tr>';
-	
-	
+
+	$TSnapMode=array(''=>$langs->trans('None'), 'SAME_PROJECT_AFTER'=>$langs->trans('SnapTaskFromSameProjectAfter'));
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SnapMode").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_SNAP_MODE">';
+	print $html->selectarray('SCRUM_SNAP_MODE', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
+    print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
 	print '</table>';
 	
 }
