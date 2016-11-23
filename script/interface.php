@@ -346,6 +346,7 @@ function _sort_task(&$db, $TTask, $listname) {
 	foreach($TTask as $rank=>$id) {
 		$task=new Task($db);
 		$task->fetch($id);
+		$task->fetch_optionals($id); // Otherwise they are scratched in the update
 		$task->rang = $step + $rank;
 		$task->update($user);
 	}
@@ -625,6 +626,7 @@ global $user;
 		
 		$task=new Task($db);
 		$task->fetch($obj->rowid);
+		$task->fetch_optionals($obj->rowid); // Otherwise they are scratched in the update
 		
 		if($task->progress==0)$task->date_start = $current_time;
 		
