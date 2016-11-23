@@ -263,10 +263,10 @@ class modscrumboard extends DolibarrModules
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
 	   
-       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=gpao',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+       $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=of',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
             'titre'=>$langs->trans('Ordonnancement'),
-            'mainmenu'=>'gpao',
+            'mainmenu'=>'of',
             'leftmenu'=>'ordoGPAO',
             'url'=>'/scrumboard/grid.php',
             'position'=>300,
@@ -276,7 +276,7 @@ class modscrumboard extends DolibarrModules
             'user'=>2);
         $r++;
        
-      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=gpao,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
+      $this->menu[$r]=array(   'fk_menu'=>'fk_mainmenu=of,fk_leftmenu=ordoGPAO',     // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'=>'left',         // This is a Left menu entry
             'titre'=>'OrdonnancementStat',
             'mainmenu'=>'ordoGPAO',

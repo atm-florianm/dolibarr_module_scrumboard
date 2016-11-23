@@ -60,3 +60,6 @@ showLinkedContactToTask=Afficher les contacts liés
 
 #NOMBRE DE PROJETS PAR CHEF DE PROJET 
 graphProjectCDP=Nombre de projets par chef de projet
+
+SnapMode=Mode collant
+SnapTaskFromSameProjectAfter=Coller les tâches ultérieure du même projet
