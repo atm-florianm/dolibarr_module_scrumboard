@@ -51,7 +51,6 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		}
 		else if($name == 'SCRUM_GROUP_TASK_BY_RAL' && $param == 1) {
 		    $extrafields=new ExtraFields($db);
-		    $res = $extrafields->addExtraField('fk_soc_order', 'Société liée à la commande', 'varchar', '', 255, 'projet_task');
 		    $res = $extrafields->addExtraField('fk_product_ral', 'RAL liée à la commande', 'varchar', '', 255, 'projet_task');
 		}
 		/*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
