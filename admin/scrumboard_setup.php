@@ -49,6 +49,11 @@ if (preg_match('/set_(.*)/',$action,$reg))
             $default_value = array('options'=> array(0=>$langs->trans('Normal'), 1=>$langs->trans('Important')));
             $res = $extrafields->addExtraField('priority', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
 		}
+		else if($name == 'SCRUM_GROUP_TASK_BY_RAL' && $param == 1) {
+		    $extrafields=new ExtraFields($db);
+		    $res = $extrafields->addExtraField('fk_soc_order', 'Société liée à la commande', 'varchar', '', 255, 'projet_task');
+		    $res = $extrafields->addExtraField('fk_product_ral', 'RAL liée à la commande', 'varchar', '', 255, 'projet_task');
+		}
 		/*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
             $extrafields=new ExtraFields($db);
             $res = $extrafields->addExtraField('grou', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
@@ -197,7 +202,24 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_PRODUCT');
 	print '</td></tr>';
-	
+
+
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("GroupTaskByRAL").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_RAL');
+	print '</td></tr>';
+
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("GroupTaskByCustomer").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_CUSTOMER');
+	print '</td></tr>';
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("ProductTolerance").'</td>';

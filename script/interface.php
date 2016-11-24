@@ -725,8 +725,12 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     global $conf;
     
     $sql = "SELECT t.rowid,t.label,t.ref,t.fk_task_parent,t.fk_projet, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource
-                ,t.planned_workload,t.progress,t.datee,t.dateo,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  )."
-        FROM ".MAIN_DB_PREFIX."projet_task t 
+                ,t.planned_workload,t.progress,t.datee,t.dateo,p.fk_soc,t.date_estimated_end".(!empty($conf->asset->enabled) ? ',ex.fk_product' : ''  );
+
+		// SCRUM_GROUP_TASK_BY_RAL est la conf qui crée les 2 extrafields au dessous
+		if(!empty($conf->global->SCRUM_GROUP_TASK_BY_RAL)) $sql.= ",ex.fk_product_ral,ex.fk_soc_order";
+
+    $sql.=" FROM ".MAIN_DB_PREFIX."projet_task t 
         LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
         LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) "; 
         
@@ -795,11 +799,13 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
                 , 'grid_row'=>$obj->grid_row
                 ,'fk_workstation'=>$fk_workstation
                 ,'fk_product'=>(int)$obj->fk_product
+                ,'fk_product_ral'=>empty($conf->global->SCRUM_GROUP_TASK_BY_RAL) ? 0 : (int)$obj->fk_product_ral
                 ,'fk_task_parent'=>(int)$obj->fk_task_parent
                 ,'needed_ressource'=>($obj->needed_ressource ? $obj->needed_ressource : 1) 
                 ,'planned_workload'=>$obj->planned_workload / 3600
                 ,'progress'=>$obj->progress
                 ,'fk_soc'=>$obj->fk_soc
+                ,'fk_soc_order'=>$obj->fk_soc_order
                 ,'TUser'=>$TUser
                 ,'date_start'=>strtotime($obj->dateo)
                 ,'date_end'=>strtotime($obj->datee)
