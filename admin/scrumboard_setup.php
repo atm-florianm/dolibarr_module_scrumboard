@@ -49,9 +49,9 @@ if (preg_match('/set_(.*)/',$action,$reg))
             $default_value = array('options'=> array(0=>$langs->trans('Normal'), 1=>$langs->trans('Important')));
             $res = $extrafields->addExtraField('priority', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
 		}
-		else if($name == 'SCRUM_GROUP_TASK_BY_RAL' && $param == 1) {
-		    $extrafields=new ExtraFields($db);
-		    $res = $extrafields->addExtraField('fk_product_ral', 'RAL liée à la commande', 'varchar', '', 255, 'projet_task');
+		else if($code == 'SCRUM_GROUP_TASK_BY_RAL' && GETPOST($code) == 1) {
+			$extrafields=new ExtraFields($db);
+		    $res = $extrafields->addExtraField('fk_product_ral', 'RALLinkedToOrder', 'varchar', '', 255, 'projet_task');
 		}
 		/*else if($name == 'SCRUM_GROUP_TASK_BY_PRODUCT' && $param == 1) {
             $extrafields=new ExtraFields($db);
@@ -208,9 +208,14 @@ function showParameters() {
 	print '<td>'.$langs->trans("GroupTaskByRAL").'</td>';
 	print '<td align="center" width="20">&nbsp;</td>';
 	print '<td align="right" width="300">';
-	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_RAL');
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_SCRUM_GROUP_TASK_BY_RAL">';
+	print $html->selectyesno("SCRUM_GROUP_TASK_BY_RAL",$conf->global->SCRUM_GROUP_TASK_BY_RAL,1);
+	print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+	print '</form>';
 	print '</td></tr>';
-
+	
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("GroupTaskByCustomer").'</td>';

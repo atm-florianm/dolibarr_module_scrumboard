@@ -763,7 +763,8 @@ function _tasks_ordo(&$db,&$TWorkstation, $status, $fk_workstation=0) {
     $sql.=" ORDER BY t.grid_row, t.grid_col ";
         
     $res = $db->query($sql);    
-        
+    if(empty($res)) var_dump($db); 
+	    
     $TTask = array();
     while($obj = $db->fetch_object($res)) {
                 
