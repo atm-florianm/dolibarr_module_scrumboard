@@ -538,7 +538,7 @@ function TOrdonnancement() {
 		
 		date=new Date();
 		
-		var TJour = new Array( "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" );
+		var TJour = new Array( "<?php echo $langs->trans('Sunday') ?>", "<?php echo $langs->trans('Monday') ?>", "<?php echo $langs->trans('Tuesday') ?>", "<?php echo $langs->trans('Wednesday') ?>", "<?php echo $langs->trans('Thursday') ?>", "<?php echo $langs->trans('Friday') ?>", "<?php echo $langs->trans('Saturday') ?>" );
 		
 		for(i=0;i<max_height;i+=height_day) {
 			var dayBlock = '<div style="height:'+height_day+'px; top:'+i+'px; right:0;width:'+(width_column-5)+'px; border-bottom:1px solid black; text-align:right;position:absolute;z-index:0;" class="day_delim">'+TJour[date.getDay()]+' '+date.toLocaleDateString()+'&nbsp;</div>';	
@@ -563,7 +563,7 @@ function TOrdonnancement() {
 				if(empty($conf->global->SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT)) { 
 			?>
 			
-				$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:20px;border-radius: 20px 20px 8px 8px; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;"><a href="<?php echo dol_buildpath('/projet/'.((float)DOL_VERSION > 3.6 ? 'card.php' : 'fiche.php'),1) ?>?id='+idProject+'">'+project.name+'</a> '+project.progress+'%</span></li>');
+				$('#list-projects').append('<li fk-project="'+idProject+'" id="project-'+idProject+'" class="project start" style="text-align:left; position:relative; padding:10px; top:'+(project.start - 20)+'px;float:left; height:'+(project.end - project.start)+'px; width:15px;border-radius: 0; margin-right:5px;" onclick="ToggleProject('+idProject+')"><span style="transform: rotate(90deg);transform-origin: left top 0;display:block; white-space:nowrap; margin-left:15px;"><a href="<?php echo dol_buildpath('/projet/'.((float)DOL_VERSION > 3.6 ? 'card.php' : 'fiche.php'),1) ?>?id='+idProject+'">'+project.name+'</a> '+project.progress+'%</span></li>');
 			
 			<?php 
 				} 
@@ -577,11 +577,11 @@ function TOrdonnancement() {
 			}
 			else {
 				if(project.color!=null && project.color!='') {
-					$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, '+project.color+' 100%) repeat scroll 0 0');
+					$('#list-projects li[fk-project='+idProject+']').css('background', project.color);
 					
 				}
 				else{
-					$('#list-projects li[fk-project='+idProject+']').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, #7cbc0a '+project.progress+'%, #666 '+(project.progress+1)+'%, #ccc '+(project.progress+2)+'%, #ccc 100%) repeat scroll 0 0');
+					$('#list-projects li[fk-project='+idProject+']').css('background', '#ccc');
 					
 				}		
 				

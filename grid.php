@@ -33,7 +33,7 @@
 	);*/
 	
 	$TWorkstation = array(
-        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
+        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'#FFEBD9', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
     );
 	
     if($conf->workstation->enabled) {
@@ -210,7 +210,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;z-index:1;">
+		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border-right:2px solid #ddd;z-index:1;">
 		        <div style="width:<?php echo $column_width ?>px; z-index:1;">
 		        	<span class="fixedHeader columnHeader">
 		        		<a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>

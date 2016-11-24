@@ -17,6 +17,15 @@ td.projectDrag {
 	min-width: 200px;	
 	padding:1px 1px 1px 1px;
 }
+
+.day_delim {
+	
+	color: #FF7B00;
+	font-weight: bold;
+	font-size:14px;
+	line-height: 40px;
+}
+
 .projectDrag ul {
 	margin:0 0 0 0;
 	padding:0 0 0 0;
@@ -442,14 +451,14 @@ ul#list-projects.task-list {
 table .columnHeader {
 	background: #a1d54f;
 	padding:10px;
-	/*border-radius: 10px;*/
+	border-radius: 25px;
 	display:inline-block;
 	width:90px;
 	margin:1px 0 2px 2px; 
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
-	box-shadow: 2px 2px 5px #656565;
+	/*box-shadow: 2px 2px 5px #656565;*/
 }
 table .columnHeader.hiddenWS {
 	background: #2989d8;
@@ -466,6 +475,13 @@ table li div[rel=content] {
 	position:relative;
 	padding-bottom:50px;
 }
+
+table li div[rel=content]>div {
+	color :#333;	
+}
+
+
+
 table li span[rel=task-link] {
 	font-weight: bold;
 }
