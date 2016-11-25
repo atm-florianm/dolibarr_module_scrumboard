@@ -57,8 +57,12 @@
     $cw =  GETPOST('column_width');
     if(!empty($cw)) $_SESSION['column_width'] = (int)$cw;
     
+	$tm = GETPOST('tilemode');
+	if($tm!=='') $_SESSION['tile_mode'] = (int)$tm;
+	
     $hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
     $column_width = empty($_SESSION['column_width']) ? 200 : $_SESSION['column_width'];
+    $tile_mode = empty($_SESSION['tile_mode']) ? 0 : $_SESSION['tile_mode'];
 	
 	$day_height =  $hour_height * 7;
 
@@ -74,6 +78,10 @@
         ?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-small.css',1) ?>"><?php
     }
 
+	if(!empty($tile_mode)) {
+		?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-tile.css',1) ?>"><?php
+	}
+
 ?>
 		<div class="content">
 	
@@ -88,6 +96,8 @@
                         <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+                        -
+                        <a  class="columnHeader columnHeaderMini" href="?tilemode=<?php echo ($tile_mode) ? 0 : 1;  ?>"><?php echo img_picto($langs->trans('TileModeSwitch'), 'tile@scrumboard') ?></a>
                         <br />
                         <?php echo $langs->trans('ColumnWidth') ?> : 
                         <a class="columnHeader columnHeaderMini" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
