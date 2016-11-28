@@ -862,7 +862,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
     }
 
     if (count($sqlwhere)>0) {
-    	$sql .= " WHERE ".implode(' AND ,',$sqlwhere);
+    	$sql .= " WHERE ".implode(' AND ',$sqlwhere);
     }
 
     if (!empty($sqlorder)) {
