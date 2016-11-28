@@ -824,7 +824,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object)
 		WHERE ";
 
-	if (!empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
+	if (empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
 		$sql .= " t.planned_workload>0 ";
 	}
 
@@ -851,7 +851,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	if($onlyUseGrid) {
 	    $sql.=" AND ex.grid_use=1 ";
 
-	    if (!empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
+	    if (empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
 	    	$sql .= " AND  t.planned_workload>0 ";
 	    }
 	    $sql .= " ORDER BY t.grid_row";
