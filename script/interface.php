@@ -821,43 +821,52 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	$sql = "SELECT t.rowid,t.fk_task_parent, t.grid_col,t.grid_row,ex.fk_workstation,ex.needed_ressource,p.datee as 'project_date_end', t.note_private
 		FROM ".MAIN_DB_PREFIX."projet_task t
 		LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (t.fk_projet=p.rowid)
-		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object)
-		WHERE ";
+		LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields ex ON (t.rowid=ex.fk_object) ";
+
+	$sqlwhere = array();
+	$sqlorder='';
 
 	if (empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
-		$sql .= " t.planned_workload>0 ";
+		$sqlwhere[]= " t.planned_workload>0 ";
 	}
 
 	if($status=='ideas') {
-		$sql.=" AND t.progress=0 AND t.datee IS NULL";
+		$sqlwhere[]=" t.progress=0 AND t.datee IS NULL";
 	}
 	else if($status=='todo') {
-		$sql.=" AND t.progress=0";
+		$sqlwhere[]=" t.progress=0";
 	}
 	else if($status=='inprogress|todo') {
-		$sql.=" AND t.progress>=0 AND t.progress<100";
+		$sqlwhere[]=" t.progress>=0 AND t.progress<100";
 	}
 	else if($status=='inprogress') {
-		$sql.=" AND t.progress>0 AND t.progress<100";
+		$sqlwhere[]=" t.progress>0 AND t.progress<100";
 	}
 	else if($status=='finish') {
-		$sql.=" AND t.progress=100
-		";
+		$sqlwhere[]=" t.progress=100";
 	}
 
-	if($id_project) $sql.=" AND t.fk_projet=".$id_project;
-	else $sql.=" AND p.fk_statut IN (0,1)";
+	if($id_project) $sqlwhere[]=" t.fk_projet=".$id_project;
+	else $sqlwhere[]=" p.fk_statut IN (0,1)";
 
 	if($onlyUseGrid) {
-	    $sql.=" AND ex.grid_use=1 ";
+		$sqlwhere[]=" ex.grid_use=1 ";
 
 	    if (empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
-	    	$sql .= " AND  t.planned_workload>0 ";
+	    	$sqlwhere[]= " t.planned_workload>0 ";
 	    }
-	    $sql .= " ORDER BY t.grid_row";
+	    $sqlorder = " ORDER BY t.grid_row";
     }
     else{
-        $sql.=" ORDER BY rang";
+    	$sqlorder=" ORDER BY rang";
+    }
+
+    if (count($sqlwhere)>0) {
+    	$sql .= " WHERE ".implode(' AND ,',$sqlwhere);
+    }
+
+    if (!empty($sqlorder)) {
+    	$sql .=$sqlorder;
     }
 
 	$parameters=array('action'=>'_tasks_before_exec_sql', 'sql'=>&$sql, 'status'=>$status, 'fk_project'=>$id_project, 'onlyUseGrid'=>$onlyUseGrid);
