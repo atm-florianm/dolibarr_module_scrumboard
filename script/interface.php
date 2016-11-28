@@ -825,7 +825,7 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 		WHERE ";
 
 	if (!empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
-		$sql = " t.planned_workload>0 ";
+		$sql .= " t.planned_workload>0 ";
 	}
 
 	if($status=='ideas') {
