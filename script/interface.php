@@ -849,8 +849,12 @@ function _tasks(&$db, $id_project, $status, $onlyUseGrid = false) {
 	else $sql.=" AND p.fk_statut IN (0,1)";
 
 	if($onlyUseGrid) {
-	    $sql.=" AND ex.grid_use=1 AND t.planned_workload>0
-	    ORDER BY t.grid_row";
+	    $sql.=" AND ex.grid_use=1 ";
+
+	    if (!empty($conf->global->SCRUM_SHOW_TASK_WITHOUT_DURATION)) {
+	    	$sql .= " AND  t.planned_workload>0 ";
+	    }
+	    $sql .= " ORDER BY t.grid_row";
     }
     else{
         $sql.=" ORDER BY rang";
