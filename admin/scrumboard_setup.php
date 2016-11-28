@@ -53,7 +53,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
             $extrafields=new ExtraFields($db);
             $res = $extrafields->addExtraField('grou', 'Priorité', 'select', 1, 0, 'projet', false, false, '', serialize( $default_value ) );
         }*/
-        
+
         setEventMessage( $langs->trans('RegisterSuccess') );
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -63,7 +63,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -88,9 +88,9 @@ showParameters();
 
 function showParameters() {
 	global $db,$conf,$langs,$bc;
-	
+
 	$html=new Form($db);
-	
+
 	$var=false;
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
@@ -105,7 +105,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SEE_DELIVERYDATE_PER_DAY');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("ActivateTitleDatePerWeek").'</td>';
@@ -113,7 +113,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SEE_DELIVERYDATE_PER_WEEK');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("SetDeliveryDateByOtherTask").'</td>';
@@ -121,7 +121,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SET_DELIVERYDATE_BY_OTHER_TASK');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("SetSCRUM_ALLOW_ALL_TASK_IN_GRID").'</td>';
@@ -129,7 +129,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_ALLOW_ALL_TASK_IN_GRID');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("SetSCRUM_ADD_TASKS_TO_GRID").'</td>';
@@ -137,7 +137,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_ADD_TASKS_TO_GRID');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("DefaultVelocity").'</td>';
@@ -150,7 +150,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("NumberOfDayForVelocity").'</td>';
@@ -163,7 +163,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("NumberOfWorkingHourInDay").'</td>';
@@ -176,7 +176,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("UseProjectPriority").'</td>';
@@ -197,7 +197,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_GROUP_TASK_BY_PRODUCT');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("ProductTolerance").'</td>';
@@ -210,7 +210,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("TimeMoreForPrevision").'</td>';
@@ -223,7 +223,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("TimeMoreForPrevisionPropal").'</td>';
@@ -236,7 +236,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("WhenBeginOrdo").'</td>';
@@ -249,7 +249,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("WhenEndOrdo").'</td>';
@@ -262,7 +262,7 @@ function showParameters() {
 	print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("heightOfTaskIsDividedByRessource").'</td>&nbsp;';
@@ -270,7 +270,7 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_HEIGHT_DIVIDED_BY_RESSOURCE');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("hideProjectsOnTheRight").'</td>';
@@ -278,13 +278,21 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT');
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("showLinkedContactToTask").'</td>';
 	print '<td align="center" width="20">&nbsp;</td>';
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
+	print '</td></tr>';
+
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("showTaskWithoutDuration").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_TASK_WITHOUT_DURATION');
 	print '</td></tr>';
 
 	$TSnapMode=array(''=>$langs->trans('None'), 'SAME_PROJECT_AFTER'=>$langs->trans('SnapTaskFromSameProjectAfter'));
@@ -300,7 +308,7 @@ function showParameters() {
     print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
 	print '</table>';
-	
+
 }
 ?>
 <br /><br />

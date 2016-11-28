@@ -63,3 +63,5 @@ graphProjectCDP=Nombre de projets par chef de projet
 
 SnapMode=Mode collant
 SnapTaskFromSameProjectAfter=Coller les tâches ultérieure du même projet
+
+showTaskWithoutDuration=Afficher les taches même si elles n'ont pas de durée plannifiée prévue
