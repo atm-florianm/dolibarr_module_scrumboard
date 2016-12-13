@@ -16,6 +16,12 @@ function _get(&$db, $case) {
 global $conf;    
     
 	switch ($case) {
+		
+		case 'logged-status':
+			echo 'ok';
+			
+			break;
+		
 		case 'tasks' :
 			
 			$onlyUseGrid = isset($_REQUEST['gridMode']) && $_REQUEST['gridMode']==1 && empty($conf->global->SCRUM_ALLOW_ALL_TASK_IN_GRID) ? true : false;

@@ -807,3 +807,30 @@ OrdoReorderAll = function() {
     	
     	alert('OrdoReorderAll, pas écrit ça !');
 };
+
+
+function testLoginStatus() {
+	
+	$.ajax({
+		url: "script/interface.php",
+		dataType: "html",
+		crossDomain: true,
+		data: {
+			   get:'logged-status'
+		}
+	})
+	.then(function (data){
+		
+		if(data!='ok') {
+			document.location.href = document.location.href; // reload car la session est expirée		
+		}
+		else {
+			setTimeout(function() {
+			      testLoginStatus();
+			}, 10000);
+		}
+		
+	});
+
+}
+
