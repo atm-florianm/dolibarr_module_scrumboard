@@ -67,3 +67,4 @@ SnapMode=Mode collant
 SnapTaskFromSameProjectAfter=Coller les tâches ultérieure du même projet
 
 RALLinkedToOrder=RAL liée à la commande
+showTaskWithoutDuration=Afficher les taches même si elles n'ont pas de durée plannifiée prévue
