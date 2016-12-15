@@ -33,7 +33,7 @@
 	);*/
 	
 	$TWorkstation = array(
-        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'linear-gradient(to right,white, #ccc)', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
+        0=>array('nb_ressource'=>1, 'velocity'=>1, 'background'=>'#FFEBD9', 'name'=>'Non ordonnancé','id'=>0) // base de 7h par jour
     );
 	
     if($conf->workstation->enabled) {
@@ -57,8 +57,12 @@
     $cw =  GETPOST('column_width');
     if(!empty($cw)) $_SESSION['column_width'] = (int)$cw;
     
+	$tm = GETPOST('tilemode');
+	if($tm!=='') $_SESSION['tile_mode'] = (int)$tm;
+	
     $hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
     $column_width = empty($_SESSION['column_width']) ? 200 : $_SESSION['column_width'];
+    $tile_mode = empty($_SESSION['tile_mode']) ? 0 : $_SESSION['tile_mode'];
 	
 	$day_height =  $hour_height * 7;
 
@@ -74,6 +78,10 @@
         ?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-small.css',1) ?>"><?php
     }
 
+	if(!empty($tile_mode)) {
+		?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-tile.css',1) ?>"><?php
+	}
+
 ?>
 		<div class="content">
 	
@@ -88,6 +96,8 @@
                         <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+                        -
+                        <a  class="columnHeader columnHeaderMini" href="?tilemode=<?php echo ($tile_mode) ? 0 : 1;  ?>"><?php echo img_picto($langs->trans('TileModeSwitch'), 'tile@scrumboard') ?></a>
                         <br />
                         <?php echo $langs->trans('ColumnWidth') ?> : 
                         <a class="columnHeader columnHeaderMini" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
@@ -210,7 +220,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border:1px solid #666;z-index:1;">
+		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border-right:2px solid #ddd;z-index:1;">
 		        <div style="width:<?php echo $column_width ?>px; z-index:1;">
 		        	<span class="fixedHeader columnHeader">
 		        		<a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
