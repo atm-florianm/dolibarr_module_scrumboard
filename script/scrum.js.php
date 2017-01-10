@@ -352,7 +352,7 @@ function pop_time(id_project, id_task) {
 				)
 				.dialog({
 					modal:true
-					,minWidth:800
+					,minWidth:1200
 					,minHeight:200
 					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
 				});
