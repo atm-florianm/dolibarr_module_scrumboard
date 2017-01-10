@@ -130,12 +130,13 @@ global $langs;
 }
 
 function _sort_task(&$db, $TTask) {
+	global $user;
 	
 	foreach($TTask as $rank=>$id) {
 		$task=new Task($db);
 		$task->fetch($id);
 		$task->rang = $rank;
-		$task->update($db);
+		$task->update($user);
 	}
 	
 }
