@@ -61,7 +61,7 @@
 	if($tm!=='') $_SESSION['tile_mode'] = (int)$tm;
 	
     $hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
-    $column_width = empty($_SESSION['column_width']) ? 200 : $_SESSION['column_width'];
+    $column_width = empty($_SESSION['column_width']) ? -1 : $_SESSION['column_width'];
     $tile_mode = empty($_SESSION['tile_mode']) ? 0 : $_SESSION['tile_mode'];
 	
 	$day_height =  $hour_height * 7;
@@ -100,6 +100,7 @@
                         <a  class="columnHeader columnHeaderMini" href="?tilemode=<?php echo ($tile_mode) ? 0 : 1;  ?>"><?php echo img_picto($langs->trans('TileModeSwitch'), 'tile@scrumboard') ?></a>
                         <br />
                         <?php echo $langs->trans('ColumnWidth') ?> : 
+                        <a class="columnHeader columnHeaderMini" href="?column_width=-1"><?php echo $langs->trans('Auto') ?></a> 
                         <a class="columnHeader columnHeaderMini" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
                         <a class="columnHeader columnHeaderMini" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
                         <a  class="columnHeader columnHeaderMini" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
@@ -152,6 +153,12 @@ function _order_by_name(&$a, &$b) {
 }
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
     global $conf;
+    
+    	$nb_ressource_total = 0;
+    	foreach($TWorkstation as &$ws) { 
+    		$nb_ressource_total+=(!empty($ws['nb_ressource']) ? $ws['nb_ressource'] : 1 );  
+    	}
+    
 		?>		
 		        <script type="text/javascript">
 		            var http = "<?php echo DOL_URL_ROOT; ?>";
@@ -167,7 +174,19 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 				var TVelocity = [];
 				
 				document.ordo = {};
-				
+
+				if(w_column == -1) {
+					w_column = parseInt(($( window ).width() - $('#id-left').width()) / <?php echo $nb_ressource_total + 2; ?>);
+					$('div.columnordo').each(function(i,item) {
+						$item = $(item);
+						var nb_r = $item.attr('ws-nb-ressource'); 
+						$item.css('width', w_column*nb_r);
+						
+						$item.find('ul').css('width', w_column*nb_r);	
+					});
+					
+					
+				}
 				$(document).ready(function(){
   					$('#ws-list-top').width($( window ).width());
 
@@ -220,7 +239,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 		$w_column = $column_width*$w_param['nb_ressource'];
 		
 		$width_table+=$w_column;	
-		?><div id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border-right:2px solid #ddd;z-index:1;">
+		?><div class="columnordo" id="columm-ws-<?php echo $w_id; ?>" valign="top" style="float:left;margin-right: 5px; width:<?php echo round($w_column); ?>px; <?php echo $back; ?> border-right:2px solid #ddd;z-index:1;"  ws-nb-ressource="<?php echo $w_param['nb_ressource']; ?>">
 		        <div style="width:<?php echo $column_width ?>px; z-index:1;">
 		        	<span class="fixedHeader columnHeader">
 		        		<a href="javascript:toggleWorkStation(<?php echo $w_id; ?>)" ws-id="<?php echo $w_id; ?>"><?php echo $w_param['name'].($w_param['velocity'] != 1 ? ' '.round($w_param['velocity']*100).'%' : ''); ?></a>
