@@ -62,8 +62,7 @@
 	
     $hour_height = empty($_SESSION['hour_height']) ? 50 : $_SESSION['hour_height'];
     $column_width = empty($_SESSION['column_width']) ? -1 : $_SESSION['column_width'];
-    $tile_mode = empty($_SESSION['tile_mode']) ? 0 : $_SESSION['tile_mode'];
-	
+    $tile_mode = !isset($_SESSION['tile_mode']) ? 1 : $_SESSION['tile_mode'];
 	$day_height =  $hour_height * 7;
 
 	llxHeader('', $langs->trans('GridTasks') , '','',0,0, array('/scrumboard/js/scrum.js.php'));
@@ -92,19 +91,19 @@
 					    <!-- <?php echo $langs->trans('WorkStation') ?> - <?php echo ($number_of_columns-1).' '.$langs->trans('NumberOfQueue'); ?>
 					    <br /> -->
                         <?php echo $langs->trans('HourHeight') ?> : 
-                        <a class="columnHeader columnHeaderMini" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
-                        <a class="columnHeader  columnHeaderMini" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
-                        <a  class="columnHeader columnHeaderMini" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
-                        <a  class="columnHeader columnHeaderMini" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
+                        <a class="columnHeader columnHeaderMini <?php echo ($hour_height==5 ? 'columnSelectedValue' : '') ?>" href="?hour_height=5"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <a class="columnHeader  columnHeaderMini <?php echo ($hour_height==10 ? 'columnSelectedValue' : '') ?>" href="?hour_height=10"><?php echo $langs->trans('Small') ?></a> 
+                        <a  class="columnHeader columnHeaderMini <?php echo ($hour_height==50 ? 'columnSelectedValue' : '') ?>" href="?hour_height=50"><?php echo $langs->trans('Middle') ?></a> 
+                        <a  class="columnHeader columnHeaderMini <?php echo ($hour_height==100 ? 'columnSelectedValue' : '') ?>" href="?hour_height=100"><?php echo $langs->trans('High') ?></a>
                         -
-                        <a  class="columnHeader columnHeaderMini" href="?tilemode=<?php echo ($tile_mode) ? 0 : 1;  ?>"><?php echo img_picto($langs->trans('TileModeSwitch'), 'tile@scrumboard') ?></a>
+                        <a  class="columnHeader columnHeaderMini <?php echo ($tile_mode==1 ? 'columnSelectedValue' : '') ?>" href="?tilemode=<?php echo ($tile_mode) ? 0 : 1;  ?>"><?php echo img_picto($langs->trans('TileModeSwitch'), 'tile@scrumboard') ?></a>
                         <br />
                         <?php echo $langs->trans('ColumnWidth') ?> : 
-                        <a class="columnHeader columnHeaderMini" href="?column_width=-1"><?php echo $langs->trans('Auto') ?></a> 
-                        <a class="columnHeader columnHeaderMini" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
-                        <a class="columnHeader columnHeaderMini" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
-                        <a  class="columnHeader columnHeaderMini" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
-                        <a  class="columnHeader columnHeaderMini" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
+                        <a class="columnHeader columnHeaderMini <?php echo ($column_width==-1 ? 'columnSelectedValue' : '') ?>" href="?column_width=-1"><?php echo $langs->trans('Auto') ?></a> 
+                        <a class="columnHeader columnHeaderMini <?php echo ($column_width==50 ? 'columnSelectedValue' : '') ?>" href="?column_width=50"><?php echo $langs->trans('TooSmall') ?></a> 
+                        <a class="columnHeader columnHeaderMini <?php echo ($column_width==100 ? 'columnSelectedValue' : '') ?>" href="?column_width=100"><?php echo $langs->trans('Small') ?></a> 
+                        <a  class="columnHeader columnHeaderMini <?php echo ($column_width==200 ? 'columnSelectedValue' : '') ?>" href="?column_width=200"><?php echo $langs->trans('Middle') ?></a> 
+                        <a  class="columnHeader columnHeaderMini <?php echo ($column_width==400 ? 'columnSelectedValue' : '') ?>" href="?column_width=400"><?php echo $langs->trans('High') ?></a>
                         <div id="ws-list-top">
 					    <?php
 					    echo $langs->trans('Workstations').' : ';
@@ -154,10 +153,19 @@ function _order_by_name(&$a, &$b) {
 function _js_grid(&$TWorkstation, $day_height, $column_width) {
     global $conf;
     
-    	$nb_ressource_total = 0;
-    	foreach($TWorkstation as &$ws) { 
-    		$nb_ressource_total+=(!empty($ws['nb_ressource']) ? $ws['nb_ressource'] : 1 );  
+     $TWSVisible=array();
+   	 if(!empty($_COOKIE['WSTogle'])) {
+   	 	foreach($_COOKIE['WSTogle'] as $wsid=>$visible) {
+   	 		$TWorkstation[$wsid]['visible'] = $visible;
+   	 	}
+   	 }
+    
+   	 $nb_ressource_total = 0;
+    foreach($TWorkstation as &$ws) { 
+    	if(!isset($ws['visible']) || !empty($ws['visible'])) {
+    		$nb_ressource_total+=(!empty($ws['nb_ressource']) ? $ws['nb_ressource'] : 1 );
     	}
+    }
     
 		?>		
 		        <script type="text/javascript">
@@ -176,7 +184,7 @@ function _js_grid(&$TWorkstation, $day_height, $column_width) {
 				document.ordo = {};
 
 				if(w_column == -1) {
-					w_column = parseInt(($( window ).width() - $('#id-left').width()) / <?php echo $nb_ressource_total + 2; ?>);
+					w_column = parseInt(($( window ).width() - $('#id-left').width()) / <?php echo $nb_ressource_total + (empty($conf->global->SCRUM_HIDE_PROJECT_LIST_ON_THE_RIGHT) ? 2 : 1); ?>);
 					$('div.columnordo').each(function(i,item) {
 						$item = $(item);
 						var nb_r = $item.attr('ws-nb-ressource'); 
@@ -265,12 +273,12 @@ function _draw_grid(&$TWorkstation, $column_width) {
 	
 	
 	?>
-<div>
+<!--  <div>
 	<span style="background-color:red;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskWontfinishInTime'); ?><br />
 	<span style="background-color:orange;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskMightNotfinishInTime'); ?><br />
 	<span style="background-color:#CCCCCC;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('BarProgressionHelp'); ?>
 	
-</div>
+</div> -->
 
 		
 		</div>
