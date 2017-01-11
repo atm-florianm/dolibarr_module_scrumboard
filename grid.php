@@ -72,7 +72,7 @@
 ?>
 	<link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 <?php
-    if($hour_height<=10 || $column_width<=100) {
+    if($hour_height<=10 || ($column_width<=100 && $column_width>0)) {
             
         ?><link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum-small.css',1) ?>"><?php
     }
@@ -291,7 +291,7 @@ function _draw_grid(&$TWorkstation, $column_width) {
 				<div rel="content">
     				<span rel="project" style="display:none;"></span> <span rel="task-link">[<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span></span>
     				<div rel="divers"></div>
-                    <div rel="time-projection"></div>
+                    <div rel="time-projection" <?php echo empty($conf->global->SCRUM_SHOW_SHOW_ESTIMATED_START_END) ? 'style="display:none"': ''; ?>></div>
                     <div rel="time-rest"></div>
                     <div rel="users"></div>
     				<div rel="time-end"></div>
