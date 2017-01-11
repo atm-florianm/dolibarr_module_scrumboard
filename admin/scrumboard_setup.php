@@ -333,8 +333,18 @@ function showParameters() {
 	print $html->selectarray('SCRUM_SNAP_MODE', $TSnapMode, $conf->global->SCRUM_SNAP_MODE);
     print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 	print '</form>';
-	print '</table>';
+	
 
+
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SCRUM_SHOW_SHOW_ESTIMATED_START_END").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_SHOW_ESTIMATED_START_END');
+	print '</td></tr>';
+	
+	print '</table>';
 }
 ?>
 <br /><br />

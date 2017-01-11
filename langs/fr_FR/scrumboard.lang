@@ -68,3 +68,5 @@ SnapTaskFromSameProjectAfter=Coller les tâches ultérieure du même projet
 
 RALLinkedToOrder=RAL liée à la commande
 showTaskWithoutDuration=Afficher les taches même si elles n'ont pas de durée plannifiée prévue
+
+SCRUM_SHOW_SHOW_ESTIMATED_START_END=Voir les dates estimées de début et fin dans l'ordo

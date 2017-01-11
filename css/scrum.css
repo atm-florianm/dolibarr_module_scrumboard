@@ -460,6 +460,11 @@ table .columnHeader {
 	overflow: hidden;
 	/*box-shadow: 2px 2px 5px #656565;*/
 }
+
+table .columnSelectedValue {
+	background: #42c8f4;
+}
+
 table .columnHeader.hiddenWS {
 	background: #2989d8;
 } 
