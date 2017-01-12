@@ -261,7 +261,7 @@ class TSmallGeoffrey {
 	  global $db,$conf;
 	
 		  if($lvl>50) return array( );
-	
+
 		  $resultset = $db->query("SELECT t.fk_projet as fk_project, t.grid_col,t.grid_row,t.grid_height,tex.fk_workstation
 			FROM ".MAIN_DB_PREFIX."projet_task t LEFT JOIN ".MAIN_DB_PREFIX."projet_task_extrafields tex ON (tex.fk_object = t.rowid)
 			WHERE t.rowid=".$taskid."");
@@ -271,8 +271,13 @@ class TSmallGeoffrey {
 		  $sql = "UPDATE ".MAIN_DB_PREFIX."projet_task_extrafields SET
 	            fk_workstation=".(int)$fk_workstation."
 	        WHERE fk_object = ".(int)$taskid;
-	      $db->query($sql);
-		  
+	        $res = $db->query($sql);
+/*var_dump($db->affected_rows($res),$db);exit;
+		  if($db->affected_rows($res) == 0) {
+			$db->query("INSERT INTO ".MAIN_DB_PREFIX."projet_task_extrafields (fk_object, fk_workstation) VALUES (".$taskid.",".$fk_workstation.")");
+var_dump($db);TODO ne détecte pas que l'extrafield n'est pas inséré pour les anciennes tâche pré-ordo */
+		  }
+
 		  $TIdTask[]=$taskid;
 		  
 		  if(!empty($conf->global->SCRUM_SNAP_MODE) && $conf->global->SCRUM_SNAP_MODE == 'SAME_PROJECT_AFTER') {

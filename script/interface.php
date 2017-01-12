@@ -220,7 +220,6 @@ function _sort_task_ws(&$db, &$TTaskId) {
 }
 
 function  _task_ws(&$db, $taskid, $fk_workstation) {
-
 	  $TIdTask = array();
 	  TSmallGeoffrey::setTaskWS($TIdTask,$taskid,$fk_workstation);
       return $TIdTask;
