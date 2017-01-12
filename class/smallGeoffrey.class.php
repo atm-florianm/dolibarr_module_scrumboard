@@ -275,8 +275,8 @@ class TSmallGeoffrey {
 /*var_dump($db->affected_rows($res),$db);exit;
 		  if($db->affected_rows($res) == 0) {
 			$db->query("INSERT INTO ".MAIN_DB_PREFIX."projet_task_extrafields (fk_object, fk_workstation) VALUES (".$taskid.",".$fk_workstation.")");
-var_dump($db);TODO ne détecte pas que l'extrafield n'est pas inséré pour les anciennes tâche pré-ordo */
-		  }
+var_dump($db);TODO ne détecte pas que l'extrafield n'est pas inséré pour les anciennes tâche pré-ordo 
+		  }*/
 
 		  $TIdTask[]=$taskid;
 		  
