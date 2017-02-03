@@ -61,7 +61,7 @@ class modscrumboard extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Description of module scrumboard";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.5';
+        $this->version = '1.6';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -105,7 +105,7 @@ class modscrumboard extends DolibarrModules
 
         // Config pages. Put here list of php pages
         // stored into scrumboard/admin directory, used to setup module.
-        $this->config_page_url = false;
+        $this->config_page_url = 'scrumboard_setup.php@scrumboard';
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
@@ -453,8 +453,12 @@ class modscrumboard extends DolibarrModules
 
 		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
 	
-
-
+		dol_include_once('/core/class/extrafields.class.php');
+		$extrafields=new ExtraFields($this->db);
+		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
+		
+		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
+		
         return $this->_init($sql, $options);
     }
 

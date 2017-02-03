@@ -31,8 +31,8 @@ function project_velocity(id_project) {
 	
 	
 }
-function project_get_tasks(id_project, liste, status) {
-	$('#'+liste).empty();
+function project_get_tasks(id_project, status) {
+	$('ul[rel="'+status+'"]').empty();
 	
 	$.ajax({
 		url : "./script/interface.php"
@@ -48,7 +48,15 @@ function project_get_tasks(id_project, liste, status) {
 	.done(function (tasks) {
 		
 		$.each(tasks, function(i, task) {
-			project_draw_task(id_project, task, $('#'+liste));
+		
+			if($('tr[story-k='+task.story_k+']').length>0) {
+				$ul = $('tr[story-k='+task.story_k+']').find('ul[rel="'+status+'"]');
+			}
+			else{
+				$ul = $('tr[default-k=1]').find('ul[rel="'+status+'"]');
+			}
+		
+			project_draw_task(id_project, task, $ul);
 		});
 				
 	}); 
@@ -66,7 +74,9 @@ function project_create_task(id_project) {
 	})
 	.done(function (task) {
 	
-		project_draw_task(id_project, task, $('#list-task-idea'));
+		$ul = $('tr[default-k=1]').find('ul[rel=todo]');
+		
+		project_draw_task(id_project, task, $ul);
 		project_develop_task(task.id);
 	}); 
 	
@@ -92,6 +102,7 @@ function project_refresh_task(id_project, task) {
 			task=project_get_task(id_projet, id_task);
 			task.progress = parseInt($(this).val());
 			task.status = 'inprogress';
+			task.story_k = $(this).closest('ul').attr('story-k');
 			
 			project_save_task(id_project, task);
 		
@@ -170,6 +181,7 @@ function project_init_change_type(id_project) {
     	,receive: function( event, ui ) {
 			task=project_get_task(id_project, ui.item.attr('task-id'));
 			task.status = $(this).attr('rel');
+			task.story_k = $(this).closest('ul').attr('story-k');
 			$('#task-'+task.id).css('top','');
 	        $('#task-'+task.id).css('left','');	
 			$('#list-task-'+task.status).prepend( $('#task-'+task.id) );	
@@ -214,6 +226,7 @@ function project_getsave_task(id_project, id_task) {
 	task.type = $item.find('[rel=type]').val();
 	task.point = $item.find('[rel=point]').val();
 	task.description = $item.find('[rel=description]').val();
+	task.story_k = $item.closest('ul').attr('story-k');
 	
 	project_save_task(id_project, task);
 }
@@ -229,6 +242,7 @@ function project_save_task(id_project, task) {
 			,id_project : id_project
 			,label : task.label
 			,progress : task.progress
+			,story_k : task.story_k
 		}
 		,dataType: 'json'
 		,type:'POST'
@@ -245,12 +259,9 @@ function project_develop_task(id_task) {
 }
 function project_loadTasks(id_projet) {
 	
-					/*project_get_tasks(id_projet, 'list-task-idea', 'idea');*/
-				project_get_tasks(id_projet , 'list-task-todo', 'todo');
-				project_get_tasks(id_projet , 'list-task-inprogress', 'inprogress');
-				project_get_tasks(id_projet , 'list-task-finish', 'finish');
-				
-			
+	project_get_tasks(id_projet ,  'todo');
+	project_get_tasks(id_projet ,  'inprogress');
+	project_get_tasks(id_projet ,  'finish');
 	
 }
 function create_task(id_projet) {
