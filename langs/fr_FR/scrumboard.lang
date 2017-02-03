@@ -15,3 +15,5 @@ BarProgressionHelp=2 barres de progression sont visibles dans chaque tâche. La 
 ResetDateWithThisVelocity=Recalculer les dates de fin des tâches en cours ou futures à partir de la vélocité ci-après
 ResetDate=Recalculer les dates ?
 ResetDateTask=Recalculer les dates des tâches
+
+ProjectStories=Histoires planifiées (séparées par des virgules)

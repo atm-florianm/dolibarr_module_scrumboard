@@ -54,23 +54,17 @@ td.projectDrag {
 	float:right;
 	display:none;
 }
-.projectDrag ul li.idea {
-	background: #eee;
-}
-.projectDrag ul li.idea a {
-	color:#000;	
-}
-.projectDrag ul li.inprogress {
+.projectDrag ul[rel=inprogress] li {
 	background: green;
 }
-.projectDrag ul li.inprogress div.actions {
+.projectDrag ul li[rel=inprogress] div.actions {
 	display:block;
 }
 
-.projectDrag ul li.inprogress div.actions select.progress {
+.projectDrag ul li[rel=inprogress] div.actions select.progress {
 	display:inline-block;
 }
-.projectDrag ul li.inprogress div.actions span[rel=time] {
+.projectDrag ul li[rel=inprogress] div.actions span[rel=time] {
 	font-size:12px;
 	display:inline-block;
 }
@@ -93,10 +87,15 @@ td.projectDrag {
 	border-radius: 5px;
 	padding:3px;
 }
-.projectDrag ul li.finish {
+.projectDrag ul[rel=finish] li {
 	background: grey;
 }
-
+.projectDrag ul[rel=review] li {
+	background: #e2cc93;
+}
+.projectDrag ul[rel=backlog] li {
+	background: #a96e9c;
+}
 .projectDrag ul li a {
 	color:#fff;
 }

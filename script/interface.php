@@ -177,6 +177,10 @@ global $user, $langs;
 		
 		$task->update($user);
 		
+		$db->query("UPDATE ".MAIN_DB_PREFIX.$task->table_element." 
+				SET story_k=".(int)$values['story_k']."
+				,scrum_status='".$values['scrum_status']."'
+			WHERE rowid=".$task->id);
 	}
 	
 	$task->date_delivery = 0;
@@ -263,20 +267,20 @@ function _tasks(&$db, $id_project, $status) {
 	if($id_project > 0) $cond_where = " AND fk_projet=".$id_project;
 	
 	if($status=='ideas') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
+		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
 		WHERE  progress=0 ".$cond_where." AND datee IS NULL
 		ORDER BY rang";
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
+		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
 		WHERE progress=0 ".$cond_where." ORDER BY rang";
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
+		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
 		WHERE progress>0 ".$cond_where." AND progress<100 ORDER BY rang";
 	}
 	else if($status=='finish') {
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task 
+		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
 		WHERE progress=100 ".$cond_where." 
 		ORDER BY rang";
 	}
@@ -286,7 +290,7 @@ function _tasks(&$db, $id_project, $status) {
 		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
-		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status));
+		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status,'story_k'=>$obj->story_k,'scrum_status'=>$obj->scrum_status));
 	}
 	
 	return $TTask;

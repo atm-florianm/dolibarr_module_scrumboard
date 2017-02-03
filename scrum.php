@@ -32,6 +32,8 @@
 	$object->fetch($id_projet);
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
+	$object->fetch_optionals($id_projet);
+	
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
 	}
@@ -83,48 +85,112 @@
 	
 		// Statut
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
-
-		print "</table>";
 		
+		// Stories
+		print '<tr><td>'.$langs->trans("ProjectStories").'</td><td>'.$object->array_options['options_stories'].'</td></tr>';
+		
+		print "</table>";
+	
 	}
 	else{
 		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
 	}
 		
+	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
+	
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
-
+<?php 
+if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
+	?>
+	<style type="text/css">
+	<!--
+	td[rel=review], td[rel=finish] {
+		width:16.5%;
+	}
+	-->
+	</style>
+	<?php 
+	
+}
+?>
 		<div class="content">
 	
 			<table id="scrum" id_projet="<?php echo $id_projet ?>">
 				<tr>
-					<!-- <td><?php echo $langs->trans('Ideas'); ?></td></td> -->
+					<?php 
+					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
+					  ?><td><?php echo $langs->trans('Backlog'); ?></td></td><?php 
+					}
+					?>
 					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td></td>
 					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td></td>
+					<?php 
+					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
+					  ?><td><?php echo $langs->trans('Review'); ?></td></td><?php 
+					}
+					?>
+
 					<td><?php echo $langs->trans('finish'); ?></td></td>
 				</tr>
+				<?php 
+				$default_k = 1;
+				foreach($TStorie as $k=>$label) {
+					$storie_k = $k+1;
+					
+					
+				?>
 				<tr>
-					<!-- <td class="projectDrag droppable" id="task-idea" rel="idea">
-						<ul id="list-task-idea" class="task-list" rel="idea">
-						
-						</ul>
-					</td> -->
-					<td class="projectDrag droppable" id="task-todo" rel="todo">
-						<ul id="list-task-todo" class="task-list" rel="todo">
+					<td colspan="3" class="liste_titre"><?php echo $label ?></td>
+				</tr>
+				<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k?>">
+				
+					<?php 
+					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
+						?>
+						<td class="projectDrag droppable" rel="backlog">
+							<ul class="task-list" rel="backlog" story-k="<?php echo $storie_k; ?>">
+							
+							</ul>
+						</td>
+						<?php 
+					}
+					?>
+					
+					<td class="projectDrag droppable" rel="todo">
+						<ul class="task-list" rel="todo" story-k="<?php echo $storie_k; ?>">
 						
 						</ul>
 					</td>
-					<td class="projectDrag droppable" id="task-inprogress" rel="inprogress">
-						<ul id="list-task-inprogress" class="task-list" rel="inprogress">
+					<td class="projectDrag droppable" rel="inprogress">
+						<ul class="task-list" rel="inprogress" story-k="<?php echo $storie_k; ?>">
 						
 						</ul>
 					</td>
-					<td class="projectDrag droppable" id="task-finish" rel="finish">
-						<ul id="list-task-finish" class="task-list" rel="finish">
+					
+					<?php 
+					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
+						?>
+						<td class="projectDrag droppable" rel="review">
+							<ul class="task-list" rel="review" story-k="<?php echo $storie_k; ?>">
+							
+							</ul>
+						</td>
+						<?php 
+					}
+					?>
+					<td class="projectDrag droppable" rel="finish">
+						<ul class="task-list" rel="finish" story-k="<?php echo $storie_k; ?>">
 						
 						</ul>
 					</td>
 				</tr>
+				
+				<?php 	
+				$default_k = 0;
+				}
+				?>
+				
 			</table>
 <?php	
 	/*
