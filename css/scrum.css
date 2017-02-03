@@ -57,14 +57,14 @@ td.projectDrag {
 .projectDrag ul[rel=inprogress] li {
 	background: green;
 }
-.projectDrag ul li[rel=inprogress] div.actions {
+.projectDrag ul[rel=inprogress] li div.actions {
 	display:block;
 }
 
-.projectDrag ul li[rel=inprogress] div.actions select.progress {
+.projectDrag ul[rel=inprogress] li div.actions select.progress {
 	display:inline-block;
 }
-.projectDrag ul li[rel=inprogress] div.actions span[rel=time] {
+.projectDrag ul[rel=inprogress] li div.actions span[rel=time] {
 	font-size:12px;
 	display:inline-block;
 }

@@ -105,8 +105,12 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 	?>
 	<style type="text/css">
 	<!--
-	td[rel=review], td[rel=finish] {
-		width:16.5%;
+	td.projectDrag {
+		width:25%;
+		min-width:100px;
+	}
+	td[rel=backlog], td[rel=finish] {
+		width:12.5%;
 	}
 	-->
 	</style>
