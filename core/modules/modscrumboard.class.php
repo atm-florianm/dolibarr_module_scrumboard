@@ -458,6 +458,7 @@ class modscrumboard extends DolibarrModules
 		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
 		
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
+		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status varchar(255) NOT NULL DEFAULT \'\'');
 		
         return $this->_init($sql, $options);
     }
