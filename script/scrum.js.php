@@ -50,10 +50,10 @@ function project_get_tasks(id_project, status) {
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 		
-			if(status == 'todo' && (task.scrum_status =='' || task.scrum_status =='backlog') ) {
+			if(status == 'todo' && task.scrum_status =='backlog' ) {
 				l_status = 'backlog';
 			}
-			else if(status == 'finish' && (task.scrum_status =='' || task.scrum_status =='review') ) {
+			else if(status == 'finish' && task.scrum_status =='review' ) {
 				l_status = 'review';
 			}
 			
