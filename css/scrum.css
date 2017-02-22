@@ -52,18 +52,18 @@ td.projectDrag {
 
 .projectDrag ul li div.actions {
 	float:right;
+
+}
+.projectDrag ul li div.actions select[rel=progress] {
 	display:none;
 }
 .projectDrag ul[rel=inprogress] li {
 	background: green;
 }
-.projectDrag ul[rel=inprogress] li div.actions {
-	display:block;
-}
-
-.projectDrag ul[rel=inprogress] li div.actions select.progress {
+.projectDrag ul[rel=inprogress] li div.actions select[rel=progress] {
 	display:inline-block;
 }
+
 .projectDrag ul[rel=inprogress] li div.actions span[rel=time] {
 	font-size:12px;
 	display:inline-block;
