@@ -154,7 +154,7 @@ function _set_values(&$object, $values) {
 	
 }
 function _task(&$db, $id_task, $values=array()) {
-global $user, $langs;
+global $user, $langs,$conf;
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
@@ -191,8 +191,13 @@ global $user, $langs;
 		
 	}
 	
-	$task->aff_time = convertSecondToTime($task->duration_effective);
-	$task->aff_planned_workload = convertSecondToTime($task->planned_workload);
+	$dayInSecond = 86400;
+	if($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY){
+		$dayInSecond = 60*60*$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY;
+	}
+	
+	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
+	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
 
 	$task->long_description.='';
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
