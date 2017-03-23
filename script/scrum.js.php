@@ -128,6 +128,7 @@ function project_refresh_task(id_project, task) {
 	});
 	$item.find('[rel=label]').html(task.label).attr("title", task.long_description).tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 	$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+	$item.find('[rel=list_of_user_affected]').html(task.internal_contacts).append(task.external_contacts);
 	
 	$item.find('[rel=time]').html(task.aff_time + '<br />' + task.aff_planned_workload).attr('task-id', task.id).off().on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).attr('task-id'));
