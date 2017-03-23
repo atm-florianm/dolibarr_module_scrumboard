@@ -32,7 +32,7 @@
 	$object->fetch($id_projet);
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	$object->fetch_optionals($id_projet);
+	if (!empty($id_projet)) $object->fetch_optionals($id_projet);
 	
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
