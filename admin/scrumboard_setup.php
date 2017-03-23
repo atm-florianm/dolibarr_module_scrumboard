@@ -108,6 +108,14 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_ADD_BACKLOG_REVIEW_COLUMN');
 	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("EnableFilterOnGlobalView").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_FILTER_BY_USER_ENABLE');
+	print '</td></tr>';
 
 	print '</table>';
 

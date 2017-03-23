@@ -34,6 +34,11 @@ function project_velocity(id_project) {
 function project_get_tasks(id_project, status) {
 	$('ul[rel="'+status+'"]').empty();
 	
+	var fk_user = 0;
+	<?php if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE)) { ?>
+		fk_user = $('#fk_user').val();
+	<?php } ?>
+	
 	$.ajax({
 		url : "./script/interface.php"
 		,data: {
@@ -42,6 +47,7 @@ function project_get_tasks(id_project, status) {
 			,status : status
 			,id_project : id_project
 			,async:false
+			,fk_user:fk_user
 		}
 		,dataType: 'json'
 	})
