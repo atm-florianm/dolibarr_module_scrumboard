@@ -124,18 +124,18 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 				<tr>
 					<?php 
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Backlog'); ?></td></td><?php 
+					  ?><td><?php echo $langs->trans('Backlog'); ?></td><?php 
 					}
 					?>
-					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td></td>
-					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td></td>
+					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td>
+					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td>
 					<?php 
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Review'); ?></td></td><?php 
+					  ?><td><?php echo $langs->trans('Review'); ?></td><?php 
 					}
 					?>
 
-					<td><?php echo $langs->trans('finish'); ?></td></td>
+					<td><?php echo $langs->trans('finish'); ?></td>
 				</tr>
 				<?php 
 				$default_k = 1;
@@ -273,7 +273,7 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 			
 			<p><?php echo $langs->trans('ResetDateWithThisVelocity'); ?> : </p>
 			
-			<input type="text" name="velocity" size="5" id="current-velocity" value"<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
+			<input type="text" name="velocity" size="5" id="current-velocity" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
 			
 		</div>
 		
