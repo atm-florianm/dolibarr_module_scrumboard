@@ -17,3 +17,5 @@ ResetDate=Recalculer les dates ?
 ResetDateTask=Recalculer les dates des tâches
 
 ProjectStories=Histoires planifiées (séparées par des virgules)
+
+EnableFilterOnGlobalView=Activer le filtre par utilisateur sur la vue global

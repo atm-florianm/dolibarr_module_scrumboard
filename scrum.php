@@ -44,6 +44,18 @@
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
+	
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+	{
+		$fk_user = GETPOST('fk_user');
+		if (empty($fk_user) && !$user->admin) $fk_user = $user->id;
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+		echo $form->select_dolusers($fk_user, 'fk_user',  $user->admin).'';
+		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '</form><br /><br />';
+		
+	}
+	
 	if($id_projet) {
 		
 	/*

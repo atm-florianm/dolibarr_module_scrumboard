@@ -12,7 +12,7 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status']));
+			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user') ));
 
 			break;
 		case 'task' :
@@ -305,29 +305,49 @@ global $user;
 
 }
 
-function _tasks(&$db, $id_project, $status) {
+function _tasks(&$db, $id_project, $status, $fk_user) {
+	global $user,$conf;
 	
-	if($id_project > 0) $cond_where = " AND fk_projet=".$id_project;
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+	{
+		if (empty($fk_user) && !$user->admin) $fk_user = $user->id;
+	}
+	else
+	{
+		$fk_user = 0;
+	}
+	
+	
+	
+	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status FROM '.MAIN_DB_PREFIX.'projet_task pt';
+	if (!empty($fk_user))
+	{
+		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
+		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
+	}
 	
 	if($status=='ideas') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE  progress=0 ".$cond_where." AND datee IS NULL
-		ORDER BY rang";
+		$sql.= ' WHERE  progress = 0 AND datee IS NULL';
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress=0 ".$cond_where." ORDER BY rang";
+		$sql.= ' WHERE progress = 0';
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress>0 ".$cond_where." AND progress<100 ORDER BY rang";
+		$sql.= ' WHERE progress > 0 AND progress < 100';
 	}
 	else if($status=='finish') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress=100 ".$cond_where." 
-		ORDER BY rang";
+		$sql.= ' WHERE progress=100';
 	}
-		
+	
+	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
+	
+	if (!empty($fk_user))
+	{
+		$sql.= ' AND tc.element = \'project_task\' AND ec.fk_socpeople = '.$fk_user;
+	}
+	
+	$sql.= ' ORDER BY pt.rang';
+
 	$res = $db->query($sql);	
 		
 		
