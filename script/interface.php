@@ -206,7 +206,45 @@ global $user, $langs,$conf;
 	
 	$task->long_description.=$task->description;
 
+	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) _getTContact($task);
+	
 	return _as_array($task);
+}
+
+function _getTContact(&$task)
+{
+	global $db;
+
+	$TInternalContact = $task->liste_contact(-1, 'internal');
+	$TExternalContact = $task->liste_contact(-1, 'external');
+
+	$task->internal_contacts = '';
+	$task->external_contacts = '';
+	if (!empty($TInternalContact))
+	{
+		dol_include_once('/user/class/user.class.php');
+		$user = new User($db);
+		foreach ($TInternalContact as &$row)
+		{
+			$user->id = $row['id'];
+			$user->lastname = $row['lastname'];
+			$user->firstname = $row['firstname'];
+			$task->internal_contacts .= $user->getNomUrl(1).'&nbsp;';
+		}
+	}
+
+	if (!empty($TExternalContact))
+	{
+		dol_include_once('/contact/class/contact.class.php');
+		$contact = new Contact($db);
+		foreach ($TExternalContact as &$row)
+		{
+			$contact->id = $row['id'];
+			$contact->lastname = $row['lastname'];
+			$contact->firstname = $row['firstname'];
+			$task->external_contacts .= $contact->getNomUrl(1).'&nbsp;';
+		}
+	}
 }
 
 function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
