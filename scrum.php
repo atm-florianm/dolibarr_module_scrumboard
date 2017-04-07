@@ -32,7 +32,7 @@
 	$object->fetch($id_projet);
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	$object->fetch_optionals($id_projet);
+	if (!empty($id_projet)) $object->fetch_optionals($id_projet);
 	
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
@@ -262,6 +262,7 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 				</div>
 				
 				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<br /><span class="font-small" rel="list_of_user_affected"></span> 
 			</li>
 			</ul>
 			
