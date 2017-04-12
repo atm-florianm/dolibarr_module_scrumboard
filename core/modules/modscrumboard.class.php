@@ -42,6 +42,7 @@ class modscrumboard extends DolibarrModules
 
         $this->db = $db;
 
+		$this->editor_name = 'ATM-Consulting';
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
