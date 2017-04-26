@@ -30,6 +30,8 @@
 
 	$object = new Project($db);
 	$object->fetch($id_projet);
+	if (method_exists($object, 'fetch_thirdparty')) $object->fetch_thirdparty();
+	if (empty($object->societe) && !empty($object->thirdparty)) $object->societe = $object->thirdparty; // Rétrocompatibilité
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
 	if (!empty($id_projet)) $object->fetch_optionals($id_projet);
