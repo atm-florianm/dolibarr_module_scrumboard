@@ -319,7 +319,7 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	
 	
 	
-	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status FROM '.MAIN_DB_PREFIX.'projet_task pt';
+	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang FROM '.MAIN_DB_PREFIX.'projet_task pt';
 	if ($fk_user > 0)
 	{
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';

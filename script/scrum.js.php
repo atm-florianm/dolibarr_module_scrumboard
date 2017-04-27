@@ -55,8 +55,8 @@ function project_get_tasks(id_project, status) {
 		
 		$.each(tasks, function(i, task) {
 			var l_status = status;
-		
-			if(status == 'todo' && task.scrum_status =='backlog' ) {
+			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
+			if(status == 'todo' && (task.scrum_status =='backlog' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == ""'; ?> ) ) {
 				l_status = 'backlog';
 			}
 			else if(status == 'finish' && task.scrum_status =='review' ) {
