@@ -308,19 +308,9 @@ global $user;
 function _tasks(&$db, $id_project, $status, $fk_user) {
 	global $user,$conf;
 	
-	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
-	{
-		if (empty($fk_user) && !$user->admin) $fk_user = $user->id;
-	}
-	else
-	{
-		$fk_user = 0;
-	}
-	
-	
 	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang FROM '.MAIN_DB_PREFIX.'projet_task pt';
-	if ($fk_user > 0)
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
 	{
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
@@ -341,7 +331,7 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	
 	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
 	
-	if ($fk_user > 0)
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
 	{
 		$sql.= ' AND tc.element = \'project_task\' AND ec.fk_socpeople = '.$fk_user;
 	}
