@@ -30,9 +30,11 @@
 
 	$object = new Project($db);
 	$object->fetch($id_projet);
+	if (method_exists($object, 'fetch_thirdparty')) $object->fetch_thirdparty();
+	if (empty($object->societe) && !empty($object->thirdparty)) $object->societe = $object->thirdparty; // Rétrocompatibilité
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	$object->fetch_optionals($id_projet);
+	if (!empty($id_projet)) $object->fetch_optionals($id_projet);
 	
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
@@ -44,6 +46,20 @@
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
+	
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+	{
+		$fk_user = GETPOST('fk_user');
+		if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
+		
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+		echo $form->select_dolusers($fk_user, 'fk_user',  1);
+		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '</form><br /><br />';
+		
+	}
+	
 	if($id_projet) {
 		
 	/*
@@ -124,18 +140,18 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 				<tr>
 					<?php 
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Backlog'); ?></td></td><?php 
+					  ?><td><?php echo $langs->trans('Backlog'); ?></td><?php 
 					}
 					?>
-					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td></td>
-					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td></td>
+					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td>
+					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td>
 					<?php 
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Review'); ?></td></td><?php 
+					  ?><td><?php echo $langs->trans('Review'); ?></td><?php 
 					}
 					?>
 
-					<td><?php echo $langs->trans('finish'); ?></td></td>
+					<td><?php echo $langs->trans('finish'); ?></td>
 				</tr>
 				<?php 
 				$default_k = 1;
@@ -262,6 +278,7 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 				</div>
 				
 				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
+				<br /><span class="font-small" rel="list_of_user_affected"></span> 
 			</li>
 			</ul>
 			
@@ -273,7 +290,7 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 			
 			<p><?php echo $langs->trans('ResetDateWithThisVelocity'); ?> : </p>
 			
-			<input type="text" name="velocity" size="5" id="current-velocity" value"<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
+			<input type="text" name="velocity" size="5" id="current-velocity" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
 			
 		</div>
 		

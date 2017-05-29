@@ -34,6 +34,11 @@ function project_velocity(id_project) {
 function project_get_tasks(id_project, status) {
 	$('ul[rel="'+status+'"]').empty();
 	
+	var fk_user = 0;
+	<?php if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE)) { ?>
+		fk_user = $('#fk_user').val();
+	<?php } ?>
+	
 	$.ajax({
 		url : "./script/interface.php"
 		,data: {
@@ -42,6 +47,7 @@ function project_get_tasks(id_project, status) {
 			,status : status
 			,id_project : id_project
 			,async:false
+			,fk_user:fk_user
 		}
 		,dataType: 'json'
 	})
@@ -49,8 +55,8 @@ function project_get_tasks(id_project, status) {
 		
 		$.each(tasks, function(i, task) {
 			var l_status = status;
-		
-			if(status == 'todo' && task.scrum_status =='backlog' ) {
+			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
+			if(status == 'todo' && (task.scrum_status =='backlog' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == ""'; ?> ) ) {
 				l_status = 'backlog';
 			}
 			else if(status == 'finish' && task.scrum_status =='review' ) {
@@ -128,6 +134,7 @@ function project_refresh_task(id_project, task) {
 	});
 	$item.find('[rel=label]').html(task.label).attr("title", task.long_description).tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 	$item.find('[rel=ref]').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+	$item.find('[rel=list_of_user_affected]').html(task.internal_contacts).append(task.external_contacts);
 	
 	$item.find('[rel=time]').html(task.aff_time + '<br />' + task.aff_planned_workload).attr('task-id', task.id).off().on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).attr('task-id'));

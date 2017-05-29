@@ -12,7 +12,7 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status']));
+			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user') ));
 
 			break;
 		case 'task' :
@@ -154,7 +154,7 @@ function _set_values(&$object, $values) {
 	
 }
 function _task(&$db, $id_task, $values=array()) {
-global $user, $langs;
+global $user, $langs,$conf;
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
@@ -191,8 +191,13 @@ global $user, $langs;
 		
 	}
 	
-	$task->aff_time = convertSecondToTime($task->duration_effective);
-	$task->aff_planned_workload = convertSecondToTime($task->planned_workload);
+	$dayInSecond = 86400;
+	if($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY){
+		$dayInSecond = 60*60*$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY;
+	}
+	
+	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
+	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
 
 	$task->long_description.='';
 	if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
@@ -201,7 +206,45 @@ global $user, $langs;
 	
 	$task->long_description.=$task->description;
 
+	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) _getTContact($task);
+	
 	return _as_array($task);
+}
+
+function _getTContact(&$task)
+{
+	global $db;
+
+	$TInternalContact = $task->liste_contact(-1, 'internal');
+	$TExternalContact = $task->liste_contact(-1, 'external');
+
+	$task->internal_contacts = '';
+	$task->external_contacts = '';
+	if (!empty($TInternalContact))
+	{
+		dol_include_once('/user/class/user.class.php');
+		$user = new User($db);
+		foreach ($TInternalContact as &$row)
+		{
+			$user->id = $row['id'];
+			$user->lastname = $row['lastname'];
+			$user->firstname = $row['firstname'];
+			$task->internal_contacts .= $user->getNomUrl(1).'&nbsp;';
+		}
+	}
+
+	if (!empty($TExternalContact))
+	{
+		dol_include_once('/contact/class/contact.class.php');
+		$contact = new Contact($db);
+		foreach ($TExternalContact as &$row)
+		{
+			$contact->id = $row['id'];
+			$contact->lastname = $row['lastname'];
+			$contact->firstname = $row['firstname'];
+			$task->external_contacts .= $contact->getNomUrl(1).'&nbsp;';
+		}
+	}
 }
 
 function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
@@ -262,29 +305,39 @@ global $user;
 
 }
 
-function _tasks(&$db, $id_project, $status) {
+function _tasks(&$db, $id_project, $status, $fk_user) {
+	global $user,$conf;
 	
-	if($id_project > 0) $cond_where = " AND fk_projet=".$id_project;
+	
+	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang FROM '.MAIN_DB_PREFIX.'projet_task pt';
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
+	{
+		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
+		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
+	}
 	
 	if($status=='ideas') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE  progress=0 ".$cond_where." AND datee IS NULL
-		ORDER BY rang";
+		$sql.= ' WHERE  progress = 0 AND datee IS NULL';
 	}	
 	else if($status=='todo') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress=0 ".$cond_where." ORDER BY rang";
+		$sql.= ' WHERE progress = 0';
 	}
 	else if($status=='inprogress') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress>0 ".$cond_where." AND progress<100 ORDER BY rang";
+		$sql.= ' WHERE progress > 0 AND progress < 100';
 	}
 	else if($status=='finish') {
-		$sql = "SELECT rowid,story_k,scrum_status FROM ".MAIN_DB_PREFIX."projet_task 
-		WHERE progress=100 ".$cond_where." 
-		ORDER BY rang";
+		$sql.= ' WHERE progress=100';
 	}
-		
+	
+	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
+	
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
+	{
+		$sql.= ' AND tc.element = \'project_task\' AND ec.fk_socpeople = '.$fk_user;
+	}
+	
+	$sql.= ' ORDER BY pt.rang';
+
 	$res = $db->query($sql);	
 		
 		
