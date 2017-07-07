@@ -317,10 +317,10 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	}
 	
 	if($status=='ideas') {
-		$sql.= ' WHERE  progress = 0 AND datee IS NULL';
+		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
 	}	
 	else if($status=='todo') {
-		$sql.= ' WHERE progress = 0';
+		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
 	}
 	else if($status=='inprogress') {
 		$sql.= ' WHERE progress > 0 AND progress < 100';
