@@ -163,7 +163,7 @@ function project_refresh_task(id_project, task) {
 
 	$item.find('div.progressbaruser').css('width', progress+'%');	
 	
-	if(progress<100 && (task.scrum_status=='todo' || task.scrum_status=='inprogress' ) ) {
+	if(progress<100 && (task.scrum_status=='todo' || task.scrum_status=='inprogress' ) ) {
 		
 		var t = new Date().getTime() /1000;
 		
