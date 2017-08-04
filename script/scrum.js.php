@@ -105,7 +105,12 @@ function project_create_task(id_project) {
 	
 }
 function project_draw_task(id_project, task, ul) {
-	$('#task-blank').clone().attr('id', 'task-'+task.id).appendTo(ul);
+	var id = task.id;
+
+	if($('#task-'+id).length == 0) { // Si tâche déjà affichée, on ne clone pas le noeud
+		$('#task-blank').clone().attr('id', 'task-'+id).appendTo(ul);
+	}
+
 	project_refresh_task(id_project, task);
 }
 function project_refresh_task(id_project, task) {
