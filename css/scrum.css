@@ -29,7 +29,6 @@ td.projectDrag {
 	background: #2AA8B9;
 	color:#fff;
 	font-size:14px;
-	padding:10px 10px 10px 10px;
 	overflow: hidden;
 	position:relative;
 	box-shadow: 1px 1px 1px #999999;
@@ -37,17 +36,15 @@ td.projectDrag {
 	border-bottom: 1px solid #194B7E;
 }
 .projectDrag ul li div.progressbar, .projectDrag ul li div.progressbaruser {
-	position:absolute;
 	background: #000;
-	height:5px;
-	-moz-opacity : .5;
-	opacity:.5;
-	
-	bottom:0;
-	left:0;
+	height:8px;
+	opacity:.8;
+	margin-bottom:1px;
 }
 .projectDrag ul li div.progressbaruser {
 	background: #ccc;
+	height:10px;
+	margin-bottom:-9px;
 }
 
 .projectDrag ul li div.actions {
@@ -58,7 +55,7 @@ td.projectDrag {
 	display:none;
 }
 .projectDrag ul[rel=inprogress] li {
-	background: green;
+	background: #63ac34;
 }
 .projectDrag ul[rel=inprogress] li div.actions select[rel=progress] {
 	display:inline-block;
@@ -103,4 +100,36 @@ td.projectDrag {
 
 div.bodyline {
 	z-index:1050;
+}
+
+
+/*
+ * scrumboard V2
+ */
+ 
+.width30p { width:30%; }
+.width70p { width:70%; }
+.task-content {
+	padding: 10px;
+}
+.task-ref, .task-content, .task-title, .task-desc, .task-actions, .task-users-affected, .task-comment {
+	box-sizing: border-box;
+}
+.task-ref, .task-title {
+	margin-bottom:5px; 
+}
+.task-actions {
+	padding: 10px 0 10px 10px;
+}
+.task-users-affected {
+	margin:5px 0;
+}
+.task-users-affected a {
+	margin-right:5px;
+}
+.task-actions img {
+	padding-right:5px;
+}
+.task-times div, .task-comment {
+	padding:4px 0;
 }
