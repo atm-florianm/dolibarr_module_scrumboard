@@ -145,8 +145,18 @@ function project_refresh_task(id_project, task) {
 		$item.find('.task-progress').hide(0);
 	}
 	
+	<?php 
+	if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
+	?>
 	$item.find('.task-title span').html(task.label);
 	$item.find('.task-desc span').html(task.long_description);
+	<?php
+	}else{
+	?>
+	$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
+	<?php 
+	}
+	?>
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
 	
@@ -160,8 +170,6 @@ function project_refresh_task(id_project, task) {
 	
 	<?php if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) { ?>
 	<!--  Commentary conf -->
-	
-	console.log(task);
 	$item.find('.task-comment span').html(task.nbcomment).attr('task-id', task.id);
 		
 	$item.find('.task-comment').on("click", function() {
@@ -195,7 +203,7 @@ function project_refresh_task(id_project, task) {
 		var t = new Date().getTime() /1000;
 		
 		if( task.time_date_end>0 && task.time_date_end < t ) {
-			$item.css('background-color','red');
+			$item.css('background-color','#dd4545');
 		}	
 		else if(task.time_date_delivery>0 && task.time_date_delivery>task.time_date_end) {
 			$item.css('background-color','orange');
@@ -229,6 +237,9 @@ function project_init_change_type(id_project) {
     $('.task-list').sortable( {
     	connectWith: ".task-list"
     	, placeholder: "ui-state-highlight"
+    	,start: function(e, ui){
+	        ui.placeholder.height(ui.helper[0].scrollHeight / 2);
+	    }
     	,receive: function( event, ui ) {
 			task=project_get_task(id_project, ui.item.attr('task-id'));
 			task.status = $(this).attr('rel');
@@ -238,7 +249,6 @@ function project_init_change_type(id_project) {
 			$('#task-'+task.id).css('top','');
 	        $('#task-'+task.id).css('left','');	
 			$('#list-task-'+task.status).prepend( $('#task-'+task.id) );	
-			console.log('#task-'+task.id+' --> '+'#list-task-'+task.status);	
 			
 			if(task.scrum_status=='backlog') task.status = 'todo';
 			else if(task.scrum_status=='review') task.status = 'finish';

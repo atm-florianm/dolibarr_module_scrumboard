@@ -127,6 +127,24 @@ function showParameters() {
 	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
 	
 	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("showDescriptionInTask").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_DESCRIPTION_IN_TASK');
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("showDateInDescription").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_DATES_IN_DESCRIPTION');
+	
+	print '</td></tr>';
 
 	print '</table>';
 

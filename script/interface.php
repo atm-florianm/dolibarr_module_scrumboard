@@ -182,7 +182,9 @@ global $user, $langs,$conf;
 			WHERE rowid=".$task->id);
 	}
 	
-	$task->nbcomment = $task->getNbComments();
+	if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) {
+		$task->nbcomment = $task->getNbComments();
+	}
 	
 	$task->date_delivery = 0;
 	if($task->date_end >0 && $task->planned_workload>0) {
@@ -201,10 +203,11 @@ global $user, $langs,$conf;
 	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
 
 	$task->long_description.='';
-	//if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
-	//if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
-	if($task->date_delivery>0 && $task->date_delivery>$task->date_end) $task->long_description .= $langs->trans('TaskDateShouldDelivery').' : '.dol_print_date($task->date_delivery).'<br />';
-	
+	if(!empty($conf->global->SCRUM_SHOW_DATES_IN_DESCRIPTION)) {
+		if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
+		if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
+		if($task->date_delivery>0 && $task->date_delivery>$task->date_end) $task->long_description .= $langs->trans('TaskDateShouldDelivery').' : '.dol_print_date($task->date_delivery).'<br />';
+	}
 	$task->long_description.=$task->description;
 
 	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) _getTContact($task);

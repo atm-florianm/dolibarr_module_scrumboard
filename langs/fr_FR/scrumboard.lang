@@ -23,3 +23,5 @@ EnableFilterOnGlobalView=Activer le filtre par utilisateur sur la vue global
 NumberOfWorkingHourInDay=Nombre d'heures travaillées par jour
 AllowCompleteModeBacklog=Ajoute 2 colonnes supplémentaires sur la vue scrumboard (backlog et review)
 showLinkedContactToTask=Afficher les ressources associées aux tâches
+showDescriptionInTask=Voir la description sous le titre sans survol
+showDateInDescription=Voir les dates dans la description

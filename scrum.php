@@ -264,12 +264,12 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 			
 			<ul>
 				<li id="task-blank">
-					<div class="task-content width70p float">
+					<div class="task-content width68p float">
 						<div class="task-ref"><?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>]</div>
 						<div class="task-title"><span></span></div>
 						<div class="task-desc"><span></span></div>
 					</div>
-					<div class="task-actions width30p float">
+					<div class="task-actions width32p float">
 						<div class="task-times">
 							<div class="task-real-time"><?php echo img_picto('', 'object_realtime@scrumboard') ?><span></span></div>
 							<div class="task-allowed-time"><?php echo img_picto('', 'object_allowedtime@scrumboard') ?><span></span></div>
