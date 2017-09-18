@@ -15,3 +15,5 @@ BarProgressionHelp=2 progression bars appear in each task. The whitest is relate
 ResetDateWithThisVelocity=Reset end task date with this velocity
 ResetDate=Reset the dates ?
 ResetDateTask=Reset task dates
+showDescriptionInTask=Show description under title
+showDateInDescription=Show dates into description

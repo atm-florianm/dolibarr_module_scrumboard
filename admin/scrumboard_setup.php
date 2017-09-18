@@ -117,15 +117,33 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_FILTER_BY_USER_ENABLE');
 	print '</td></tr>';
-
+	
 	$var=!$var;
-        print '<tr '.$bc[$var].'>';
-
-  print '<td>'.$langs->trans("showLinkedContactToTask").'</td>';
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("showLinkedContactToTask").'</td>';
 	print '<td align="center" width="20">&nbsp;</td>';
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('SCRUM_SHOW_LINKED_CONTACT');
-
+	
+	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("showDescriptionInTask").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_DESCRIPTION_IN_TASK');
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("showDateInDescription").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_DATES_IN_DESCRIPTION');
+	
 	print '</td></tr>';
 
 	print '</table>';
@@ -148,16 +166,5 @@ function showParameters() {
 </table>
 <?php
 
-// Put here content of your page
-// ...
-
-/***************************************************
-* LINKED OBJECT BLOCK
-*
-* Put here code to view linked object
-****************************************************/
-//$somethingshown=$asset->showLinkedObjectBlock();
-
-// End of page
 $db->close();
-llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');
+llxFooter();

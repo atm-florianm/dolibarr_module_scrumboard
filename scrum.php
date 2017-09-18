@@ -263,23 +263,59 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 		<div style="display:none">
 			
 			<ul>
-			<li id="task-blank">
+				<li id="task-blank">
+					<div class="task-content width68p float">
+						<div class="task-ref"><?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>]</div>
+						<div class="task-title"><span></span></div>
+						<div class="task-desc"><span></span></div>
+					</div>
+					<div class="task-actions width32p float">
+						<div class="task-times">
+							<div class="task-real-time"><?php echo img_picto('', 'object_realtime@scrumboard') ?><span></span></div>
+							<div class="task-allowed-time"><?php echo img_picto('', 'object_allowedtime@scrumboard') ?><span></span></div>
+						</div>
+						<div class="task-progress"><?php echo img_picto('', 'object_progress@scrumboard') ?>
+							<span>
+								<select class="nodisplaybutinprogress">
+									<?php
+									for($i=5; $i<=95;$i+=5) {
+										?><option value="<?php echo $i ?>"><?php echo $i ?>%</option><?php
+									}
+									?>
+								</select>
+							</span>
+						</div>
+						<?php
+						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) {
+						?>
+						<div class="task-comment"><?php echo img_picto('', 'object_comment@scrumboard') ?><span></span></div>
+						<?php
+							}
+						?>
+					</div>
+					<div class="clearboth"></div>
+					<div class="task-users-affected"></div>
+					<div class="progressbaruser"></div>
+					<div class="progressbar"></div>
+				</li>
+			
+			
+			<!-- <li id="task-blank">
 				<div class="progressbaruser"></div>
 				<div class="progressbar"></div>
 				<div class="actions">
-				<select rel="progress" class="nodisplaybutinprogress">
-					<?php
-					for($i=5; $i<=95;$i+=5) {
-						?><option value="<?php echo $i ?>"><?php echo $i ?>%</option><?php
-					}
-					?>
-				</select>
-				<span rel="time"></span>
+					<select rel="progress" class="nodisplaybutinprogress">
+						<?php
+						for($i=5; $i<=95;$i+=5) {
+							?><option value="<?php echo $i ?>"><?php echo $i ?>%</option><?php
+						}
+						?>
+					</select>
+					<span rel="time"></span>
 				</div>
-				
 				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
 				<br /><span class="font-small" rel="list_of_user_affected"></span> 
-			</li>
+			</li> -->
 			</ul>
 			
 		</div>
