@@ -460,6 +460,7 @@ function pop_comment(id_project, id_task) {
 								,id : $(this).find('input[name=id]').val()
 								,withproject : 0								
 								,userid : $(this).find('[name=userid]').val()
+								,comment_element_type : $(this).find('[name=comment_element_type]').val()
 								,comment_description : $(this).find('textarea[name=comment_description]').val()
 								
 							}
