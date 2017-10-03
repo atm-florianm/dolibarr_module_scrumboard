@@ -17,3 +17,7 @@ ResetDate=Reset the dates ?
 ResetDateTask=Reset task dates
 showDescriptionInTask=Show description under title
 showDateInDescription=Show dates into description
+
+
+SB_realtimealt=Time spent
+SB_allowedtimealt=Time planned

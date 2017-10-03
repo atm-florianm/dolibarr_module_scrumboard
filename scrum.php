@@ -271,8 +271,8 @@ if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 					</div>
 					<div class="task-actions width32p float">
 						<div class="task-times">
-							<div class="task-real-time"><?php echo img_picto('', 'object_realtime@scrumboard') ?><span></span></div>
-							<div class="task-allowed-time"><?php echo img_picto('', 'object_allowedtime@scrumboard') ?><span></span></div>
+							<div class="task-real-time"><?php echo img_picto($langs->trans('SB_realtimealt'), 'object_realtime@scrumboard') ?><span></span></div>
+							<div class="task-allowed-time"><?php echo img_picto($langs->trans('SB_allowedtimealt'), 'object_allowedtime@scrumboard') ?><span></span></div>
 						</div>
 						<div class="task-progress"><?php echo img_picto('', 'object_progress@scrumboard') ?>
 							<span>
