@@ -1,6 +1,7 @@
 <?php
 	require('../config.php');
 ?>
+
 function project_velocity(id_project) {
 	$.ajax({
 		url : "./script/interface.php"
@@ -118,9 +119,10 @@ function project_draw_task(id_project, task, ul) {
 }
 
 function project_refresh_task(id_project, task) {
-	
 	$item = $('#task-'+task.id);
 	
+	// Generate js var with all scrumboard project to showdesc
+	var TShowDesc = (<?php echo json_encode($_SESSION['scrumboard']['showdesc']); ?>);
 	
 	$item.attr('task-id', task.id);
 	
@@ -145,18 +147,13 @@ function project_refresh_task(id_project, task) {
 		$item.find('.task-progress').hide(0);
 	}
 	
-	<?php 
-	if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
-	?>
-	$item.find('.task-title span').html(task.label);
-	$item.find('.task-desc span').html(task.long_description);
-	<?php
-	}else{
-	?>
-	$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
-	<?php 
+	// Test sur conf voir description taches
+	if(TShowDesc[id_project] == 1) {
+		$item.find('.task-title span').html(task.label);
+		$item.find('.task-desc span').html(task.long_description);
+	} else {
+		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
 	}
-	?>
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
 	

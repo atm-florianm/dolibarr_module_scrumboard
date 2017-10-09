@@ -27,6 +27,13 @@
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'));
 	
 	$id_projet = (int)GETPOST('id');
+	$action = GETPOST('action');
+	
+	if($action == 'show_desc') {
+		$_SESSION['scrumboard']['showdesc'][$id_projet] = 1;
+	}else if ($action == 'hide_desc') {
+		unset($_SESSION['scrumboard']['showdesc'][$id_projet]);
+	}
 
 	$object = new Project($db);
 	$object->fetch($id_projet);
@@ -104,6 +111,18 @@
 		
 		// Stories
 		print '<tr><td>'.$langs->trans("ProjectStories").'</td><td>'.$object->array_options['options_stories'].'</td></tr>';
+		
+		if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
+			// Description mode if conf activ
+			print '<tr><td>'.$langs->trans("showDescriptionInTask").'</td>';
+			print '<td>';
+			if(!empty($_SESSION['scrumboard']['showdesc'][$id_projet])) {
+				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=hide_desc',1).'">'.img_picto('test','switch_on.png').'</a>';
+			}else{
+				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=show_desc',1).'">'.img_picto('test','switch_off.png').'</a>';
+			}
+			print '</td></tr>';
+		}
 		
 		print "</table>";
 	
