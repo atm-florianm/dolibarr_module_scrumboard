@@ -208,7 +208,7 @@ global $user, $langs,$conf;
 		if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
 		if($task->date_delivery>0 && $task->date_delivery>$task->date_end) $task->long_description .= $langs->trans('TaskDateShouldDelivery').' : '.dol_print_date($task->date_delivery).'<br />';
 	}
-	$task->long_description.=$task->description;
+	$task->long_description.=nl2br($task->description);
 
 	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) _getTContact($task);
 	
