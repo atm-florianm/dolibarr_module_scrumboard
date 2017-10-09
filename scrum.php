@@ -29,6 +29,11 @@
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
 	
+	// Init new session var if not exist
+	if(empty($_SESSION['scrumboard']['showdesc'])) {
+		$_SESSION['scrumboard']['showdesc'] = array();
+	}
+	
 	if($action == 'show_desc') {
 		$_SESSION['scrumboard']['showdesc'][$id_projet] = 1;
 	}else if ($action == 'hide_desc') {
