@@ -1,5 +1,6 @@
 <?php
 	require('../config.php');
+	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 ?>
 
 function project_velocity(id_project) {
@@ -58,10 +59,11 @@ function project_get_tasks(id_project, status) {
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
-			if(status == 'todo' && (task.scrum_status =='backlog' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == ""'; ?> ) ) {
+			// TODO: Voir avec Geoffrey pour l'avenir de la conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN
+			if(status == 'todo' && (task.scrum_status == '<?php echo scrum_getColumnId('backlog') ?>' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == 0'; ?> ) ) {
 				l_status = 'backlog';
 			}
-			else if(status == 'finish' && task.scrum_status =='review' ) {
+			else if(status == 'finish' && task.scrum_status =='<?php echo scrum_getColumnId('review') ?>' ) {
 				l_status = 'review';
 			}
 			
@@ -71,7 +73,7 @@ function project_get_tasks(id_project, status) {
 			else{
 				$ul = $('tr[default-k=1]').find('ul[rel="'+l_status+'"]');
 			}
-		
+
 			project_draw_task(id_project, task, $ul);
 		});
 				
@@ -92,6 +94,7 @@ function project_create_task(id_project) {
 	.done(function (task) {
 	
 		<?php 
+		// TODO: Conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN !
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 						echo '$ul = $(\'tr[default-k=1]\').find(\'ul[rel=backlog]\')';
 					}
@@ -327,10 +330,14 @@ function project_develop_task(id_task) {
 }
 
 function project_loadTasks(id_projet) {
+	<?php
+	$fk_project = (int) GETPOST('id');
+	$TColumns = scrum_getAllColumns($fk_project);
 	
-	project_get_tasks(id_projet ,  'todo');
-	project_get_tasks(id_projet ,  'inprogress');
-	project_get_tasks(id_projet ,  'finish');
+	foreach($TColumns as $column) {
+		echo 'project_get_tasks(id_projet ,  \''.strtolower($column->label).'\');';
+	}
+	?>
 	
 }
 function create_task(id_projet) {

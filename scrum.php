@@ -23,6 +23,7 @@
 
  
 	require('config.php');
+	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'));
 	
@@ -138,104 +139,68 @@
 		
 	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
 	
+	$TColumns = scrum_getAllColumns($id_projet);
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
-<?php 
-if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-	?>
-	<style type="text/css">
-	<!--
-	td.projectDrag {
-		width:25%;
-		min-width:100px;
-	}
-	td[rel=backlog], td[rel=finish] {
-		width:12.5%;
-	}
-	-->
-	</style>
-	<?php 
-	
-}
-?>
-		<div class="content">
-	
-			<table id="scrum" id_projet="<?php echo $id_projet ?>">
-				<tr>
-					<?php 
-					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Backlog'); ?></td><?php 
-					}
-					?>
-					<td><?php echo $langs->trans('toDo'); ?><span rel="velocityToDo"></span></td>
-					<td><?php echo $langs->trans('inProgress'); ?><span rel="velocityInProgress"></span></td>
-					<?php 
-					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-					  ?><td><?php echo $langs->trans('Review'); ?></td><?php 
-					}
-					?>
 
-					<td><?php echo $langs->trans('finish'); ?></td>
-				</tr>
-				<?php 
-				$default_k = 1;
-				foreach($TStorie as $k=>$label) {
-					$storie_k = $k+1;
-					
-					
-				?>
-				<tr>
-					<td colspan="3" class="liste_titre"><?php echo $label ?></td>
-				</tr>
-				<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k?>">
-				
-					<?php 
-					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-						?>
-						<td class="projectDrag droppable" rel="backlog">
-							<ul class="task-list" rel="backlog" story-k="<?php echo $storie_k; ?>">
-							
-							</ul>
-						</td>
-						<?php 
-					}
-					?>
-					
-					<td class="projectDrag droppable" rel="todo">
-						<ul class="task-list" rel="todo" story-k="<?php echo $storie_k; ?>">
-						
-						</ul>
-					</td>
-					<td class="projectDrag droppable" rel="inprogress">
-						<ul class="task-list" rel="inprogress" story-k="<?php echo $storie_k; ?>">
-						
-						</ul>
-					</td>
-					
-					<?php 
-					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
-						?>
-						<td class="projectDrag droppable" rel="review">
-							<ul class="task-list" rel="review" story-k="<?php echo $storie_k; ?>">
-							
-							</ul>
-						</td>
-						<?php 
-					}
-					?>
-					<td class="projectDrag droppable" rel="finish">
-						<ul class="task-list" rel="finish" story-k="<?php echo $storie_k; ?>">
-						
-						</ul>
-					</td>
-				</tr>
-				
-				<?php 	
-				$default_k = 0;
-				}
-				?>
-				
-			</table>
+<style type="text/css">
+<!--
+td.projectDrag {
+	<?php
+	// On calcule la largeur de chaque colonne en fonction du nombre de colonne
+	$nbColumns = count($TColumns);
+	$calculatedWidth = 100 / $nbColumns;
+	echo 'width: '.$calculatedWidth.'%';
+	?>;
+	min-width:100px;
+}
+-->
+</style>
+
+<div class="content">
+
+	<table id="scrum" id_projet="<?php echo $id_projet ?>">
+		<tr>
+			<?php
+			foreach($TColumns as $column) {
+				echo '<td>'.$langs->trans($column->label);
+
+				if($column->label == 'toDo') echo '<span rel="velocityToDo"></span>';
+				else if($column->label == 'inProgress') echo '<span rel="velocityInProgress"></span>';
+
+				echo '</td>';
+			}
+			?>
+		</tr>
+		<?php 
+		$default_k = 1;
+		foreach($TStorie as $k=>$label) {
+			$storie_k = $k+1;
+
+
+		?>
+		<tr>
+			<td colspan="3" class="liste_titre"><?php echo $label; ?></td>
+		</tr>
+		<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>">
+			<?php
+			foreach($TColumns as $column) {
+				echo '<td class="projectDrag droppable" rel="'.strtolower($column->label).'">';
+
+				echo '<ul class="task-list" rel="'.strtolower($column->label).'" story-k="'.$storie_k.'">';
+				echo '</ul>';
+
+				echo '</td>';
+			}
+			?>
+		</tr>
+
+		<?php 	
+		$default_k = 0;
+		}
+		?>
+
+	</table>
 <?php	
 	/*
 	 * Actions

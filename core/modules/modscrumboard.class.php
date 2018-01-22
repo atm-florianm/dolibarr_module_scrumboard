@@ -172,7 +172,36 @@ class modscrumboard extends DolibarrModules
             $conf->scrumboard=new stdClass();
             $conf->scrumboard->enabled = 0;
         }
-        $this->dictionnaries = array();
+        $this->dictionnaries = array(
+			'langs' => 'scrumboard@scrumboard',
+			'tabname' => array(
+					MAIN_DB_PREFIX . 'c_scrum_columns'
+			),
+			'tablib' => array(
+					'ScrumManageColumns'
+			),
+			'tabsql' => array(
+					'SELECT sc.rowid, sc.label, sc.col_order, sc.active, sc.code FROM ' . MAIN_DB_PREFIX . 'c_scrum_columns as sc'
+			),
+			'tabsqlsort' => array(
+					'col_order ASC'
+			),
+			'tabfield' => array(
+					'label,col_order'
+			),
+			'tabfieldvalue' => array(
+					'label,col_order'
+			),
+			'tabfieldinsert' => array(
+					'label,col_order'
+			),
+			'tabrowid' => array(
+					'rowid'
+			),
+			'tabcond' => array(
+					'$conf->scrumboard->enabled'
+			)
+		);
         /* Example:
           // This is to avoid warnings
           if (! isset($conf->scrumboard->enabled)) $conf->scrumboard->enabled=0;
@@ -459,7 +488,7 @@ class modscrumboard extends DolibarrModules
 		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
 		
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
-		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status varchar(255) NOT NULL DEFAULT \'\'');
+		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status integer NOT NULL DEFAULT \'1\'');
 		
         return $this->_init($sql, $options);
     }
