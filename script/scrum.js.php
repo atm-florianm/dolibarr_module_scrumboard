@@ -410,17 +410,20 @@ function pop_time(id_project, id_task) {
 							 * Récupération de l'erreur de sauvegarde du temps
 							 */
 							jStart = data.indexOf("$.jnotify(");
-							
 							if(jStart>0) {
 								jStart=jStart+11;
-								
 								jEnd = data.indexOf('"error"', jStart) - 10; 
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
+								if(message != "") { // Test on message empty. But could be jEnd > 0
+								// ERror case
+                                					$.jnotify(message,'error');
+								}else{
+									$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
+								}
 							}
-							else {
-								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>', "ok");
-								project_velocity(id_project);	
+							else
+							{
+								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
 							}
 							
 						});
