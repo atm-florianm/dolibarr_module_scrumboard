@@ -30,3 +30,4 @@ SB_realtimealt=Temps consommé
 SB_allowedtimealt=Temps prévu
 ScrumManageColumns=Scrumboard - Gestion des colonnes
 ScrumTasksColumnChanged=Les tâches des colonnes inactives ont été déplacées dans la colonne "En Cours"
+ScrumBeginMigration=Êtes-vous sûr(e) de vouloir lancer la migration ?
