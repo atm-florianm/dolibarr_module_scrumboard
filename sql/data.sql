@@ -19,6 +19,6 @@
 
 -- Mettre le code à '0' empêche la suppression ou la désactivation de ces lignes depuis l'interface des dictionnaires
 INSERT INTO llx_c_scrum_columns(rowid, label, col_order, active, code) VALUES
-(1, 'toDo', '10', '1', '0'),
-(2, 'inProgress', '20', '1', '0'),
-(3, 'finish', '30', '1', '0');
+(1, 'toDo', '20', '1', '0'),
+(2, 'inProgress', '40', '1', '0'),
+(3, 'finish', '60', '1', '0');
