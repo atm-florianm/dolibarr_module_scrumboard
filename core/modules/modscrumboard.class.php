@@ -483,9 +483,9 @@ class modscrumboard extends DolibarrModules
 
 		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
 	
-		dol_include_once('/core/class/extrafields.class.php');
-		$extrafields=new ExtraFields($this->db);
-		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
+//		dol_include_once('/core/class/extrafields.class.php');
+//		$extrafields=new ExtraFields($this->db);
+//		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
 		
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status integer NOT NULL DEFAULT \'1\'');
