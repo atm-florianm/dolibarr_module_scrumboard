@@ -13,13 +13,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+ALTER TABLE llx_projet_storie ADD INDEX idx_storie_projet (fk_projet);
 
-CREATE TABLE IF NOT EXISTS llx_c_scrum_columns(
-	rowid INTEGER AUTO_INCREMENT PRIMARY KEY,
-	-- BEGIN MODULEBUILDER FIELDS
-	label VARCHAR(255),
-    col_order INTEGER UNIQUE NOT NULL DEFAULT 0,
-	active INTEGER NOT NULL DEFAULT 1,
-    code varchar(5) NOT NULL DEFAULT '1'
-	-- END MODULEBUILDER FIELDS
-) ENGINE=innodb;
+ALTER TABLE llx_projet_storie ADD CONSTRAINT fk_storie_projet FOREIGN KEY (fk_projet) REFERENCES llx_projet(rowid);
