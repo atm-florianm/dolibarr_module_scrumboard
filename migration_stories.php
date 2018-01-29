@@ -32,29 +32,23 @@ $step = GETPOST('step', 'int');
  * Actions
  */
 if($action == 'migration' && $confirm == 'yes') {
-	// Vérifie le type de donnée de la colonne scrum_status
-	$sql = 'SELECT DATA_TYPE as type';
-	$sql .= ' FROM INFORMATION_SCHEMA.COLUMNS IC';
-	$sql .= ' WHERE TABLE_SCHEMA=\''.$dolibarr_main_db_name.'\'';
-	$sql .= ' AND TABLE_NAME = \''.MAIN_DB_PREFIX.'projet_task\'';
-	$sql .= ' AND COLUMN_NAME = \'scrum_status\'';
-
-	$res = $db->query($sql);
-	if($obj = $db->fetch_object($res)) {
-		if($obj->type == 'varchar') {
-			$db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task DROP scrum_status');
-			$db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status INTEGER NOT NULL DEFAULT 1');
-		}
-	}
 	$TData = unserialize(base64_decode(GETPOST('TData')));
 
-	foreach($TData as $task) {
-		$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_task';
-		$sql .= ' SET scrum_status=\''.$task['scrum_status'].'\'';
-		$sql .= ' WHERE rowid='.$task['rowid'];
+	foreach($TData as $fk_project => $stories) {
+		$TStorieLabel = explode(',', $stories);
 
-		$db->query($sql);
+		foreach($TStorieLabel as $k => $storie_label) {
+			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
+			$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.ltrim($storie_label).'")';
+
+			$db->query($sql);
+		}
 	}
+
+	$extrafields=new ExtraFields($db);
+	$extrafields->delete('stories', 'projet');
+
+	$db->query($sql);
 
 	if(empty($db->errors) && empty($db->error)) {
 		setEventMessage('Migration terminée !');
@@ -70,7 +64,9 @@ $form = new Form($db);
 if(empty($step)) {
 	$TData = getData();
 	$nbRow = count($TData);
-
+	
+	print '<h3>Migration stories</h3>';
+	
 	print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
 	print '<input type="hidden" name="action" value="confirm_migration"/>';
 	print '<input type="hidden" name="TData" value="'.base64_encode(serialize($TData)).'"/>';
@@ -101,26 +97,31 @@ if($action == 'confirm_migration') {
 llxFooter();
 
 
-function getData($returnNbRow = false) {
-	global $db;
+function getData() {
+	global $db, $dolibarr_main_db_name;
 
-	$sql = 'SELECT rowid, scrum_status';
-	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_task';
-	$sql .= ' WHERE scrum_status <> \'\'';
+	// Vérifie si la colonne "stories" a été supprimée, car la 2e requête dépend de cette colonne
+	$sql = 'SELECT COLUMN_NAME';
+	$sql .= ' FROM INFORMATION_SCHEMA.COLUMNS';
+	$sql .= ' WHERE TABLE_SCHEMA="'.$dolibarr_main_db_name.'"';
+	$sql .= ' AND TABLE_NAME="'.MAIN_DB_PREFIX.'projet_extrafields"';
+	$sql .= ' AND COLUMN_NAME="stories"';
+
+	$resql = $db->query($sql);
+	if(! $obj = $db->fetch_object($resql)) {
+		return array();	// Extrafield déjà supprimé : La colonne stories n'existe plus
+	}
+
+	$sql = 'SELECT fk_object, stories';
+	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_extrafields';
+	$sql .= ' WHERE stories IS NOT NULL';
 
 	$resql = $db->query($sql);
 
-	// On remplace la valeur de l'ancien scrum_status par l'identifiant de la bonne colonne
 	$TData = array();
 	while ($obj = $db->fetch_object($resql)) {
-		if(((int) $obj->scrum_status) != 0) continue;	// Si le scrum_status est déjà un entier : on ne fait rien
-
-		if(empty($obj->scrum_status)) $fk_scrum_status = 1;
-		else $fk_scrum_status = scrum_getColumnId($obj->scrum_status);
-
-		$TData[] = array('rowid' => $obj->rowid, 'scrum_status' => $fk_scrum_status);
+		$TData[$obj->fk_object] = $obj->stories;
 	}
-	if($returnNbRow) return count($TData);
 
 	return $TData;
 }
