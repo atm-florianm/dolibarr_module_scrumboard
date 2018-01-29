@@ -60,10 +60,10 @@ function project_get_tasks(id_project, status) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
 			// TODO: Voir avec Geoffrey pour l'avenir de la conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN
-			if(status == 'todo' && (task.scrum_status == '<?php echo scrum_getColumnId('backlog') ?>' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == 0'; ?> ) ) {
+			if(status == 'todo' && (task.scrum_status == '<?php echo scrum_getColumnId('backlog'); ?>' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == 0'; ?> ) ) {
 				l_status = 'backlog';
 			}
-			else if(status == 'finish' && task.scrum_status =='<?php echo scrum_getColumnId('review') ?>' ) {
+			else if(status == 'finish' && task.scrum_status =='<?php echo scrum_getColumnId('review'); ?>' ) {
 				l_status = 'review';
 			}
 			
@@ -546,3 +546,61 @@ function reset_date_task(id_project) {
 	});
 }
 
+function add_storie(id_project) {
+
+	var storie_name = $('#newStorieName').val();
+	var storie_order = parseInt($('#add_storie_k').val());
+	var storie_date_start = $('#storie_date_start').val();
+	var storie_date_end = $('#storie_date_end').val();
+	
+	$.ajax({
+		url : "./script/interface.php"
+		,data: {
+			json:1
+			,put : 'add_new_storie'
+			,id_project : id_project
+			,storie_name : storie_name
+			,storie_order : storie_order
+			,storie_date_start: storie_date_start
+			,storie_date_end: storie_date_end
+		}
+		,dataType: 'json'
+		,type:'POST'
+		,async:false
+	});
+}
+
+function add_storie_task(id_project) {
+	$("#add-storie").dialog({
+			modal:true
+			,minWidth:400
+			,minHeight:100
+			,buttons: [
+				{ text: "<?php echo $langs->trans('Add'); ?>", click: function() { add_storie(id_project); $( this ).dialog( "close" ); location.reload(); } }
+				, { text: "<?php echo $langs->trans('Cancel'); ?>", click: function() { $( this ).dialog( "close" ); } }
+			]
+	});
+}
+
+function toggle_storie_visibility(id_project, storie_order) {
+	$.ajax({
+		url : "./script/interface.php"
+		,data: {
+			json: 1
+			,put: 'toggle_storie_visibility'
+			,id_project: id_project
+			,storie_order: storie_order
+		}
+		,dataType: 'json'
+		,type: 'POST'
+		,async: false
+	}).done(function(data) {
+		
+	});
+}
+
+function toggle_visibility(id_project, storie_order) {
+	toggle_storie_visibility(id_project, storie_order);
+	
+	location.reload();
+}

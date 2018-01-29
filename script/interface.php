@@ -48,6 +48,12 @@ function _put(&$db, $case) {
 			_reset_date_task($db,(int)GETPOST('id_project'), (float)GETPOST('velocity') * 3600);
 			
 			break;
+		case 'add_new_storie':
+			_add_new_storie($db, (int)GETPOST('id_project'), GETPOST('storie_name'));
+			break;
+		case 'toggle_storie_visibility':
+			_toggle_storie_visibility($db, (int)GETPOST('id_project'), (int)GETPOST('storie_order'));
+			break;
 
 	}
 
@@ -154,7 +160,7 @@ function _set_values(&$object, $values) {
 	
 }
 function _task(&$db, $id_task, $values=array()) {
-global $user, $langs,$conf;
+	global $user, $langs,$conf;
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
@@ -274,7 +280,7 @@ function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
 }	
 
 function _reset_date_task(&$db, $id_project, $velocity) {
-global $user;
+	global $user;
 
 	if($velocity==0) return false;
 
@@ -346,4 +352,35 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	}
 	
 	return $TTask;
+}
+
+function _add_new_storie(&$db, $id_project, $storie_name) {
+	$storie_order = GETPOST('storie_order', 'int');
+	$storie_date_start = GETPOST('storie_date_start');
+	$storie_date_end = GETPOST('storie_date_end');
+
+	$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
+	$sql .= " VALUES($id_project, $storie_order, '$storie_name', '$storie_date_start', '$storie_date_end')";
+
+	$db->query($sql);
+}
+
+function _toggle_storie_visibility(&$db, $id_project, $storie_order) {
+	$sql = 'SELECT visible';
+	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_storie';
+	$sql .= " WHERE fk_projet=$id_project";
+	$sql .= " AND storie_order=$storie_order";
+	
+	$resql = $db->query($sql);
+	if($obj = $db->fetch_object($resql)) {
+		$new_value = (int)!$obj->visible;
+		
+		$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
+		$sql .= ' SET visible='.$new_value;
+		$sql .= " WHERE fk_projet=$id_project";
+		$sql .= " AND storie_order=$storie_order";
+		
+		$db->query($sql);
+	}
+	return $new_value;
 }

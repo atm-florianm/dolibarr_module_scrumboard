@@ -29,6 +29,8 @@
 	
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
+	$storie_k_toEdit = GETPOST('storie_k', 'int');
+	$confirm = GETPOST('confirm');
 	
 	// Init new session var if not exist
 	if(empty($_SESSION['scrumboard']['showdesc'])) {
@@ -39,6 +41,15 @@
 		$_SESSION['scrumboard']['showdesc'][$id_projet] = 1;
 	}else if ($action == 'hide_desc') {
 		unset($_SESSION['scrumboard']['showdesc'][$id_projet]);
+	}
+	else if($action == "confirm_delete") {
+		echo $form->formconfirm($_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k_toEdit, $langs->trans('ConfirmDeleteStorie'), $langs->trans('DeleteStorie'), 'delete_storie', '', 0, 1);
+	}
+	else if($action == "delete_storie" && $confirm == 'yes') {
+		scrum_deleteStorie($id_projet, $storie_k_toEdit);
+	}
+	else if($action == 'save') {
+		scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'));
 	}
 
 	$object = new Project($db);
@@ -116,7 +127,7 @@
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
 		
 		// Stories
-		print '<tr><td>'.$langs->trans("ProjectStories").'</td><td>'.$object->array_options['options_stories'].'</td></tr>';
+//		print '<tr><td>'.$langs->trans("ProjectStories").'</td><td>'.$object->array_options['options_stories'].'</td></tr>';
 		
 		if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
 			// Description mode if conf activ
@@ -137,7 +148,8 @@
 		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
 	}
 		
-	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
+//	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
+	$TStorie = scrum_getAllStories($id_projet);
 	
 	$TColumns = scrum_getAllColumns($id_projet);
 ?>
@@ -174,15 +186,61 @@ td.projectDrag {
 		</tr>
 		<?php 
 		$default_k = 1;
-		foreach($TStorie as $k=>$label) {
-			$storie_k = $k+1;
+		$storie_k = 0;
+		foreach($TStorie as $k=>$obj) {
+			$storie_k = $k;
 
 
 		?>
 		<tr>
-			<td colspan="3" class="liste_titre"><?php echo $label; ?></td>
+			<?php
+				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
+					print '<td colspan="'.($nbColumns-1).'">';
+					print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+					print '<input type="hidden" name="id" value="'.$id_projet.'" />';
+					print '<input type="hidden" name="action" value="save" />';
+					print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
+					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.scrum_getStorie($id_projet, $storie_k).'"/>';
+					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" />';
+					print '</form>';
+					print '</td>';
+				}
+				else {
+			?>
+			<td class="liste_titre">
+				<?php print $obj->label; ?>
+			</td>
+			<td class="liste_titre">
+				<?php
+				if(! empty($obj->date_start)) {
+					print $langs->trans('From').' : '.date('d/m/Y', strtotime($obj->date_start));
+					print ' '.$langs->trans('to').' : '.date('d/m/Y', strtotime($obj->date_end));
+				}
+				?>
+			</td>
+			<td colspan="<?php echo $nbColumns-3; ?>"></td>
+			<?php
+					print '<td align="right">';
+					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
+
+					print '&nbsp;';
+
+					if($storie_k != 1) {
+						print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+						if(scrum_isStorieVisible($id_projet, $storie_k)) {
+							print img_picto($langs->trans('Hide'), DOL_URL_ROOT.'/theme/md/img/switch_off_old.png', '', true);
+						}
+						else {
+							print img_picto($langs->trans('Show'), DOL_URL_ROOT.'/theme/md/img/switch_on_old.png', '', true);
+						}
+						print '</a>';
+						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
+					}
+					print '</td>';
+				}
+			?>
 		</tr>
-		<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>">
+		<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! scrum_isStorieVisible($id_projet, $storie_k)) echo 'display: none;';?>">
 			<?php
 			foreach($TColumns as $column) {
 				echo '<td class="projectDrag droppable" rel="'.strtolower($column->label).'">';
@@ -207,17 +265,26 @@ td.projectDrag {
 	*/
 	print '<div class="tabsAction">';
 
-	if( (float)DOL_VERSION > 3.4 ) {
-		
 	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
 	{
 		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
 		{
-			print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			print '<a class="butAction" href="javascript:add_storie_task('.$object->id.');">'.$langs->trans('AddStorieTask').'</a>';
+		}
+		else
+		{
+			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddStorieTask').'</a>';
 		}
 	}
-		
-		
+
+	if( (float)DOL_VERSION > 3.4 ) {
+		if ($user->rights->projet->all->creer || $user->rights->projet->creer)
+		{
+			if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+			{
+				print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+			}
+		}
 	}
 
 	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
@@ -317,6 +384,20 @@ td.projectDrag {
 			
 			<input type="text" name="velocity" size="5" id="current-velocity" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
 			
+		</div>
+		<div id="add-storie" title="<?php echo $langs->trans('AddStorie'); ?>" style="display:none;">
+
+			<span><?php echo $langs->trans('AddStorieName'); ?> : </span>
+			<input type="hidden" name="add_storie_k" id="add_storie_k" value="<?php $storie_k++; echo $storie_k; ?>" />
+			<input type="text" name="storieName" size="20" id="newStorieName" value="<?php echo 'Sprint '.$storie_k; ?>" required="required"/>
+			<br />
+			
+			<span><?php echo $langs->trans('From'); ?> : </span>
+			<input type="date" name="storie_date_start" size="20" id="storie_date_start" />
+			
+			<span><?php echo $langs->trans('to'); ?> : </span>
+			<input type="date" name="storie_date_end" size="20" id="storie_date_end" />
+
 		</div>
 		
 		<script type="text/javascript">
