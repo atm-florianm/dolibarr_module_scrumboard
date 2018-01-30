@@ -1,8 +1,12 @@
 <?php
 	require('../config.php');
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
-?>
+	dol_include_once('/scrumboard/class/scrumboard.class.php');
+	
 
+?>
+/* <script type="text/javascript"> */
+	
 function project_velocity(id_project) {
 	$.ajax({
 		url : "./script/interface.php"
@@ -60,10 +64,10 @@ function project_get_tasks(id_project, status) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
 			// TODO: Voir avec Geoffrey pour l'avenir de la conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN
-			if(status == 'todo' && (task.scrum_status == '<?php echo scrum_getColumnId('backlog'); ?>' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == 0'; ?> ) ) {
+			if(status == 'todo' && (task.scrum_status =='backlog' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == ""'; ?> ) ) {
 				l_status = 'backlog';
 			}
-			else if(status == 'finish' && task.scrum_status =='<?php echo scrum_getColumnId('review'); ?>' ) {
+			else if(status == 'finish' && task.scrum_status =='review' ) {
 				l_status = 'review';
 			}
 			
@@ -331,11 +335,10 @@ function project_develop_task(id_task) {
 
 function project_loadTasks(id_projet) {
 	<?php
-	$fk_project = (int) GETPOST('id');
-	$TColumns = scrum_getAllColumns($fk_project);
-	
-	foreach($TColumns as $column) {
-		echo 'project_get_tasks(id_projet ,  \''.strtolower($column->label).'\');';
+	$scrumboardColumn = new ScrumboardColumn;
+	$TColumn = $scrumboardColumn->getTColumnOrder();
+	foreach($TColumn as $column) {
+		echo 'project_get_tasks(id_projet ,  \''.$column->code.'\');';
 	}
 	?>
 	

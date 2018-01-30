@@ -181,25 +181,25 @@ class modscrumboard extends DolibarrModules
 					'ScrumManageColumns'
 			),
 			'tabsql' => array(
-					'SELECT sc.rowid, sc.label, sc.col_order, sc.active, sc.code FROM ' . MAIN_DB_PREFIX . 'c_scrum_columns as sc'
+					'SELECT sc.rowid, sc.label, sc.rang, sc.active, sc.code, sc.entity FROM ' . MAIN_DB_PREFIX . 'c_scrum_columns as sc'
 			),
 			'tabsqlsort' => array(
-					'col_order ASC'
+					'rang ASC'
 			),
 			'tabfield' => array(
-					'label,col_order'
+					'label,rang,entity'
 			),
 			'tabfieldvalue' => array(
-					'label,col_order'
+					'label,rang,entity'
 			),
 			'tabfieldinsert' => array(
-					'label,col_order'
+					'label,rang,entity'
 			),
 			'tabrowid' => array(
 					'rowid'
 			),
 			'tabcond' => array(
-					'$conf->scrumboard->enabled'
+					'$conf->scrumboard->enabled' // TODO ?? -> && $conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN
 			)
 		);
         /* Example:
@@ -479,6 +479,11 @@ class modscrumboard extends DolibarrModules
     {
         $sql = array();
 
+		define('INC_FROM_DOLIBARR',true);
+		
+		dol_include_once('/scrumboard/config.php');
+		dol_include_once('/scrumboard/script/create-maj-base.php');
+		
         $result = $this->loadTables();
 
 		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
@@ -488,7 +493,7 @@ class modscrumboard extends DolibarrModules
 //		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
 		
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
-		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status integer NOT NULL DEFAULT \'1\'');
+		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status varchar(255) NOT NULL DEFAULT \'\'');
 		
         return $this->_init($sql, $options);
     }

@@ -18,7 +18,9 @@
 --);
 
 -- Mettre le code à '0' empêche la suppression ou la désactivation de ces lignes depuis l'interface des dictionnaires
-INSERT INTO llx_c_scrum_columns(rowid, label, col_order, active, code) VALUES
-(1, 'toDo', '20', '1', '0'),
-(2, 'inProgress', '40', '1', '0'),
-(3, 'finish', '60', '1', '0');
+INSERT INTO llx_c_scrum_columns(rowid, code, label, rang, active, entity) VALUES
+(1, 'backlog', 'Ideas', 5, 1, 1),
+(2, 'todo', 'toDo', 10, 1, 1),
+(3, 'inprogress', 'inProgress', 15, 1, 1),
+(4, 'review', 'review', 20, 1, 1),
+(5, 'finish', 'finish', 25, 1, 1);

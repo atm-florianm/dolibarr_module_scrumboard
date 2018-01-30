@@ -182,10 +182,9 @@ function _task(&$db, $id_task, $values=array()) {
 		$task->status = $values['status'];
 		$task->update($user);
 		
-		$fk_scrum_status = scrum_getColumnId($values['scrum_status']);
 		$db->query("UPDATE ".MAIN_DB_PREFIX.$task->table_element." 
 				SET story_k=".(int)$values['story_k']."
-				,scrum_status='".$fk_scrum_status."'
+				,scrum_status='".$values['scrum_status']."'
 			WHERE rowid=".$task->id);
 	}
 	
@@ -326,14 +325,33 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
 	}
-
+	
+	
+	/** TO TEST **/
+//	$sql.= ' WHERE 1 ';
+//	$sql.= ' AND (scrum_status IS NOT NULL AND scrum_status = "'.$status.'")';
+//	
+//	if($status=='ideas') $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
+//	else if($status=='todo') $sql.= ' OR (scrum_status IS NULL AND  (progress = 0  OR progress IS NULL))';
+//	else if($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
+//	else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
+	/*******/
+	
+	/** ORIGINE ***/
 	if($status=='ideas') {
 		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
+	}	
+	else if($status=='todo') {
+		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
 	}
-	else {
-		$fk_scrum_status = scrum_getColumnId($status);
-		$sql .= ' WHERE pt.scrum_status='.$fk_scrum_status;
+	else if($status=='inprogress') {
+		$sql.= ' WHERE progress > 0 AND progress < 100';
 	}
+	else if($status=='finish') {
+		$sql.= ' WHERE progress=100';
+	}
+	/****/
+	
 	
 	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
 	

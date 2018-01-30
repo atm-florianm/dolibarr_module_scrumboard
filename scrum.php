@@ -24,7 +24,8 @@
  
 	require('config.php');
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
-
+	dol_include_once('/scrumboard/class/scrumboard.class.php');
+	
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'));
 	
 	$id_projet = (int)GETPOST('id');
@@ -154,22 +155,23 @@
 //	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
 	$TStorie = scrum_getAllStories($id_projet);
 	
-	$TColumns = scrum_getAllColumns($id_projet);
+	$scrumboardColumn = new ScrumboardColumn;
+	$TColumn = $scrumboardColumn->getTColumnOrder();
+	$nbColumns = count($TColumn);
 ?>
 <link rel="stylesheet" type="text/css" title="default" href="<?php echo dol_buildpath('/scrumboard/css/scrum.css',1) ?>">
 
 <style type="text/css">
-<!--
+
 td.projectDrag {
 	<?php
 	// On calcule la largeur de chaque colonne en fonction du nombre de colonne
-	$nbColumns = count($TColumns);
 	$calculatedWidth = 100 / $nbColumns;
 	echo 'width: '.$calculatedWidth.'%';
 	?>;
 	min-width:100px;
 }
--->
+
 </style>
 
 <div class="content">
@@ -177,11 +179,11 @@ td.projectDrag {
 	<table id="scrum" id_projet="<?php echo $id_projet ?>">
 		<tr>
 			<?php
-			foreach($TColumns as $column) {
+			foreach($TColumn as $column) {
 				echo '<td>'.$langs->trans($column->label);
 
-				if($column->label == 'toDo') echo '<span rel="velocityToDo"></span>';
-				else if($column->label == 'inProgress') echo '<span rel="velocityInProgress"></span>';
+				if($column->code == 'todo') echo '<span rel="velocityToDo"></span>';
+				else if($column->code == 'inprogress') echo '<span rel="velocityInProgress"></span>';
 
 				echo '</td>';
 			}
@@ -263,10 +265,10 @@ td.projectDrag {
 		</tr>
 		<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! scrum_isStorieVisible($id_projet, $storie_k)) echo 'display: none;';?>">
 			<?php
-			foreach($TColumns as $column) {
-				echo '<td class="projectDrag droppable" rel="'.strtolower($column->label).'">';
+			foreach($TColumn as $column) {
+				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';
 
-				echo '<ul class="task-list" rel="'.strtolower($column->label).'" story-k="'.$storie_k.'">';
+				echo '<ul class="task-list" data-code="'.$column->code.'" data-story-k="'.$storie_k.'" rel="'.$column->code.'" story-k="'.$storie_k.'">';
 				echo '</ul>';
 
 				echo '</td>';
