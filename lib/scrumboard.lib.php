@@ -211,11 +211,13 @@ function scrum_getStorie($fk_project, $storie_k) {
 	return '';
 }
 
-function scrum_updateStorie($fk_project, $storie_k, $storie_label) {
+function scrum_updateStorie($fk_project, $storie_k, $storie_label, $date_start, $date_end) {
 	global $db;
-
+	
 	$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
-	$sql .= " SET label='$storie_label'";
+	$sql .= " SET label='$storie_label',";
+	$sql .= ' date_start="'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'",';
+	$sql .= ' date_end="'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_end))).'"';
 	$sql .= " WHERE fk_projet=$fk_project";
 	$sql .= " AND storie_order=$storie_k";
 

@@ -30,6 +30,9 @@
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
 	$storie_k_toEdit = GETPOST('storie_k', 'int');
+	$storie_date_start = GETPOST('storie_date_start');
+	$storie_date_end = GETPOST('storie_date_end');
+//	var_dump($storie_date_start, $storie_date_end);
 	$confirm = GETPOST('confirm');
 	
 	// Init new session var if not exist
@@ -49,7 +52,7 @@
 		scrum_deleteStorie($id_projet, $storie_k_toEdit);
 	}
 	else if($action == 'save') {
-		scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'));
+		scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'), $storie_date_start, $storie_date_end);
 	}
 
 	$object = new Project($db);
@@ -192,21 +195,39 @@ td.projectDrag {
 
 
 		?>
-		<tr>
 			<?php
 				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
-					print '<td colspan="'.($nbColumns-1).'">';
 					print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
 					print '<input type="hidden" name="id" value="'.$id_projet.'" />';
 					print '<input type="hidden" name="action" value="save" />';
 					print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
+					
+					print '<tr>';
+					
+					print '<td>';
 					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.scrum_getStorie($id_projet, $storie_k).'"/>';
-					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" />';
-					print '</form>';
 					print '</td>';
+					
+					print '<td>';
+					print $langs->trans('From').' : ';
+					print $form->select_date($storie_date_start, 'storie_date_start');
+					print '&nbsp;';
+					print $langs->trans('to').' : ';
+					print $form->select_date($storie_date_end, 'storie_date_end');
+					print '</td>';
+					
+					print '<td colspan="'.($nbColumns-3).'"></td>';
+					
+					print '<td align="right">';
+					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" />';
+					print '</td>';
+					
+					print '</tr>';
+					print '</form>';
 				}
 				else {
 			?>
+		<tr>
 			<td class="liste_titre">
 				<?php print $obj->label; ?>
 			</td>
@@ -214,7 +235,7 @@ td.projectDrag {
 				<?php
 				if(! empty($obj->date_start)) {
 					print $langs->trans('From').' : '.date('d/m/Y', strtotime($obj->date_start));
-					print ' '.$langs->trans('to').' : '.date('d/m/Y', strtotime($obj->date_end));
+					print '&nbsp;'.$langs->trans('to').' : '.date('d/m/Y', strtotime($obj->date_end));
 				}
 				?>
 			</td>
