@@ -414,10 +414,10 @@ td.projectDrag {
 			<br />
 			
 			<span><?php echo $langs->trans('From'); ?> : </span>
-			<input type="date" name="storie_date_start" size="20" id="storie_date_start" />
+			<input type="date" name="add_storie_date_start" size="20" id="add_storie_date_start" />
 			
 			<span><?php echo $langs->trans('to'); ?> : </span>
-			<input type="date" name="storie_date_end" size="20" id="storie_date_end" />
+			<input type="date" name="add_storie_date_end" size="20" id="add_storie_date_end" />
 
 		</div>
 		

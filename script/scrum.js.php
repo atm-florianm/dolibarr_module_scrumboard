@@ -550,8 +550,8 @@ function add_storie(id_project) {
 
 	var storie_name = $('#newStorieName').val();
 	var storie_order = parseInt($('#add_storie_k').val());
-	var storie_date_start = $('#storie_date_start').val();
-	var storie_date_end = $('#storie_date_end').val();
+	var add_storie_date_start = $('#add_storie_date_start').val();
+	var add_storie_date_end = $('#add_storie_date_end').val();
 	
 	$.ajax({
 		url : "./script/interface.php"
@@ -561,8 +561,8 @@ function add_storie(id_project) {
 			,id_project : id_project
 			,storie_name : storie_name
 			,storie_order : storie_order
-			,storie_date_start: storie_date_start
-			,storie_date_end: storie_date_end
+			,add_storie_date_start: add_storie_date_start
+			,add_storie_date_end: add_storie_date_end
 		}
 		,dataType: 'json'
 		,type:'POST'

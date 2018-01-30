@@ -37,3 +37,4 @@ AddStorieName=Nom du sprint
 AddStorieTask=Créer sprint
 ConfirmDeleteStorie=Supprimer sprint
 DeleteStorie=Êtes-vous sûr de vouloir effacer ce sprint ?
+EmptyDate=Veuillez renseigner les dates du sprint !

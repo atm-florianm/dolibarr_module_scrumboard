@@ -355,14 +355,21 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 }
 
 function _add_new_storie(&$db, $id_project, $storie_name) {
+	global $langs;
+
 	$storie_order = GETPOST('storie_order', 'int');
-	$storie_date_start = GETPOST('storie_date_start');
-	$storie_date_end = GETPOST('storie_date_end');
+	$storie_date_start = GETPOST('add_storie_date_start');
+	$storie_date_end = GETPOST('add_storie_date_end');
 
-	$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
-	$sql .= " VALUES($id_project, $storie_order, '$storie_name', '$storie_date_start', '$storie_date_end')";
+	if(empty($storie_date_start) || empty($storie_date_end)) {
+		setEventMessage($langs->trans('EmptyDate'), 'errors');
+	}
+	else {
+		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
+		$sql .= " VALUES($id_project, $storie_order, '$storie_name', '$storie_date_start', '$storie_date_end')";
 
-	$db->query($sql);
+		$db->query($sql);
+	}
 }
 
 function _toggle_storie_visibility(&$db, $id_project, $storie_order) {
