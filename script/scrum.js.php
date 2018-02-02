@@ -2,6 +2,15 @@
 	require('../config.php');
 ?>
 
+<!-- CLEAN tooltip html -->
+$(function () {
+      $('#scrum').tooltip({
+          content: function () {
+              return $(this).prop('title');
+          }
+      });
+  });
+  
 function project_velocity(id_project) {
 	$.ajax({
 		url : "./script/interface.php"
@@ -152,7 +161,7 @@ function project_refresh_task(id_project, task) {
 		$item.find('.task-title span').html(task.label);
 		$item.find('.task-desc span').html(task.long_description);
 	} else {
-		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
+		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip");
 	}
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
@@ -369,7 +378,7 @@ function pop_time(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/time.php',2) ?>?id='+id_task+' div.fiche form'
 				,function() {
-					$('textarea[name=timespent_note]').attr('cols',25);
+					$('textarea[name=timespent_note]').attr('cols',25).focus();
 					
 					$('#saisie form').submit(function() {
 						
@@ -437,7 +446,7 @@ function pop_time(id_project, id_task) {
 					modal:true
 					,minWidth:1200
 					,minHeight:200
-					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
+					,title:$('li[task-id='+id_task+'] .task-ref a').text()+' - '+$('li[task-id='+id_task+'] .task-title').text()
 				});
 }
 
@@ -449,7 +458,7 @@ function pop_comment(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/comment.php',2) ?>?id='+id_task+' #comment'
 				,function() {
-					$('textarea[name="comment_description"]').attr('cols',25);
+					$('textarea[name="comment_description"]').attr('cols',25).focus();
 					
 					$('#saisie form').submit(function() {
 						
@@ -499,7 +508,7 @@ function pop_comment(id_project, id_task) {
 					modal:true
 					,minWidth:1200
 					,minHeight:200
-					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
+					,title:$('li[task-id='+id_task+'] .task-ref a').text()+' - '+$('li[task-id='+id_task+'] .task-title').text()
 				});
 }
 <!--  fin conf -->
