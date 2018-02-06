@@ -328,28 +328,29 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	
 	
 	/** TO TEST **/
-//	$sql.= ' WHERE 1 ';
-//	$sql.= ' AND (scrum_status IS NOT NULL AND scrum_status = "'.$status.'")';
-//	
-//	if($status=='ideas') $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
-//	else if($status=='todo') $sql.= ' OR (scrum_status IS NULL AND  (progress = 0  OR progress IS NULL))';
-//	else if($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
-//	else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
+	$sql.= ' WHERE 1 ';
+	$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$status.'")';
+
+	if($status=='ideas') $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
+	else if($status=='todo') $sql.= ' OR (scrum_status IS NULL AND  (progress = 0  OR progress IS NULL))';
+	else if($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
+	else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
+	$sql .= ')';
 	/*******/
 	
 	/** ORIGINE ***/
-	if($status=='ideas') {
-		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
-	}	
-	else if($status=='todo') {
-		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
-	}
-	else if($status=='inprogress') {
-		$sql.= ' WHERE progress > 0 AND progress < 100';
-	}
-	else if($status=='finish') {
-		$sql.= ' WHERE progress=100';
-	}
+//	if($status=='ideas') {
+//		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
+//	}
+//	else if($status=='todo') {
+//		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
+//	}
+//	else if($status=='inprogress') {
+//		$sql.= ' WHERE progress > 0 AND progress < 100';
+//	}
+//	else if($status=='finish') {
+//		$sql.= ' WHERE progress=100';
+//	}
 	/****/
 	
 	
@@ -379,15 +380,16 @@ function _add_new_storie(&$db, $id_project, $storie_name) {
 	$storie_date_start = GETPOST('add_storie_date_start');
 	$storie_date_end = GETPOST('add_storie_date_end');
 
-	if(empty($storie_date_start) || empty($storie_date_end)) {
-		setEventMessage($langs->trans('EmptyDate'), 'errors');
-	}
-	else {
-		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
-		$sql .= " VALUES($id_project, $storie_order, '$storie_name', '$storie_date_start', '$storie_date_end')";
+	if(empty($storie_date_start)) $storie_date_start = 'NULL';
+	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_start))).'"';
 
-		$db->query($sql);
-	}
+	if(empty($storie_date_end)) $storie_date_end = 'NULL';
+	else $storie_date_end = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_end))).'"';
+
+	$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
+	$sql .= " VALUES($id_project, $storie_order, '$storie_name', $storie_date_start, $storie_date_end)";
+
+	$db->query($sql);
 }
 
 function _toggle_storie_visibility(&$db, $id_project, $storie_order) {

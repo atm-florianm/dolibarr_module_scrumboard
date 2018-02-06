@@ -579,7 +579,7 @@ function add_storie_task(id_project) {
 			,minWidth:400
 			,minHeight:100
 			,buttons: [
-				{ text: "<?php echo $langs->trans('Add'); ?>", click: function() { add_storie(id_project); $( this ).dialog( "close" ); location.reload(); } }
+				{ text: "<?php echo $langs->trans('Add'); ?>", click: function() { add_storie(id_project); $( this ).dialog( "close" ); location.href = location.pathname+'?id='+id_project; } }
 				, { text: "<?php echo $langs->trans('Cancel'); ?>", click: function() { $( this ).dialog( "close" ); } }
 			]
 	});

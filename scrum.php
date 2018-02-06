@@ -415,11 +415,15 @@ td.projectDrag {
 			<input type="text" name="storieName" size="20" id="newStorieName" value="<?php echo 'Sprint '.$storie_k; ?>" required="required"/>
 			<br />
 			
-			<span><?php echo $langs->trans('From'); ?> : </span>
-			<input type="date" name="add_storie_date_start" size="20" id="add_storie_date_start" />
+			<?php
+
+			print '<span>'.$langs->trans('From').' : </span>';
+			print $form->select_date('', 'add_storie_date_start');
 			
-			<span><?php echo $langs->trans('to'); ?> : </span>
-			<input type="date" name="add_storie_date_end" size="20" id="add_storie_date_end" />
+			print '<span>'.$langs->trans('to').' : </span>';
+			print $form->select_date('', 'add_storie_date_end');
+
+			?>
 
 		</div>
 		
