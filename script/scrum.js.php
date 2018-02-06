@@ -387,7 +387,7 @@ function pop_time(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/time.php',2) ?>?id='+id_task+' div.fiche form'
 				,function() {
-					$('textarea[name=timespent_note]').attr('cols',25);
+					$('textarea[name=timespent_note]').attr('cols',25).focus();
 					
 					$('#saisie form').submit(function() {
 						
@@ -467,7 +467,7 @@ function pop_comment(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/comment.php',2) ?>?id='+id_task+' #comment'
 				,function() {
-					$('textarea[name="comment_description"]').attr('cols',25);
+					$('textarea[name="comment_description"]').attr('cols',25).focus();
 					
 					$('#saisie form').submit(function() {
 						
