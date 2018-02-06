@@ -70,6 +70,14 @@ function project_get_tasks(id_project, status) {
 			else if(status == 'finish' && task.scrum_status =='review' ) {
 				l_status = 'review';
 			}
+			else if(status == 'unknownColumn') {
+				<?php
+				$scrumColumn = new ScrumboardColumn;
+				$PDOdb = new TPDOdb;
+				$scrumColumn->LoadAllBy($PDOdb);
+				print 'l_status = "'.$scrumColumn->getDefaultColumn().'";';
+				?>
+			}
 			
 			if($('tr[story-k='+task.story_k+']').length>0) {
 				$ul = $('tr[story-k='+task.story_k+']').find('ul[rel="'+l_status+'"]');
@@ -341,7 +349,7 @@ function project_loadTasks(id_projet) {
 		echo 'project_get_tasks(id_projet ,  \''.$column->code.'\');';
 	}
 	?>
-	
+	project_get_tasks(id_projet , 'unknownColumn');
 }
 function create_task(id_projet) {
 	

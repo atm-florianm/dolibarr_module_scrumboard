@@ -136,6 +136,21 @@ function scrum_deleteStorie($fk_project, $storie_k) {
 	$db->query($sql);
 }
 
+function scrum_addStorie($fk_project, $storie_order, $storie_name, $storie_date_start = '', $storie_date_end = '') {
+	global $db;
+
+	if(empty($storie_date_start)) $storie_date_start = 'NULL';
+	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_start))).'"';
+
+	if(empty($storie_date_end)) $storie_date_end = 'NULL';
+	else $storie_date_end = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_end))).'"';
+
+	$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
+	$sql .= " VALUES($fk_project, $storie_order, '$storie_name', $storie_date_start, $storie_date_end)";
+
+	$db->query($sql);
+}
+
 function scrum_isStorieVisible($fk_project, $storie_k) {
 	global $db;
 
