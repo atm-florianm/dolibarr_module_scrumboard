@@ -488,6 +488,10 @@ class Interfacescrumboardtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			dol_include_once('scrumboard/lib/scrumboard.lib.php');
+			// Création d'un sprint par défaut
+			scrum_addStorie($object->id, 1, 'Sprint 1');
+			
         } elseif ($action == 'PROJECT_MODIFY') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
