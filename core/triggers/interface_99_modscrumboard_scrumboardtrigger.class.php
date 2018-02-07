@@ -500,6 +500,13 @@ class Interfacescrumboardtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			dol_include_once('scrumboard/lib/scrumboard.lib.php');
+
+			$TStorieToDelete = scrum_getAllStories($object->id);
+
+			foreach($TStorieToDelete as &$storie) {
+				scrum_deleteStorie($object->id, $storie->storie_order);
+			}
         }
 
         // Project tasks
