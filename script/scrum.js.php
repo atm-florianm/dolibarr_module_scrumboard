@@ -1,16 +1,12 @@
 <?php
 	require('../config.php');
-?>
+	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
+	dol_include_once('/scrumboard/class/scrumboard.class.php');
+	
 
-<!-- CLEAN tooltip html -->
-$(function () {
-      $('#scrum').tooltip({
-          content: function () {
-              return $(this).prop('title');
-          }
-      });
-  });
-  
+?>
+/* <script type="text/javascript"> */
+	
 function project_velocity(id_project) {
 	$.ajax({
 		url : "./script/interface.php"
@@ -67,11 +63,20 @@ function project_get_tasks(id_project, status) {
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
+			// TODO: Voir avec Geoffrey pour l'avenir de la conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN
 			if(status == 'todo' && (task.scrum_status =='backlog' <?php if (!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) echo '|| task.scrum_status == ""'; ?> ) ) {
 				l_status = 'backlog';
 			}
 			else if(status == 'finish' && task.scrum_status =='review' ) {
 				l_status = 'review';
+			}
+			else if(status == 'unknownColumn') {
+				<?php
+				$scrumColumn = new ScrumboardColumn;
+				$PDOdb = new TPDOdb;
+				$scrumColumn->LoadAllBy($PDOdb);
+				print 'l_status = "'.$scrumColumn->getDefaultColumn().'";';
+				?>
 			}
 			
 			if($('tr[story-k='+task.story_k+']').length>0) {
@@ -80,7 +85,7 @@ function project_get_tasks(id_project, status) {
 			else{
 				$ul = $('tr[default-k=1]').find('ul[rel="'+l_status+'"]');
 			}
-		
+
 			project_draw_task(id_project, task, $ul);
 		});
 				
@@ -101,6 +106,7 @@ function project_create_task(id_project) {
 	.done(function (task) {
 	
 		<?php 
+		// TODO: Conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN !
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 						echo '$ul = $(\'tr[default-k=1]\').find(\'ul[rel=backlog]\')';
 					}
@@ -161,7 +167,7 @@ function project_refresh_task(id_project, task) {
 		$item.find('.task-title span').html(task.label);
 		$item.find('.task-desc span').html(task.long_description);
 	} else {
-		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip");
+		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
 	}
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
@@ -336,11 +342,14 @@ function project_develop_task(id_task) {
 }
 
 function project_loadTasks(id_projet) {
-	
-	project_get_tasks(id_projet ,  'todo');
-	project_get_tasks(id_projet ,  'inprogress');
-	project_get_tasks(id_projet ,  'finish');
-	
+	<?php
+	$scrumboardColumn = new ScrumboardColumn;
+	$TColumn = $scrumboardColumn->getTColumnOrder();
+	foreach($TColumn as $column) {
+		echo 'project_get_tasks(id_projet ,  \''.$column->code.'\');';
+	}
+	?>
+	project_get_tasks(id_projet , 'unknownColumn');
 }
 function create_task(id_projet) {
 	
@@ -446,7 +455,7 @@ function pop_time(id_project, id_task) {
 					modal:true
 					,minWidth:1200
 					,minHeight:200
-					,title:$('li[task-id='+id_task+'] .task-ref a').text()+' - '+$('li[task-id='+id_task+'] .task-title').text()
+					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
 				});
 }
 
@@ -508,7 +517,7 @@ function pop_comment(id_project, id_task) {
 					modal:true
 					,minWidth:1200
 					,minHeight:200
-					,title:$('li[task-id='+id_task+'] .task-ref a').text()+' - '+$('li[task-id='+id_task+'] .task-title').text()
+					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
 				});
 }
 <!--  fin conf -->
@@ -548,3 +557,61 @@ function reset_date_task(id_project) {
 	});
 }
 
+function add_storie(id_project) {
+
+	var storie_name = $('#newStorieName').val();
+	var storie_order = parseInt($('#add_storie_k').val());
+	var add_storie_date_start = $('#add_storie_date_start').val();
+	var add_storie_date_end = $('#add_storie_date_end').val();
+	
+	$.ajax({
+		url : "./script/interface.php"
+		,data: {
+			json:1
+			,put : 'add_new_storie'
+			,id_project : id_project
+			,storie_name : storie_name
+			,storie_order : storie_order
+			,add_storie_date_start: add_storie_date_start
+			,add_storie_date_end: add_storie_date_end
+		}
+		,dataType: 'json'
+		,type:'POST'
+		,async:false
+	});
+}
+
+function add_storie_task(id_project) {
+	$("#add-storie").dialog({
+			modal:true
+			,minWidth:400
+			,minHeight:100
+			,buttons: [
+				{ text: "<?php echo $langs->trans('Add'); ?>", click: function() { add_storie(id_project); $( this ).dialog( "close" ); location.href = location.pathname+'?id='+id_project; } }
+				, { text: "<?php echo $langs->trans('Cancel'); ?>", click: function() { $( this ).dialog( "close" ); } }
+			]
+	});
+}
+
+function toggle_storie_visibility(id_project, storie_order) {
+	$.ajax({
+		url : "./script/interface.php"
+		,data: {
+			json: 1
+			,put: 'toggle_storie_visibility'
+			,id_project: id_project
+			,storie_order: storie_order
+		}
+		,dataType: 'json'
+		,type: 'POST'
+		,async: false
+	}).done(function(data) {
+		
+	});
+}
+
+function toggle_visibility(id_project, storie_order) {
+	toggle_storie_visibility(id_project, storie_order);
+	
+	location.reload();
+}

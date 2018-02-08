@@ -1,6 +1,7 @@
 <?php
 
 require ('../config.php');
+dol_include_once('scrumboard/lib/scrumboard.lib.php');
 
 $get = GETPOST('get','alpha');
 $put = GETPOST('put','alpha');
@@ -47,6 +48,12 @@ function _put(&$db, $case) {
 			
 			_reset_date_task($db,(int)GETPOST('id_project'), (float)GETPOST('velocity') * 3600);
 			
+			break;
+		case 'add_new_storie':
+			_add_new_storie((int)GETPOST('id_project'), GETPOST('storie_name'));
+			break;
+		case 'toggle_storie_visibility':
+			_toggle_storie_visibility($db, (int)GETPOST('id_project'), (int)GETPOST('storie_order'));
 			break;
 
 	}
@@ -154,7 +161,7 @@ function _set_values(&$object, $values) {
 	
 }
 function _task(&$db, $id_task, $values=array()) {
-global $user, $langs,$conf;
+	global $user, $langs,$conf;
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
@@ -172,7 +179,7 @@ global $user, $langs,$conf;
 		else if($values['status']=='todo') {
 			$task->progress = 0;
 		}
-	
+
 		$task->status = $values['status'];
 		$task->update($user);
 		
@@ -273,7 +280,7 @@ function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
 }	
 
 function _reset_date_task(&$db, $id_project, $velocity) {
-global $user;
+	global $user;
 
 	if($velocity==0) return false;
 
@@ -311,7 +318,7 @@ global $user;
 
 function _tasks(&$db, $id_project, $status, $fk_user) {
 	global $user,$conf;
-	
+	dol_include_once('scrumboard/class/scrumboard.class.php');
 	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang FROM '.MAIN_DB_PREFIX.'projet_task pt';
 	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
@@ -319,19 +326,40 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
 	}
+
+	if($status == 'unknownColumn') {
+		$scrumboardColumn = new ScrumboardColumn;
+		$PDOdb=new TPDOdb;
+		$scrumboardColumn->LoadAllBy($PDOdb);
+		$defaultColumn = $scrumboardColumn->getDefaultColumn();
+
+		$sql .= ' WHERE (scrum_status NOT IN (SELECT code FROM '.MAIN_DB_PREFIX.'c_scrum_columns WHERE active=1))';
+	}
+	else {
+		$sql.= ' WHERE 1 ';
+		$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$status.'")';
+
+		if($status=='ideas') $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
+		else if($status=='todo') $sql.= ' OR (scrum_status IS NULL AND  (progress = 0  OR progress IS NULL))';
+		else if($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
+		else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
+		$sql .= ')';
+	}
 	
-	if($status=='ideas') {
-		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
-	}	
-	else if($status=='todo') {
-		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
-	}
-	else if($status=='inprogress') {
-		$sql.= ' WHERE progress > 0 AND progress < 100';
-	}
-	else if($status=='finish') {
-		$sql.= ' WHERE progress=100';
-	}
+	/** ORIGINE ***/
+//	if($status=='ideas') {
+//		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
+//	}
+//	else if($status=='todo') {
+//		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
+//	}
+//	else if($status=='inprogress') {
+//		$sql.= ' WHERE progress > 0 AND progress < 100';
+//	}
+//	else if($status=='finish') {
+//		$sql.= ' WHERE progress=100';
+//	}
+	/****/
 	
 	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
 	
@@ -342,13 +370,41 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	
 	$sql.= ' ORDER BY pt.rang';
 
-	$res = $db->query($sql);	
-		
+	$res = $db->query($sql);
 		
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
+		if($status == 'unknownColumn') $obj->scrum_status = $defaultColumn;
 		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status,'story_k'=>$obj->story_k,'scrum_status'=>$obj->scrum_status));
 	}
 	
 	return $TTask;
+}
+
+function _add_new_storie($id_project, $storie_name) {
+	$storie_order = GETPOST('storie_order', 'int');
+	$storie_date_start = GETPOST('add_storie_date_start');
+	$storie_date_end = GETPOST('add_storie_date_end');
+
+	scrum_addStorie($id_project, $storie_order, $storie_name, $storie_date_start, $storie_date_end);
+}
+
+function _toggle_storie_visibility(&$db, $id_project, $storie_order) {
+	$sql = 'SELECT visible';
+	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_storie';
+	$sql .= " WHERE fk_projet=$id_project";
+	$sql .= " AND storie_order=$storie_order";
+	
+	$resql = $db->query($sql);
+	if($obj = $db->fetch_object($resql)) {
+		$new_value = (int)!$obj->visible;
+		
+		$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
+		$sql .= ' SET visible='.$new_value;
+		$sql .= " WHERE fk_projet=$id_project";
+		$sql .= " AND storie_order=$storie_order";
+		
+		$db->query($sql);
+	}
+	return $new_value;
 }
