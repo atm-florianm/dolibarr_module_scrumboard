@@ -27,7 +27,7 @@ dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 /**
  * Actions
  */
-global $db;
+global $db, $langs;
 
 $error = 0;
 $TData = getData();
@@ -35,12 +35,21 @@ $TData = getData();
 foreach($TData as $fk_project => $stories) {
 	$TStorieLabel = explode(',', $stories);
 
-	foreach($TStorieLabel as $k => $storie_label) {
+	if(empty($TStorieLabel)) {
 		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-		$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.ltrim($storie_label).'")';
+		$sql .= ' VALUES('.$fk_project.', 1, "'.$langs->trans('Tasks').'")';
 
 		$resql = $db->query($sql);
 		if(! $resql) $error++;
+	}
+	else {
+		foreach($TStorieLabel as $k => $storie_label) {
+			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
+			$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.ltrim($storie_label).'")';
+
+			$resql = $db->query($sql);
+			if(! $resql) $error++;
+		}
 	}
 }
 
@@ -61,7 +70,7 @@ function getData() {
 
 	$sql = 'SELECT fk_object, stories';
 	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_extrafields';
-	$sql .= ' WHERE stories IS NOT NULL';
+//	$sql .= ' WHERE stories IS NOT NULL';
 
 	$resql = $db->query($sql);
 
