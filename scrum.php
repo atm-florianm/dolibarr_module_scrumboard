@@ -199,6 +199,8 @@ td.projectDrag {
 		?>
 			<?php
 				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
+					$TStorieElem = scrum_getStorie($id_projet, $storie_k);
+
 					print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
 					print '<input type="hidden" name="id" value="'.$id_projet.'" />';
 					print '<input type="hidden" name="action" value="save" />';
@@ -207,15 +209,15 @@ td.projectDrag {
 					print '<tr>';
 					
 					print '<td>';
-					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.scrum_getStorie($id_projet, $storie_k).'"/>';
+					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.$TStorieElem['label'].'"/>';
 					print '</td>';
 					
 					print '<td>';
 					print $langs->trans('From').' : ';
-					print $form->select_date($storie_date_start, 'storie_date_start');
+					print $form->select_date($TStorieElem['date_start'], 'storie_date_start');
 					print '&nbsp;';
 					print $langs->trans('to').' : ';
-					print $form->select_date($storie_date_end, 'storie_date_end');
+					print $form->select_date($TStorieElem['date_end'], 'storie_date_end');
 					print '</td>';
 					
 					print '<td colspan="'.($nbColumns-3).'"></td>';
