@@ -221,7 +221,7 @@ td.projectDrag {
 					print '<td colspan="'.($nbColumns-3).'"></td>';
 					
 					print '<td align="right">';
-					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" />';
+					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" class="button" />';
 					print '</td>';
 					
 					print '</tr>';
@@ -418,10 +418,10 @@ td.projectDrag {
 			<?php
 
 			print '<span>'.$langs->trans('From').' : </span>';
-			print $form->select_date('', 'add_storie_date_start');
+			print $form->select_date(-1, 'add_storie_date_start');
 			
 			print '<span>'.$langs->trans('to').' : </span>';
-			print $form->select_date('', 'add_storie_date_end');
+			print $form->select_date(-1, 'add_storie_date_end');
 
 			?>
 
