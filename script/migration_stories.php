@@ -27,7 +27,7 @@ dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 /**
  * Actions
  */
-global $db, $langs;
+global $db;
 
 $error = 0;
 $TData = getData();
@@ -37,7 +37,7 @@ foreach($TData as $fk_project => $stories) {
 
 	if(empty($TStorieLabel)) {
 		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-		$sql .= ' VALUES('.$fk_project.', 1, "'.$langs->trans('Tasks').'")';
+		$sql .= ' VALUES('.$fk_project.', 1, "Sprint 1")';
 
 		$resql = $db->query($sql);
 		if(! $resql) $error++;
