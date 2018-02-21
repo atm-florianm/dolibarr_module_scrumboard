@@ -99,7 +99,7 @@ function scrum_getAllStories($fk_project) {
 function scrum_getStorie($fk_project, $storie_k) {
 	global $db;
 
-	$sql = 'SELECT label';
+	$sql = 'SELECT label, date_start, date_end';
 	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_storie';
 	$sql .= " WHERE fk_projet=$fk_project";
 	$sql .= " AND storie_order=$storie_k";
@@ -107,18 +107,30 @@ function scrum_getStorie($fk_project, $storie_k) {
 	$resql = $db->query($sql);
 
 	if($obj = $db->fetch_object($resql)) {
-		return $obj->label;
+		if(empty($obj->date_start)) $date_start = -1;
+		else $date_start = $obj->date_start;
+
+		if(empty($obj->date_end)) $date_end = -1;
+		else $date_end = $obj->date_end;
+
+		return array('label' => $obj->label, 'date_start' => $date_start, 'date_end' => $date_end);
 	}
-	return '';
+	return array();
 }
 
 function scrum_updateStorie($fk_project, $storie_k, $storie_label, $date_start, $date_end) {
 	global $db;
 	
+	if(empty($date_start)) $storie_date_start = 'NULL';
+	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'"';
+
+	if(empty($date_end)) $storie_date_end = 'NULL';
+	else $storie_date_end = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_end))).'"';
+
 	$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
 	$sql .= " SET label='$storie_label',";
-	$sql .= ' date_start="'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'",';
-	$sql .= ' date_end="'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_end))).'"';
+	$sql .= ' date_start='.$storie_date_start.',';
+	$sql .= ' date_end='.$storie_date_end.',';
 	$sql .= " WHERE fk_projet=$fk_project";
 	$sql .= " AND storie_order=$storie_k";
 
@@ -136,14 +148,14 @@ function scrum_deleteStorie($fk_project, $storie_k) {
 	$db->query($sql);
 }
 
-function scrum_addStorie($fk_project, $storie_order, $storie_name, $storie_date_start = '', $storie_date_end = '') {
+function scrum_addStorie($fk_project, $storie_order, $storie_name, $date_start = '', $date_end = '') {
 	global $db;
 
-	if(empty($storie_date_start)) $storie_date_start = 'NULL';
-	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_start))).'"';
+	if(empty($date_start)) $storie_date_start = 'NULL';
+	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'"';
 
-	if(empty($storie_date_end)) $storie_date_end = 'NULL';
-	else $storie_date_end = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $storie_date_end))).'"';
+	if(empty($date_end)) $storie_date_end = 'NULL';
+	else $storie_date_end = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_end))).'"';
 
 	$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label, date_start, date_end)';
 	$sql .= " VALUES($fk_project, $storie_order, '$storie_name', $storie_date_start, $storie_date_end)";
