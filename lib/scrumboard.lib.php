@@ -130,7 +130,7 @@ function scrum_updateStorie($fk_project, $storie_k, $storie_label, $date_start, 
 	$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
 	$sql .= " SET label='$storie_label',";
 	$sql .= ' date_start='.$storie_date_start.',';
-	$sql .= ' date_end='.$storie_date_end.',';
+	$sql .= ' date_end='.$storie_date_end;
 	$sql .= " WHERE fk_projet=$fk_project";
 	$sql .= " AND storie_order=$storie_k";
 
