@@ -250,7 +250,6 @@ td.projectDrag {
 
 					print '&nbsp;';
 
-					if($storie_k != 1) {
 						print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
 						if(scrum_isStorieVisible($id_projet, $storie_k)) {
 							print img_picto($langs->trans('Hide'), DOL_URL_ROOT.'/theme/md/img/switch_off_old.png', '', true);
@@ -259,6 +258,7 @@ td.projectDrag {
 							print img_picto($langs->trans('Show'), DOL_URL_ROOT.'/theme/md/img/switch_on_old.png', '', true);
 						}
 						print '</a>';
+					if($storie_k != 1) {
 						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
 					}
 					print '</td>';
