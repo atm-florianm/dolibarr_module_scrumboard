@@ -1,0 +1,32 @@
+Module104210Name = Scrum Board
+Module104210Desc = Aggiunge una tab ai progetti per la gestione dei task tramite una tabella SCRUM
+Ideas = Idee
+inProgress = In progresso
+toDo = Da fare
+finish = Terminati
+TimeAdded=Tempo aggiunto
+CurrentVelocity=Velocità corrente
+HoursPerDay=H / giorno (serve come base per calcolare le date di fine)
+EndedThe=completati probabilmente il
+TaskWontfinishInTime=Questo task non è stato consegnato nella data stabilita
+TaskMightNotfinishInTime=Questo task potrebbe non essere consegnato nei tempi previsti
+TaskDateShouldDelivery=Data di consegna possibile se inizia il giorno programmato
+BarProgressionHelp=2 barre di progessione appaiono per ogni task. La barra bianca identifica la percentuale di progresso del task. La seconda identifica il tempo lavorato da ogni utente. 
+ResetDateWithThisVelocity=Reimposta la data finale dell'attività con questa velocità
+ResetDate=Reimpostare le date?
+ResetDateTask=Reimposta date task
+
+ProjectStories=Elenco pianificazioni (separati da virgola)
+
+EnableFilterOnGlobalView=Abilita il filtro per utente sulla vista globale
+
+NumberOfWorkingHourInDay=Numero di ore lavorate al giorno
+AllowCompleteModeBacklog=Aggiungere 2 ulteriori colonne alla vista della tabella (backlog e revisione)
+showLinkedContactToTask=Visualizza le risorse associate alle attività
+showDescriptionInTask=Visualizza la descrizione sotto il titolo 
+showDateInDescription=Visualizza le date nella descrizione
+
+SB_realtimealt=Tempo consumato
+SB_allowedtimealt=Tempo previsto
+ScrumBoard=Scrum Board
+Review=In Revisione
