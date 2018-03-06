@@ -22,7 +22,7 @@ class ScrumboardColumn extends TObjetStd
 		$this->add_champs('code', array('type' => 'string', 'length' => 50, 'index' => true));
 		$this->add_champs('label', array('type' => 'string', 'length' => 100));
 		$this->add_champs('rang,active', array('type' => 'integer'));
-		$this->add_champs('entity', array('type' => 'integer', 'index' => true));
+		$this->add_champs('entity', array('type' => 'integer', 'index' => true, 'default' => 1));
 		
 		$this->_init_vars();
 		$this->start();

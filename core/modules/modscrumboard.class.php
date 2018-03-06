@@ -187,13 +187,13 @@ class modscrumboard extends DolibarrModules
 					'rang ASC'
 			),
 			'tabfield' => array(
-					'label,rang,entity'
+					'label,code,rang'
 			),
 			'tabfieldvalue' => array(
-					'label,rang,entity'
+					'label,code,rang'
 			),
 			'tabfieldinsert' => array(
-					'label,rang,entity'
+					'label,code,rang'
 			),
 			'tabrowid' => array(
 					'rowid'
@@ -495,6 +495,8 @@ class modscrumboard extends DolibarrModules
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status varchar(255) NOT NULL DEFAULT \'\'');
 		
+		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'c_scrum_columns ADD CONSTRAINT unique_code UNIQUE(code)');
+
         return $this->_init($sql, $options);
     }
 
