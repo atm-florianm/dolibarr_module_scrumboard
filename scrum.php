@@ -53,7 +53,12 @@
 		scrum_deleteStorie($id_projet, $storie_k_toEdit);
 	}
 	else if($action == 'save') {
-		scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'), $storie_date_start, $storie_date_end);
+		if($storie_date_start > $storie_date_end) {
+			setEventMessage('DateStartAfterDateEnd', 'errors');
+		}
+		else {
+			scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'), $storie_date_start, $storie_date_end);
+		}
 	}
 
 	$object = new Project($db);

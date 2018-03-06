@@ -386,6 +386,11 @@ function _add_new_storie($id_project, $storie_name) {
 	$storie_date_start = GETPOST('add_storie_date_start');
 	$storie_date_end = GETPOST('add_storie_date_end');
 
+	if($storie_date_start > $storie_date_end) {
+		setEventMessage('DateStartAfterDateEnd', 'errors');
+		return;
+	}
+
 	scrum_addStorie($id_project, $storie_order, $storie_name, $storie_date_start, $storie_date_end);
 }
 

@@ -78,6 +78,8 @@ function scrum_getVelocity(&$db, $id_project) {
 	return $velocity;	
 }
 
+// TODO: Refactorer avec une classe
+
 function scrum_getAllStories($fk_project) {
 	global $db;
 
@@ -120,8 +122,6 @@ function scrum_getStorie($fk_project, $storie_k) {
 
 function scrum_updateStorie($fk_project, $storie_k, $storie_label, $date_start, &$date_end) {
 	global $db;
-	
-	if($date_start > $date_end) $date_end = $date_start;
 
 	if(empty($date_start)) $storie_date_start = 'NULL';
 	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'"';
@@ -153,8 +153,6 @@ function scrum_deleteStorie($fk_project, $storie_k) {
 function scrum_addStorie($fk_project, $storie_order, $storie_name, $date_start = '', &$date_end = '') {
 	global $db;
 
-	if($date_start > $date_end) $date_end = $date_start;
-
 	if(empty($date_start)) $storie_date_start = 'NULL';
 	else $storie_date_start = '"'.date('Y-m-d', strtotime(preg_replace('/\//', '-', $date_start))).'"';
 
@@ -182,3 +180,5 @@ function scrum_isStorieVisible($fk_project, $storie_k) {
 	}
 	return false;
 }
+
+// Fin TODO !
