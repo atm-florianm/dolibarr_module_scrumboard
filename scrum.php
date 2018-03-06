@@ -231,7 +231,7 @@ td.projectDrag {
 				}
 				else {
 			?>
-		<tr>
+		<tr class="ligne_titre" story-k="<?php echo $storie_k; ?>">
 			<td class="liste_titre">
 				<?php print $obj->label; ?>
 			</td>
@@ -250,7 +250,7 @@ td.projectDrag {
 
 					print '&nbsp;';
 
-						print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+						print '<a class="visibility" href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
 						if(scrum_isStorieVisible($id_projet, $storie_k)) {
 							print img_picto($langs->trans('Hide'), DOL_URL_ROOT.'/theme/md/img/switch_off_old.png', '', true);
 						}
@@ -265,7 +265,7 @@ td.projectDrag {
 				}
 			?>
 		</tr>
-		<tr story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! scrum_isStorieVisible($id_projet, $storie_k)) echo 'display: none;';?>">
+		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! scrum_isStorieVisible($id_projet, $storie_k)) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
 				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';
