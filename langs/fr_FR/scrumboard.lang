@@ -38,4 +38,4 @@ AddStorieTask=Créer sprint
 ConfirmDeleteStorie=Supprimer sprint
 DeleteStorie=Êtes-vous sûr de vouloir effacer ce sprint ?
 EmptyDate=Veuillez renseigner les dates du sprint !
-DateStartAfterDateEnd=La date de début est plus récente que la date de fin
+DateStartAfterDateEnd=La date de début est positionnée après la date de fin !

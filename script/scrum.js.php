@@ -604,7 +604,7 @@ function toggle_storie_visibility(id_project, storie_order) {
 		}
 		,dataType: 'json'
 		,type: 'POST'
-		,async: false
+		,async: true
 	}).done(function(data) {
 		
 	});
@@ -615,16 +615,17 @@ function toggle_visibility(id_project, storie_order) {
 	
 	// On récupère le tr à cacher/afficher
 	let tr = $('tr.hiddable[story-k='+storie_order+']');
+	var icon = $('i[data-story-k='+storie_order+']');
 
 	// S'il n'est pas encore caché
 	if(tr.attr('style').indexOf('display') < 0) {
 		tr.hide(200);
 		// On change l'image du bouton
-		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility i').removeClass().addClass('fa fa-eye fa-lg').attr('title', '<?php print $langs->trans('Show'); ?>');
+		icon.removeClass().addClass('fa fa-eye fa-lg').attr('title', '<?php print $langs->trans('Show'); ?>');
 	}
 	else {
 		tr.show(200);
 		// On change l'image du bouton
-		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility i').removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
+		icon.removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
 	}
 }

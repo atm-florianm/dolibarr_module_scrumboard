@@ -35,13 +35,11 @@ $error = 0;
 $TData = getData();
 
 foreach($TData as $fk_project => $stories) {
-	$TStorieLabel = explode(',', $stories);
-
-	if(empty($TStorieLabel)) {
+	if(empty($stories)) {
 		$db->begin();
 		// Dans le cas où le projet n'utilisait pas l'extrafields "stories", on insère pour ce projet un sprint par défaut
 		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-		$sql .= ' VALUES('.$fk_project.', 1, "Sprint 1")';
+		$sql .= " VALUES(".$fk_project.", 1, 'Sprint 1')";
 
 		$resql = $db->query($sql);
 		if($resql) $db->commit();
@@ -51,11 +49,12 @@ foreach($TData as $fk_project => $stories) {
 		}
 	}
 	else {
+		$TStorieLabel = explode(',', $stories);
 		$db->begin();
 		// Sinon, on lui réaffecte ceux qu'il utilisait
 		foreach($TStorieLabel as $k => $storie_label) {
 			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-			$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.ltrim($storie_label).'")';
+			$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.trim($storie_label).'")';
 
 			$resql = $db->query($sql);
 			if(! $resql) $error++;

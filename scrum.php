@@ -41,7 +41,9 @@
 	$storie_date_end = GETPOST('storie_date_end');
 //	var_dump($storie_date_start, $storie_date_end);
 	$confirm = GETPOST('confirm');
-	
+
+	$story = new TStory;
+	$PDOdb = new TPDOdb;
 	// Init new session var if not exist
 	if(empty($_SESSION['scrumboard']['showdesc'])) {
 		$_SESSION['scrumboard']['showdesc'] = array();
@@ -56,14 +58,21 @@
 		echo $form->formconfirm($_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k_toEdit, $langs->trans('ConfirmDeleteStorie'), $langs->trans('DeleteStorie'), 'delete_storie', '', 0, 1);
 	}
 	else if($action == "delete_storie" && $confirm == 'yes') {
-		scrum_deleteStorie($id_projet, $storie_k_toEdit);
+		$story->loadStory($id_projet, $storie_k_toEdit);
+
+		$story->delete($PDOdb);
 	}
 	else if($action == 'save') {
 		if($storie_date_start > $storie_date_end) {
 			setEventMessage('DateStartAfterDateEnd', 'errors');
 		}
 		else {
-			scrum_updateStorie($id_projet, $storie_k_toEdit, GETPOST('storieName'), $storie_date_start, $storie_date_end);
+			$story->load($PDOdb, GETPOST('id_story'));
+			$story->label = GETPOST('storieName');
+			$story->date_start = strtotime(str_replace('/', '-', $storie_date_start));
+			$story->date_end = strtotime(str_replace('/', '-', $storie_date_end));
+
+			$story->save($PDOdb);
 		}
 	}
 
@@ -162,9 +171,8 @@
 	else{
 		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
 	}
-		
-//	$TStorie = !empty($object->array_options['options_stories']) ? explode(',', $object->array_options['options_stories']) : array(0=>$langs->trans('Tasks'));
-	$TStorie = scrum_getAllStories($id_projet);
+
+	$TStorie = $story->getAllStoriesFromProject($id_projet);
 	
 	$scrumboardColumn = new ScrumboardColumn;
 	$TColumn = $scrumboardColumn->getTColumnOrder();
@@ -203,32 +211,34 @@ td.projectDrag {
 		<?php 
 		$default_k = 1;
 		$storie_k = 0;
-		foreach($TStorie as $k=>$obj) {
-			$storie_k = $k;
-
+		foreach($TStorie as &$obj) {
+			$storie_k = $obj->storie_order;
+//			var_dump($obj->visible, $obj->isVisible());
 
 		?>
 			<?php
 				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
-					$TStorieElem = scrum_getStorie($id_projet, $storie_k);
+					$storyToEdit = new TStory;
+					$storyToEdit->loadStory($id_projet, $storie_k);
 
 					print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
 					print '<input type="hidden" name="id" value="'.$id_projet.'" />';
 					print '<input type="hidden" name="action" value="save" />';
 					print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
+					print '<input type="hidden" name="id_story" value="'.$storyToEdit->id.'" />';
 					
 					print '<tr>';
 					
 					print '<td>';
-					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.$TStorieElem['label'].'"/>';
+					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.$storyToEdit->label.'"/>';
 					print '</td>';
 					
 					print '<td>';
 					print $langs->trans('From').' : ';
-					print $form->select_date($TStorieElem['date_start'], 'storie_date_start');
+					print $form->select_date((empty($storyToEdit->date_start) ? -1 : $storyToEdit->date_start), 'storie_date_start');
 					print '&nbsp;';
 					print $langs->trans('to').' : ';
-					print $form->select_date($TStorieElem['date_end'], 'storie_date_end');
+					print $form->select_date((empty($storyToEdit->date_end) ? -1 : $storyToEdit->date_end), 'storie_date_end');
 					print '</td>';
 					
 					print '<td colspan="'.($nbColumns-3).'"></td>';
@@ -242,15 +252,15 @@ td.projectDrag {
 				}
 				else {
 			?>
-		<tr class="ligne_titre" story-k="<?php echo $storie_k; ?>">
+		<tr>
 			<td class="liste_titre">
 				<?php print $obj->label; ?>
 			</td>
 			<td class="liste_titre">
 				<?php
 				if(! empty($obj->date_start)) {
-					print $langs->trans('From').' : '.date('d/m/Y', strtotime($obj->date_start));
-					print '&nbsp;'.$langs->trans('to').' : '.date('d/m/Y', strtotime($obj->date_end));
+					print $langs->trans('From').' : '.date('d/m/Y', $obj->date_start);
+					print '&nbsp;'.$langs->trans('to').' : '.date('d/m/Y', $obj->date_end);
 				}
 				?>
 			</td>
@@ -260,28 +270,28 @@ td.projectDrag {
 					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
 
 					print '&nbsp;';
-
-						print '<a class="visibility" href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
-
-						if(scrum_isStorieVisible($id_projet, $storie_k)) {
-							$iconClass = 'fa fa-eye-slash fa-lg';
-							$iconTitle = $langs->trans('Hide');
-						}
-						else {
-							$iconClass = 'fa fa-eye fa-lg';
-							$iconTitle = $langs->trans('Show');
-						}
-						print '<i class="'.$iconClass.'" title="'.$iconTitle.'"></i>';
-
-						print '</a>';
 					if($storie_k != 1) {
 						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
 					}
+
+					print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+
+					if($obj->visible) {
+						$iconClass = 'fa fa-eye-slash fa-lg';
+						$iconTitle = $langs->trans('Hide');
+					}
+					else {
+						$iconClass = 'fa fa-eye fa-lg';
+						$iconTitle = $langs->trans('Show');
+					}
+					print '<i class="'.$iconClass.'" title="'.$iconTitle.'" data-story-k="'.$storie_k.'"></i>';
+
+					print '</a>';
 					print '</td>';
 				}
 			?>
 		</tr>
-		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! scrum_isStorieVisible($id_projet, $storie_k)) echo 'display: none;';?>">
+		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
 				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';

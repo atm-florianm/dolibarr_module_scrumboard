@@ -2,6 +2,7 @@
 
 require ('../config.php');
 dol_include_once('scrumboard/lib/scrumboard.lib.php');
+dol_include_once('scrumboard/class/scrumboard.class.php');
 
 $get = GETPOST('get','alpha');
 $put = GETPOST('put','alpha');
@@ -53,7 +54,7 @@ function _put(&$db, $case) {
 			_add_new_storie((int)GETPOST('id_project'), GETPOST('storie_name'));
 			break;
 		case 'toggle_storie_visibility':
-			_toggle_storie_visibility($db, (int)GETPOST('id_project'), (int)GETPOST('storie_order'));
+			_toggle_storie_visibility((int)GETPOST('id_project'), (int)GETPOST('storie_order'));
 			break;
 
 	}
@@ -382,6 +383,9 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 }
 
 function _add_new_storie($id_project, $storie_name) {
+	$story = new TStory;
+	$PDOdb = new TPDOdb;
+
 	$storie_order = GETPOST('storie_order', 'int');
 	$storie_date_start = GETPOST('add_storie_date_start');
 	$storie_date_end = GETPOST('add_storie_date_end');
@@ -391,25 +395,21 @@ function _add_new_storie($id_project, $storie_name) {
 		return;
 	}
 
-	scrum_addStorie($id_project, $storie_order, $storie_name, $storie_date_start, $storie_date_end);
+	$story->label = $storie_name;
+	$story->fk_projet = $id_project;
+	$story->storie_order = $storie_order;
+	// TODO: dol_mktime !!
+	if(! empty($storie_date_start)) $story->date_start = strtotime(str_replace('/', '-', $storie_date_start));
+	if(! empty($storie_date_end)) $story->date_end = strtotime(str_replace('/', '-', $storie_date_end));
+
+	$story->save($PDOdb);
 }
 
-function _toggle_storie_visibility(&$db, $id_project, $storie_order) {
-	$sql = 'SELECT visible';
-	$sql .= ' FROM '.MAIN_DB_PREFIX.'projet_storie';
-	$sql .= " WHERE fk_projet=$id_project";
-	$sql .= " AND storie_order=$storie_order";
-	
-	$resql = $db->query($sql);
-	if($obj = $db->fetch_object($resql)) {
-		$new_value = (int)!$obj->visible;
-		
-		$sql = 'UPDATE '.MAIN_DB_PREFIX.'projet_storie';
-		$sql .= ' SET visible='.$new_value;
-		$sql .= " WHERE fk_projet=$id_project";
-		$sql .= " AND storie_order=$storie_order";
-		
-		$db->query($sql);
-	}
-	return $new_value;
+function _toggle_storie_visibility($id_project, $storie_order) {
+	$story = new TStory;
+	$story->loadStory($id_project, $storie_order);
+
+	$story->toggleVisibility();
+
+	return $this->visible;
 }
