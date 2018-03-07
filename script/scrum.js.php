@@ -620,11 +620,11 @@ function toggle_visibility(id_project, storie_order) {
 	if(tr.attr('style').indexOf('display') < 0) {
 		tr.hide(200);
 		// On change l'image du bouton
-		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility img').attr('src', '<?php print DOL_URL_ROOT.'/theme/md/img/switch_on_old.png'; ?>');
+		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility i').removeClass().addClass('fa fa-eye fa-lg').attr('title', '<?php print $langs->trans('Show'); ?>');
 	}
 	else {
 		tr.show(200);
 		// On change l'image du bouton
-		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility img').attr('src', '<?php print DOL_URL_ROOT.'/theme/md/img/switch_off_old.png'; ?>');
+		$('tr.ligne_titre[story-k='+storie_order+'] a.visibility i').removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
 	}
 }

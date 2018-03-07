@@ -26,7 +26,13 @@
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
 	
-	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'));
+	$TArrayOfCss = array();
+
+	if((float) DOL_VERSION == 6.0) {
+		$TArrayOfCss[] = '/theme/common/fontawesome/css/font-awesome.css';
+	}
+
+	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss);
 	
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
@@ -256,12 +262,17 @@ td.projectDrag {
 					print '&nbsp;';
 
 						print '<a class="visibility" href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+
 						if(scrum_isStorieVisible($id_projet, $storie_k)) {
-							print img_picto($langs->trans('Hide'), DOL_URL_ROOT.'/theme/md/img/switch_off_old.png', '', true);
+							$iconClass = 'fa fa-eye-slash fa-lg';
+							$iconTitle = $langs->trans('Hide');
 						}
 						else {
-							print img_picto($langs->trans('Show'), DOL_URL_ROOT.'/theme/md/img/switch_on_old.png', '', true);
+							$iconClass = 'fa fa-eye fa-lg';
+							$iconTitle = $langs->trans('Show');
 						}
+						print '<i class="'.$iconClass.'" title="'.$iconTitle.'"></i>';
+
 						print '</a>';
 					if($storie_k != 1) {
 						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
