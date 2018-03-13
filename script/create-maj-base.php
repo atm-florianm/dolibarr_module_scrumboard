@@ -14,4 +14,7 @@ $PDOdb=new TPDOdb;
 $o=new ScrumboardColumn;
 $o->init_db_by_vars($PDOdb);
 
+$o=new TStory;
+$o->init_db_by_vars($PDOdb);
+
 dol_include_once('/scrumboard/script/migration_stories.php');

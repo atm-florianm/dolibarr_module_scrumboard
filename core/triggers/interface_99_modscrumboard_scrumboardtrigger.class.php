@@ -488,9 +488,15 @@ class Interfacescrumboardtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			dol_include_once('scrumboard/lib/scrumboard.lib.php');
+			dol_include_once('scrumboard/class/scrumboard.class.php');
+			$PDOdb = new TPDOdb;
+
 			// Création d'un sprint par défaut
-			scrum_addStorie($object->id, 1, 'Sprint 1');
+			$story = new TStory;
+			$story->fk_projet = $object->id;
+			$story->storie_order = 1;
+			$story->label = 'Sprint 1';
+			$story->save($PDOdb);
 			
         } elseif ($action == 'PROJECT_MODIFY') {
             dol_syslog(
@@ -500,12 +506,14 @@ class Interfacescrumboardtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			dol_include_once('scrumboard/lib/scrumboard.lib.php');
+			dol_include_once('scrumboard/class/scrumboard.class.php');
 
-			$TStorieToDelete = scrum_getAllStories($object->id);
+			$PDOdb = new TPDOdb;
+			$story = new TStory;
 
-			foreach($TStorieToDelete as &$storie) {
-				scrum_deleteStorie($object->id, $storie->storie_order);
+			$TStorieToDelete = $story->getAllStoriesFromProject($object->id);
+			foreach($TStorieToDelete as &$storyToDelete) {
+				$storyToDelete->delete($PDOdb);
 			}
         }
 

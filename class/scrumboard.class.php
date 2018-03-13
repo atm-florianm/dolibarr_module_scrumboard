@@ -22,7 +22,7 @@ class ScrumboardColumn extends TObjetStd
 		$this->add_champs('code', array('type' => 'string', 'length' => 50, 'index' => true));
 		$this->add_champs('label', array('type' => 'string', 'length' => 100));
 		$this->add_champs('rang,active', array('type' => 'integer'));
-		$this->add_champs('entity', array('type' => 'integer', 'index' => true));
+		$this->add_champs('entity', array('type' => 'integer', 'index' => true, 'default' => 1));
 		
 		$this->_init_vars();
 		$this->start();
@@ -95,5 +95,56 @@ class ScrumboardColumn extends TObjetStd
 		{
 			return 'todo';
 		}
+	}
+}
+
+class TStory extends TObjetStd {
+	public static $tablename = 'projet_storie';
+
+	public function __construct() {
+		$this->set_table(MAIN_DB_PREFIX.self::$tablename);
+
+		$this->add_champs('fk_projet', array('type' => 'integer', 'index' => true));
+		$this->add_champs('storie_order', array('type' => 'integer'));
+		$this->add_champs('label', array('type' => 'string', 'length' => 100));
+		$this->add_champs('visible', array('type' => 'integer'));
+		$this->add_champs('date_start,date_end', array('type' => 'date'));
+
+		$this->_init_vars();
+		$this->start();
+
+		$this->visible = 1;
+		$this->date_start = $this->date_end = null;
+	}
+	
+	function loadStory($fk_project, $storie_order) {
+		if(empty($fk_project) || empty($storie_order)) return null;
+
+		$PDOdb = new TPDOdb;
+
+		$sql = 'SELECT rowid';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.self::$tablename;
+		$sql .= " WHERE fk_projet=$fk_project";
+		$sql .= " AND storie_order=$storie_order";
+
+		$resql = $PDOdb->Execute($sql);
+
+		if($obj = $PDOdb->Get_line()) {
+			return parent::load($PDOdb, $obj->rowid);
+		}
+	}
+	
+	function getAllStoriesFromProject($fk_project) {
+		$PDOdb = new TPDOdb;
+
+		$TConditions = array('fk_projet' => $fk_project);
+		return parent::LoadAllBy($PDOdb, $TConditions);
+	}
+	
+	function toggleVisibility() {
+		$PDOdb = new TPDOdb;
+
+		$this->visible = ! $this->visible;
+		parent::save($PDOdb);
 	}
 }
