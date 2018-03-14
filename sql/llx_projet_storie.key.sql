@@ -13,4 +13,4 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ALTER TABLE llx_projet_storie ADD INDEX idx_storie_projet (fk_projet);
+-- ALTER TABLE llx_projet_storie ADD INDEX idx_storie_projet (fk_projet);

@@ -25,23 +25,27 @@
 set_time_limit(0);
 
 dol_include_once('/scrumboard/lib/scrumboard.lib.php');
+dol_include_once('/scrumboard/class/scrumboard.class.php');
 
 /**
  * Actions
  */
-global $db;
+global $db, $conf;
 
+$PDOdb = new TPDOdb;
 $error = 0;
 $TData = getData();
-
 foreach($TData as $fk_project => $stories) {
 	if(empty($stories)) {
 		$db->begin();
-		// Dans le cas où le projet n'utilisait pas l'extrafields "stories", on insère pour ce projet un sprint par défaut
-		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-		$sql .= " VALUES(".$fk_project.", 1, 'Sprint 1')";
 
-		$resql = $db->query($sql);
+		$story = new TStory;
+
+		$story->fk_projet = $fk_project;
+		$story->storie_order = 1;
+		$story->label = 'Sprint 1';
+		$resql = $story->save($PDOdb);
+
 		if($resql) $db->commit();
 		else {
 			$db->rollback();
@@ -53,10 +57,13 @@ foreach($TData as $fk_project => $stories) {
 		$db->begin();
 		// Sinon, on lui réaffecte ceux qu'il utilisait
 		foreach($TStorieLabel as $k => $storie_label) {
-			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'projet_storie(fk_projet, storie_order, label)';
-			$sql .= ' VALUES('.$fk_project.', '.($k+1).', "'.trim($storie_label).'")';
+			$story = new TStory;
 
-			$resql = $db->query($sql);
+			$story->fk_projet = $fk_project;
+			$story->storie_order = $k+1;
+			$story->label = trim($storie_label);
+			$resql = $story->save($PDOdb);
+
 			if(! $resql) $error++;
 		}
 
