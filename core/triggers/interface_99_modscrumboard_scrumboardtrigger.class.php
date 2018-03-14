@@ -515,6 +515,9 @@ class Interfacescrumboardtrigger
 			foreach($TStorieToDelete as &$storyToDelete) {
 				$storyToDelete->delete($PDOdb);
 			}
+
+			// Supprime les liens
+			$object->deleteObjectLinked();
         }
 
         // Project tasks
@@ -530,6 +533,9 @@ class Interfacescrumboardtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			
+			// Supprime les liens
+			$object->deleteObjectLinked();
         }
 
         // Task time spent
