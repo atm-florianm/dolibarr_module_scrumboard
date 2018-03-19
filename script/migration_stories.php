@@ -37,7 +37,7 @@ $error = 0;
 $TData = getData();
 foreach($TData as $fk_project => $stories) {
 	if(empty($stories)) {
-		$db->begin();
+		$PDOdb->beginTransaction();
 
 		$story = new TStory;
 
@@ -46,15 +46,15 @@ foreach($TData as $fk_project => $stories) {
 		$story->label = 'Sprint 1';
 		$resql = $story->save($PDOdb);
 
-		if($resql) $db->commit();
+		if($resql) $PDOdb->commit();
 		else {
-			$db->rollback();
+			$PDOdb->rollBack();
 			$error++;
 		}
 	}
 	else {
 		$TStorieLabel = explode(',', $stories);
-		$db->begin();
+		$PDOdb->beginTransaction();
 		// Sinon, on lui réaffecte ceux qu'il utilisait
 		foreach($TStorieLabel as $k => $storie_label) {
 			$story = new TStory;
@@ -67,8 +67,8 @@ foreach($TData as $fk_project => $stories) {
 			if(! $resql) $error++;
 		}
 
-		if(empty($error)) $db->commit();
-		else $db->rollback();
+		if(empty($error)) $PDOdb->commit();
+		else $PDOdb->rollBack();
 	}
 }
 
