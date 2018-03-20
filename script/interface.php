@@ -410,6 +410,4 @@ function _toggle_storie_visibility($id_project, $storie_order) {
 	$story->loadStory($id_project, $storie_order);
 
 	$story->toggleVisibility();
-
-	return $this->visible;
 }

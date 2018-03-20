@@ -95,48 +95,32 @@
 
 	$form = new Form($db);
 	
-	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
-	{
-		$fk_user = GETPOST('fk_user');
-		if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
-		
-		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
-		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
-		echo $form->select_dolusers($fk_user, 'fk_user',  1);
-		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
-		echo '</form><br /><br />';
-		
-	}
-	
 	if($id_projet) {
 		
 	/*
 		 *   Projet synthese pour rappel
 		 */
-		print '<table class="border" width="100%">';
 
 		$linkback = '<a href="'.DOL_URL_ROOT.'/projet/list.php">'.$langs->trans("BackToList").'</a>';
 
-		// Ref
-		print '<tr><td width="30%">'.$langs->trans('Ref').'</td><td colspan="3">';
-		// Define a complementary filter for search of next/prev ref.
-        if (! $user->rights->projet->all->lire)
+		$morehtmlref='<div class="refidno">';
+        // Title
+        $morehtmlref.=$object->title;
+        // Thirdparty
+        $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ';
+        if ($object->thirdparty->id > 0)
         {
-            $objectsListId = $object->getProjectsAuthorizedForUser($user,$mine,0);
-            $object->next_prev_filter=" rowid in (".(count($objectsListId)?join(',',array_keys($objectsListId)):'0').")";
+            $morehtmlref .= $object->thirdparty->getNomUrl(1, 'project');
         }
-		print $form->showrefnav($object, 'ref', $linkback, 1, 'ref', 'ref', '');
-		print '</td></tr>';
+        $morehtmlref.='</div>';
 
-		// Label
-		print '<tr><td>'.$langs->trans("Label").'</td><td>'.$object->title.'</td></tr>';
+		dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
-		// Customer
-		print "<tr><td>".$langs->trans("Company")."</td>";
-		print '<td colspan="3">';
-		if ($object->societe->id > 0) print $object->societe->getNomUrl(1);
-		else print '&nbsp;';
-		print '</td></tr>';
+		print '<div class="fichecenter">';
+		print '<div class="fichehalfleft">';
+		print '<div class="underbanner clearboth"></div>';
+
+		print '<table class="border" width="100%">';
 
 		// Visibility
 		print '<tr><td>'.$langs->trans("Visibility").'</td><td>';
@@ -144,28 +128,70 @@
 		else print $langs->trans('PrivateProject');
 		print '</td></tr>';
 
-		// Statut
-		print '<tr><td>'.$langs->trans("Status").'</td><td>'.$object->getLibStatut(4).'<span rel="tobelate" date_end="'.$object->date_end.'"></span></td></tr>';
-	
-		// Statut
+		// Date start - end
+		print '<tr><td>'.$langs->trans("DateStart").' - '.$langs->trans("DateEnd").'</td><td>';
+		$start = dol_print_date($object->date_start,'dayhour');
+		print ($start?$start:'?');
+		$end = dol_print_date($object->date_end,'dayhour');
+		print ' - ';
+		print ($end?$end:'?');
+		if ($object->hasDelay()) print img_warning("Late");
+		print '</td></tr>';
+		
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
-		
-		// Stories
-//		print '<tr><td>'.$langs->trans("ProjectStories").'</td><td>'.$object->array_options['options_stories'].'</td></tr>';
-		
+
 		if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
 			// Description mode if conf activ
 			print '<tr><td>'.$langs->trans("showDescriptionInTask").'</td>';
 			print '<td>';
 			if(!empty($_SESSION['scrumboard']['showdesc'][$id_projet])) {
 				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=hide_desc',1).'">'.img_picto('test','switch_on.png').'</a>';
-			}else{
+			}
+			else {
 				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=show_desc',1).'">'.img_picto('test','switch_off.png').'</a>';
 			}
 			print '</td></tr>';
 		}
-		
+
+		if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+		{
+			echo '<tr><td>';
+			echo '&nbsp;';
+			echo '</td><td>';
+			$fk_user = GETPOST('fk_user');
+			if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
+
+			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+			echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+			echo $form->select_dolusers($fk_user, 'fk_user',  1);
+			echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+			echo '</form>';
+			echo '</td></tr>';
+		}
+
+		print '</table>';
+		print '</div>';
+
+		print '<div class="fichehalfright">';
+		print '<div class="ficheaddleft">';
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="border" width="100%">';
+
+		// Description
+		print '<td class="titlefield tdtop">'.$langs->trans("Description").'</td><td>';
+		print nl2br($object->description);
+		print '</td></tr>';
+
+		// Categories
+		if($conf->categorie->enabled) {
+			print '<tr><td valign="middle">'.$langs->trans("Categories").'</td><td>';
+			print $form->showCategories($object->id,'project',1);
+			print "</td></tr>";
+		}
+
 		print "</table>";
+		print '</div>';
+		print '</div>';
 	
 	}
 	else{
