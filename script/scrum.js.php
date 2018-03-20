@@ -167,7 +167,7 @@ function project_refresh_task(id_project, task) {
 		$item.find('.task-title span').html(task.label);
 		$item.find('.task-desc span').html(task.long_description);
 	} else {
-		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});;
+		$item.find('.task-title span').html(task.label).attr("title", task.long_description).addClass("classfortooltip");
 	}
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
