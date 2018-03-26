@@ -1,6 +1,8 @@
 <?php
 
 require ('../config.php');
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/comm/propal/class/propal.class.php';
 dol_include_once('scrumboard/lib/scrumboard.lib.php');
 dol_include_once('scrumboard/class/scrumboard.class.php');
 
@@ -166,7 +168,28 @@ function _task(&$db, $id_task, $values=array()) {
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
-	
+	$task->fetchObjectLinked('', '', $task->id, $task->element);
+
+	$linkedObjectsIds = $task->linkedObjectsIds;
+	if(! empty($linkedObjectsIds)) {
+		$sourcetype = key($linkedObjectsIds);
+		$fk_line = current($task->linkedObjectsIds[$sourcetype]);
+
+		if($sourcetype == 'orderline') $line = new OrderLine($db);
+		else if($sourcetype == 'propaldet') $line = new PropaleLigne($db);
+
+		if(! empty($line) && ! empty($fk_line)) $line->fetch($fk_line);
+
+		if($sourcetype == 'orderline') {
+			$task->origin = 'order';
+			$task->origin_id = $line->fk_commande;
+		}
+		else if($sourcetype == 'propaldet') {
+			$task->origin = 'propal';
+			$task->origin_id = $line->fk_propal;
+		}
+	}
+
 	if(!empty($values)){
 		_set_values($task, $values);
 	

@@ -425,6 +425,7 @@ td.projectDrag {
 						<?php
 							}
 						?>
+						<div class="task-origin"><a title="<?php echo $langs->trans('OriginFile'); ?>"><i style="color: black;" class="fa fa-link fa-lg"></i></a></div>
 					</div>
 					<div class="clearboth"></div>
 					<div class="task-users-affected"></div>

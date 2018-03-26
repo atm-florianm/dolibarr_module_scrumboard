@@ -179,6 +179,9 @@ function project_refresh_task(id_project, task) {
 		pop_time( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
 	});
 	
+	if(task.origin == 'order') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('commande/card.php', 1); ?>?id='+task.origin_id);
+	else if(task.origin == 'propal') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('comm/propal/card.php', 1); ?>?id='+task.origin_id);
+	else $item.find('.task-origin a').remove();
 	
 	<?php if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) { ?>
 	<!--  Commentary conf -->
