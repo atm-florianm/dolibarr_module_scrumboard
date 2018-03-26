@@ -69,8 +69,8 @@
 		else {
 			$story->load($PDOdb, GETPOST('id_story'));
 			$story->label = GETPOST('storieName');
-			$story->date_start = strtotime(str_replace('/', '-', $storie_date_start));
-			$story->date_end = strtotime(str_replace('/', '-', $storie_date_end));
+			$story->date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
+			$story->date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
 
 			$story->save($PDOdb);
 		}

@@ -564,8 +564,12 @@ function add_storie(id_project) {
 
 	var storie_name = $('#newStorieName').val();
 	var storie_order = parseInt($('#add_storie_k').val());
-	var add_storie_date_start = $('#add_storie_date_start').val();
-	var add_storie_date_end = $('#add_storie_date_end').val();
+	var add_storie_date_startday = $('#add_storie_date_startday').val();
+	var add_storie_date_startmonth = $('#add_storie_date_startmonth').val();
+	var add_storie_date_startyear = $('#add_storie_date_startyear').val();
+	var add_storie_date_endday = $('#add_storie_date_endday').val();
+	var add_storie_date_endmonth = $('#add_storie_date_endmonth').val();
+	var add_storie_date_endyear = $('#add_storie_date_endyear').val();
 	
 	$.ajax({
 		url : "./script/interface.php"
@@ -575,8 +579,12 @@ function add_storie(id_project) {
 			,id_project : id_project
 			,storie_name : storie_name
 			,storie_order : storie_order
-			,add_storie_date_start: add_storie_date_start
-			,add_storie_date_end: add_storie_date_end
+			,add_storie_date_startday: add_storie_date_startday
+			,add_storie_date_startmonth: add_storie_date_startmonth
+			,add_storie_date_startyear: add_storie_date_startyear
+			,add_storie_date_endday: add_storie_date_endday
+			,add_storie_date_endmonth: add_storie_date_endmonth
+			,add_storie_date_endyear: add_storie_date_endyear
 		}
 		,dataType: 'json'
 		,type:'POST'

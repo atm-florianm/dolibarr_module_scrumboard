@@ -410,8 +410,8 @@ function _add_new_storie($id_project, $storie_name) {
 	$PDOdb = new TPDOdb;
 
 	$storie_order = GETPOST('storie_order', 'int');
-	$storie_date_start = strtotime(str_replace('/', '-', GETPOST('add_storie_date_start')));
-	$storie_date_end = strtotime(str_replace('/', '-', GETPOST('add_storie_date_end')));
+	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('add_storie_date_startmonth'), GETPOST('add_storie_date_startday'), GETPOST('add_storie_date_startyear'));
+	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('add_storie_date_endmonth'), GETPOST('add_storie_date_endday'), GETPOST('add_storie_date_endyear'));
 
 	if($storie_date_start > $storie_date_end) {
 		setEventMessage('DateStartAfterDateEnd', 'errors');
