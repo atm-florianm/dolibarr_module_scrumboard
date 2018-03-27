@@ -1,6 +1,8 @@
 <?php
 
 require ('../config.php');
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/comm/propal/class/propal.class.php';
 dol_include_once('scrumboard/lib/scrumboard.lib.php');
 dol_include_once('scrumboard/class/scrumboard.class.php');
 
@@ -166,7 +168,28 @@ function _task(&$db, $id_task, $values=array()) {
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
-	
+	$task->fetchObjectLinked('', '', $task->id, $task->element);
+
+	$linkedObjectsIds = $task->linkedObjectsIds;
+	if(! empty($linkedObjectsIds)) {
+		$sourcetype = key($linkedObjectsIds);
+		$fk_line = current($task->linkedObjectsIds[$sourcetype]);
+
+		if($sourcetype == 'orderline') $line = new OrderLine($db);
+		else if($sourcetype == 'propaldet') $line = new PropaleLigne($db);
+
+		if(! empty($line) && ! empty($fk_line)) $line->fetch($fk_line);
+
+		if($sourcetype == 'orderline') {
+			$task->origin = 'order';
+			$task->origin_id = $line->fk_commande;
+		}
+		else if($sourcetype == 'propaldet') {
+			$task->origin = 'propal';
+			$task->origin_id = $line->fk_propal;
+		}
+	}
+
 	if(!empty($values)){
 		_set_values($task, $values);
 	
@@ -387,8 +410,8 @@ function _add_new_storie($id_project, $storie_name) {
 	$PDOdb = new TPDOdb;
 
 	$storie_order = GETPOST('storie_order', 'int');
-	$storie_date_start = GETPOST('add_storie_date_start');
-	$storie_date_end = GETPOST('add_storie_date_end');
+	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('add_storie_date_startmonth'), GETPOST('add_storie_date_startday'), GETPOST('add_storie_date_startyear'));
+	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('add_storie_date_endmonth'), GETPOST('add_storie_date_endday'), GETPOST('add_storie_date_endyear'));
 
 	if($storie_date_start > $storie_date_end) {
 		setEventMessage('DateStartAfterDateEnd', 'errors');
@@ -399,8 +422,8 @@ function _add_new_storie($id_project, $storie_name) {
 	$story->fk_projet = $id_project;
 	$story->storie_order = $storie_order;
 	// TODO: dol_mktime !!
-	if(! empty($storie_date_start)) $story->date_start = strtotime(str_replace('/', '-', $storie_date_start));
-	if(! empty($storie_date_end)) $story->date_end = strtotime(str_replace('/', '-', $storie_date_end));
+	if(! empty($storie_date_start)) $story->date_start = $storie_date_start;
+	if(! empty($storie_date_end)) $story->date_end = $storie_date_end;
 
 	$story->save($PDOdb);
 }
@@ -410,6 +433,4 @@ function _toggle_storie_visibility($id_project, $storie_order) {
 	$story->loadStory($id_project, $storie_order);
 
 	$story->toggleVisibility();
-
-	return $this->visible;
 }
