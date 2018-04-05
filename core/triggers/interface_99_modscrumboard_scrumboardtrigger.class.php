@@ -128,7 +128,7 @@ class Interfacescrumboardtrigger
 
 			define('INC_FROM_DOLIBARR',true);
 			dol_include_once('/scrumboard/config.php');
-var_dump($dolibarr_main_db_host,$dolibarr_main_db_name,$dolibarr_main_db_pass,$dolibarr_main_db_user,DB_PASS,DB_HOST);exit;
+//var_dump($dolibarr_main_db_host,$dolibarr_main_db_name,$dolibarr_main_db_pass,$dolibarr_main_db_user,DB_PASS,DB_HOST);exit;
 			dol_include_once('/scrumboard/class/scrumboard.class.php');
 			$PDOdb = new TPDOdb;
 
