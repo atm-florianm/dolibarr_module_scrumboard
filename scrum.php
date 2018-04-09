@@ -37,10 +37,9 @@
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
 	$storie_k_toEdit = GETPOST('storie_k', 'int');
-	$storie_date_start = GETPOST('storie_date_start');
-	$storie_date_end = GETPOST('storie_date_end');
-//	var_dump($storie_date_start, $storie_date_end);
 	$confirm = GETPOST('confirm');
+	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
+	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
 
 	$story = new TStory;
 	$PDOdb = new TPDOdb;
@@ -69,8 +68,8 @@
 		else {
 			$story->load($PDOdb, GETPOST('id_story'));
 			$story->label = GETPOST('storieName');
-			$story->date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
-			$story->date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
+			$story->date_start = $storie_date_start;
+			$story->date_end = $storie_date_end;
 
 			$story->save($PDOdb);
 		}
