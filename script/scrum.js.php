@@ -177,7 +177,7 @@ function project_refresh_task(id_project, task) {
 				}
 		});
 	}
-	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php?withproject=1&id=',1) ?>'+task.id);
+	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?withproject=1&id='+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
 	
 	$item.find('.task-real-time span').html(task.aff_time).attr('task-id', task.id);
@@ -367,7 +367,7 @@ function create_task(id_projet) {
 	if($('#dialog-create-task').length==0) {
 		$('body').append('<div id="dialog-create-task"></div>');
 	}
-	var url ="<?php echo  dol_buildpath('/projet/tasks.php?action=create&id=',1) ?>"+id_projet
+	var url ="<?php echo  dol_buildpath('/projet/tasks.php',1) ?>?action=create&id="+id_projet
 		
 	$('#dialog-create-task').load(url+" div.fiche form",function() {
 		
@@ -396,7 +396,7 @@ function create_task(id_projet) {
 		
 function pop_time(id_project, id_task) {
 	$("#saisie")
-				.load('<?php echo dol_buildpath('/projet/tasks/time.php',2) ?>?id='+id_task+' div.fiche form'
+				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'
 				,function() {
 					$('textarea[name=timespent_note]').attr('cols',25).focus();
 					
@@ -476,7 +476,7 @@ function pop_time(id_project, id_task) {
 		
 function pop_comment(id_project, id_task) {
 	$("#saisie")
-				.load('<?php echo dol_buildpath('/projet/tasks/comment.php',2) ?>?id='+id_task+' #comment'
+				.load('<?php echo dol_buildpath('/projet/tasks/comment.php',1) ?>?id='+id_task+' #comment'
 				,function() {
 					$('textarea[name="comment_description"]').attr('cols',25).focus();
 					
