@@ -169,6 +169,7 @@ function _task(&$db, $id_task, $values=array()) {
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
 	$task->fetchObjectLinked('', '', $task->id, $task->element);
+	if(! empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && empty($task->comments)) $task->fetchComments();
 
 	$linkedObjectsIds = $task->linkedObjectsIds;
 	if(! empty($linkedObjectsIds)) {
