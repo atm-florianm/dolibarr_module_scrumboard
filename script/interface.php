@@ -169,7 +169,9 @@ function _task(&$db, $id_task, $values=array()) {
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
 	$task->fetchObjectLinked('', '', $task->id, $task->element);
-	if(! empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && empty($task->comments)) $task->fetchComments();
+
+	// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
+	if(! empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && empty($task->comments) && method_exists($task, 'fetchComments')) $task->fetchComments();
 
 	$linkedObjectsIds = $task->linkedObjectsIds;
 	if(! empty($linkedObjectsIds)) {
@@ -213,8 +215,9 @@ function _task(&$db, $id_task, $values=array()) {
 				,scrum_status='".$values['scrum_status']."'
 			WHERE rowid=".$task->id);
 	}
-	
-	if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) {
+
+	// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
+	if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && method_exists($task, 'getNbComments')) {
 		$task->nbcomment = $task->getNbComments();
 	}
 	
@@ -422,7 +425,7 @@ function _add_new_storie($id_project, $storie_name) {
 	$story->label = $storie_name;
 	$story->fk_projet = $id_project;
 	$story->storie_order = $storie_order;
-	// TODO: dol_mktime !!
+
 	if(! empty($storie_date_start)) $story->date_start = $storie_date_start;
 	if(! empty($storie_date_end)) $story->date_end = $storie_date_end;
 
