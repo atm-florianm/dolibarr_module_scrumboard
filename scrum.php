@@ -436,7 +436,8 @@ td.projectDrag {
 							</span>
 						</div>
 						<?php
-						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) {
+						// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
+						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && method_exists('Task', 'fetchComments')) {
 						?>
 						<div class="task-comment"><?php echo img_picto('', 'object_comment@scrumboard') ?><span></span></div>
 						<?php
