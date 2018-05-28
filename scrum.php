@@ -37,10 +37,9 @@
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
 	$storie_k_toEdit = GETPOST('storie_k', 'int');
-	$storie_date_start = GETPOST('storie_date_start');
-	$storie_date_end = GETPOST('storie_date_end');
-//	var_dump($storie_date_start, $storie_date_end);
 	$confirm = GETPOST('confirm');
+	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
+	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
 
 	$story = new TStory;
 	$PDOdb = new TPDOdb;
@@ -69,8 +68,8 @@
 		else {
 			$story->load($PDOdb, GETPOST('id_story'));
 			$story->label = GETPOST('storieName');
-			$story->date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
-			$story->date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
+			$story->date_start = $storie_date_start;
+			$story->date_end = $storie_date_end;
 
 			$story->save($PDOdb);
 		}
@@ -82,7 +81,7 @@
 	if (empty($object->societe) && !empty($object->thirdparty)) $object->societe = $object->thirdparty; // Rétrocompatibilité
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
-	if (!empty($id_projet)) $object->fetch_optionals($id_projet);
+	if (!empty($id_projet)) $object->fetch_optionals();
 	
 	if($id_projet>0) {
 		$head=project_prepare_head($object);
@@ -140,35 +139,6 @@
 		
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
 
-		if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
-			// Description mode if conf activ
-			print '<tr><td>'.$langs->trans("showDescriptionInTask").'</td>';
-			print '<td>';
-			if(!empty($_SESSION['scrumboard']['showdesc'][$id_projet])) {
-				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=hide_desc',1).'">'.img_picto('test','switch_on.png').'</a>';
-			}
-			else {
-				print '<a href="'.dol_buildpath('scrumboard/scrum.php?id='.$id_projet.'&action=show_desc',1).'">'.img_picto('test','switch_off.png').'</a>';
-			}
-			print '</td></tr>';
-		}
-
-		if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
-		{
-			echo '<tr><td>';
-			echo '&nbsp;';
-			echo '</td><td>';
-			$fk_user = GETPOST('fk_user');
-			if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
-
-			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
-			echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
-			echo $form->select_dolusers($fk_user, 'fk_user',  1);
-			echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
-			echo '</form>';
-			echo '</td></tr>';
-		}
-
 		print '</table>';
 		print '</div>';
 
@@ -190,6 +160,54 @@
 		}
 
 		print "</table>";
+		print '</div>';
+		print '</div>';
+
+		// ---------------------------------------------------------------------
+		// ------------------------------ FILTRES ------------------------------
+		// ---------------------------------------------------------------------
+
+		print '<div class="fichehalfleft clearboth">';
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="border" width="100%">';
+
+		if(!empty($conf->global->SCRUM_SHOW_DESCRIPTION_IN_TASK)) {
+			// Description mode if conf activ
+			print '<tr><td>'.$langs->trans("showDescriptionInTask").'</td>';
+			print '<td>';
+			if(!empty($_SESSION['scrumboard']['showdesc'][$id_projet])) {
+				print '<a href="'.dol_buildpath('scrumboard/scrum.php',1).'?id='.$id_projet.'&action=hide_desc">'.img_picto('test','switch_on.png').'</a>';
+			}
+			else {
+				print '<a href="'.dol_buildpath('scrumboard/scrum.php',1).'?id='.$id_projet.'&action=show_desc">'.img_picto('test','switch_off.png').'</a>';
+			}
+			print '</td></tr>';
+		}
+		print '</table>';
+		print '</div>';
+
+		print '<div class="fichehalfright">';
+		print '<div class="ficheaddleft">';
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="border" width="100%">';
+
+		if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+		{
+			echo '<tr><td>';
+			echo $langs->trans('UserFilter');
+			echo '</td><td>';
+			$fk_user = GETPOST('fk_user');
+			if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
+
+			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+			echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+			echo $form->select_dolusers($fk_user, 'fk_user',  1);
+			echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+			echo '</form>';
+			echo '</td></tr>';
+		}
+
+		print '</table>';
 		print '</div>';
 		print '</div>';
 	
@@ -239,7 +257,6 @@ td.projectDrag {
 		$storie_k = 0;
 		foreach($TStorie as &$obj) {
 			$storie_k = $obj->storie_order;
-//			var_dump($obj->visible, $obj->isVisible());
 
 		?>
 			<?php
@@ -419,7 +436,8 @@ td.projectDrag {
 							</span>
 						</div>
 						<?php
-						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) {
+						// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
+						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && method_exists('Task', 'fetchComments')) {
 						?>
 						<div class="task-comment"><?php echo img_picto('', 'object_comment@scrumboard') ?><span></span></div>
 						<?php
