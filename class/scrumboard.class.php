@@ -105,7 +105,7 @@ class TStory extends TObjetStd {
 		$this->set_table(MAIN_DB_PREFIX.self::$tablename);
 
 		$this->add_champs('fk_projet', array('type' => 'integer', 'index' => true));
-		$this->add_champs('storie_order', array('type' => 'integer'));
+		$this->add_champs('storie_order', array('type' => 'integer', 'index' => true));
 		$this->add_champs('label', array('type' => 'string', 'length' => 100));
 		$this->add_champs('visible', array('type' => 'integer'));
 		$this->add_champs('date_start,date_end', array('type' => 'date'));
