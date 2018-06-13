@@ -80,6 +80,14 @@ if(empty($error)) {
 	}
 }
 
+// Ajout d'un index sur le champ "storie_order"
+$sql = 'ALTER TABLE '.MAIN_DB_PREFIX.'projet_storie ADD INDEX idx_llx_lead_fk_soc (storie_order)';
+$resql = $db->query($sql);
+if (! $resql && $db->errno() != 'DB_ERROR_KEY_NAME_ALREADY_EXISTS') {
+	$errordb ++;
+	$errors[] = $db->lasterror;
+}
+
 function getData() {
 	global $db;
 
