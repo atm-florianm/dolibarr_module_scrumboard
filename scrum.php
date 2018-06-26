@@ -25,6 +25,7 @@
 	require('config.php');
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
+	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 	
 	$TArrayOfCss = array();
 
@@ -40,7 +41,7 @@
 	$confirm = GETPOST('confirm');
 	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
 	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
-
+	$id_task =  GETPOST('id_task', 'int');
 	$story = new TStory;
 	$PDOdb = new TPDOdb;
 	// Init new session var if not exist
@@ -84,6 +85,69 @@
 	if (!empty($id_projet)) $object->fetch_optionals();
 	
 	if($id_projet>0) {
+	    
+	    // Add new contact
+	    if ($action == 'addcontact' && $user->rights->projet->creer)
+	    {
+	        $contactsofproject=$object->getListContactId('internal');
+	        $idfortaskuser=GETPOST('userid','int');
+	        $typeForTask = GETPOST('typeForTask','int');
+	        $typeForProject = GETPOST('typeForProject','int');
+            $id_story = GETPOST('id_story','int');
+            $Ttask = array();
+            $id_task = GETPOST('id_task','int');
+	    
+            
+            // si le contact n'est pas dejà affecté au projet, on l'affecte au project
+            $result = false;
+            if(!empty($idfortaskuser) && !in_array($idfortaskuser, $contactsofproject)){
+                $result = $object->add_contact($idfortaskuser, $typeForProject, 'internal');
+            }
+            elseif(!empty($idfortaskuser)){
+                $result = true;
+            }
+            
+            if($result){
+                
+                if(!empty($id_story)){
+                    // récupération des taches liées à la story
+                    $Ttask = getAllTaskInStotry($object->id, $id_story);
+                }
+                else{
+                    $Ttask = array($id_task);
+                }
+                
+                
+                if(!empty($Ttask)){
+                    
+                    $taskAddCount = 0;
+                    
+                    foreach ($Ttask as $task_id)
+                    {
+                        $taskObject = new Task($db);
+                        $result = $taskObject->fetch($task_id);
+                        if($result>0){
+                            $result = $taskObject->add_contact($idfortaskuser, $typeForTask, 'internal');
+                            if($result>0){
+                                $taskAddCount++;
+                            }
+                            else{
+                                setEventMessage($taskObject->error,'errors');
+                            }
+                        }
+                        else{
+                            setEventMessage($langs->trans('TaskNotFound'),'errors');
+                        }
+                        
+                    }
+                }
+                
+            }
+            
+	    }
+	    
+	    
+	    
 		$head=project_prepare_head($object);
 	}
 	else{
@@ -93,6 +157,7 @@
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
+	$formcompany   = new FormCompany($db);
 	
 	if($id_projet) {
 		
@@ -238,6 +303,53 @@ td.projectDrag {
 </style>
 
 <div class="content">
+<?php 
+
+if($action == 'addressourcetotask' && !empty($id_task)) {
+    
+    $taskObject = new Task($db);
+    $taskObject->fetch($id_task);
+    $ajaxCall = GETPOST('ajaxcall','int');
+    
+    print '<hr style="clear:both;" />';
+    print '<div id="form-add-ressource-task-'.$id_task.'" style="clear:both; margin: 2em 0;" >';
+    print '<form  action="'.dol_buildpath('scrumboard/scrum.php',2).'" method="POST">';
+    print '<input type="hidden" name="id" value="'.$id_projet.'" />';
+    print '<input type="hidden" name="action" value="addcontact" />';
+    print '<input type="hidden" name="id_story" value="0" />';
+    print '<input type="hidden" name="id_task" value="'.$taskObject->id.'" />';
+    
+    print '<h4>'.$langs->trans('AddRessource',$taskObject->label).' :</h4>';
+    
+    print $form->select_dolusers($selected,'userid',0);
+    
+    $contactsofproject=$object->getListContactId('internal');
+    
+    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactProjectType');
+    print $formcompany->selectTypeContact($object, '', 'typeForProject','internal','rowid');
+    
+    
+    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactTaskType');
+    print $formcompany->selectTypeContact($taskObject, '', 'typeForTask','internal','rowid');
+    
+    if(!$ajaxCall) print '<br/>';
+    
+    print '<button class="butAction" type="submit" name="submit" value="1"  ><i class="fa fa-user-plus"></i> '.$langs->trans('Add').'</button>';
+    
+    
+    if(!$ajaxCall){
+        print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'">'.$langs->trans('Cancel').'</a>';
+    }
+    
+    print '</form>';
+    print '</div>';
+    print '<hr style="clear:both;" />';
+}
+
+?>
+
+
+
 
 	<table id="scrum" id_projet="<?php echo $id_projet ?>">
 		<tr>
@@ -260,7 +372,49 @@ td.projectDrag {
 
 		?>
 			<?php
-				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
+    			if($action == 'addressourcetostorie' && $storie_k == $storie_k_toEdit) {
+    			    $storyToEdit = new TStory;
+    			    $storyToEdit->loadStory($id_projet, $storie_k);
+    			    
+    			    print '<div id="form-add-ressource-story-'.$storyToEdit->id.'" >';
+    			    print '<form  action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+    			    print '<input type="hidden" name="id" value="'.$id_projet.'" />';
+    			    print '<input type="hidden" name="action" value="addcontact" />';
+    			    print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
+    			    print '<input type="hidden" name="id_story" value="'.$storyToEdit->id.'" />';
+    			    
+    			    print '<tr>';
+    			    
+    			    print '<td  colspan="'.($nbColumns).'" >';
+    			    print '<strong>'.$langs->trans('AddRessource',$storyToEdit->label).' :</strong>';
+    			   
+    			    print $form->select_dolusers($selected,'userid',0);
+    			    
+    			    
+    			    
+    			    $contactsofproject=$object->getListContactId('internal');
+    			    
+    			    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactProjectType');
+    			    print $formcompany->selectTypeContact($object, '', 'typeForProject','internal','rowid');
+    			    
+    			    
+    			    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactTaskType');
+    			    $taskObject = new Task($db);
+    			    print $formcompany->selectTypeContact($taskObject, '', 'typeForTask','internal','rowid');
+    			    
+    			    
+    			    print '<button class="butAction" type="submit" name="submit" value="1"  ><i class="fa fa-user-plus"></i> '.$langs->trans('Add').'</button>';
+    			    print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'">'.$langs->trans('Cancel').'</a>';
+    			    print '</td>';
+    			    
+    			    
+    			    print '<td></td>';
+    			    
+    			    print '</tr>';
+    			    print '</form>';
+    			    print '</div>';
+    			}
+				elseif($action == 'edit' && $storie_k == $storie_k_toEdit) {
 					$storyToEdit = new TStory;
 					$storyToEdit->loadStory($id_projet, $storie_k);
 
@@ -310,6 +464,11 @@ td.projectDrag {
 			<td colspan="<?php echo $nbColumns-3; ?>"></td>
 			<?php
 					print '<td align="right">';
+					
+					if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
+					   print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=addressourcetostorie#form-add-ressource-story-'.$storie_k.'"><i class="fa fa-user-plus"></i></a>';
+					}
+					
 					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
 
 					print '&nbsp;';
@@ -444,6 +603,12 @@ td.projectDrag {
 							}
 						?>
 						<div class="task-origin"><a title="<?php echo $langs->trans('OriginFile'); ?>"><i style="color: black;" class="fa fa-link fa-lg"></i></a></div>
+					
+    					<?php 
+    					if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
+    					   print '<div class="task-add-contact" ><a ><i style="color: black;" class="fa fa-user-plus"></i> '.$langs->trans('LinkContact').'</a></div>';
+    					}
+    					?>
 					</div>
 					<div class="clearboth"></div>
 					<div class="task-users-affected"></div>
