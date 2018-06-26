@@ -121,6 +121,7 @@
                 if(!empty($Ttask)){
                     
                     $taskAddCount = 0;
+                    $taskErrorCount = 0;
                     
                     foreach ($Ttask as $task_id)
                     {
@@ -140,6 +141,12 @@
                         }
                         
                     }
+                    
+                    if($taskAddCount>0){
+                        setEventMessage($langs->trans('UsersAddedToTask',$taskAddCount));
+                    }
+                    
+                    
                 }
                 
             }

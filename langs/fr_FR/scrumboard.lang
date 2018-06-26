@@ -45,3 +45,4 @@ AddRessource=Ajouter une ressource à %s
 ContactProjectType=Type de contact projet 
 ContactTaskType=Type de contact tâches
 LinkContact=Lier un contact
+UsersAddedToTask=%s tâche(s) modifiée(s)
