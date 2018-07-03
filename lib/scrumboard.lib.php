@@ -79,7 +79,7 @@ function scrum_getVelocity(&$db, $id_project) {
 }
 
 
-function getAllTaskInStotry($fk_project, $story) {
+function getAllTaskInStory($fk_project, $story) {
     global $db;
     
     // Sélectionne toutes les taches existantes liées à une story
@@ -95,6 +95,7 @@ function getAllTaskInStotry($fk_project, $story) {
             $TData[] = $obj->rowid;
         }
     }
+    
     
     return $TData;
 }

@@ -109,9 +109,9 @@
             
             if($result){
                 
-                if(!empty($id_story)){
-                    // récupération des taches liées à la story
-                    $Ttask = getAllTaskInStotry($object->id, $id_story);
+                if(empty($id_task)){
+                    // récupération des taches liées à la story 
+                    $Ttask = getAllTaskInStory($object->id, $id_story);
                 }
                 else{
                     $Ttask = array($id_task);
@@ -133,10 +133,12 @@
                                 $taskAddCount++;
                             }
                             else{
+                                $taskErrorCount ++;
                                 setEventMessage($taskObject->error,'errors');
                             }
                         }
                         else{
+                            $taskErrorCount++;
                             setEventMessage($langs->trans('TaskNotFound'),'errors');
                         }
                         
@@ -146,6 +148,9 @@
                         setEventMessage($langs->trans('UsersAddedToTask',$taskAddCount));
                     }
                     
+                    if($taskErrorCount>0){
+                        setEventMessage($langs->trans('UsersAddedToTaskError',$taskErrorCount),'errors');
+                    }
                     
                 }
                 
@@ -387,8 +392,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     			    print '<form  action="'.$_SERVER['PHP_SELF'].'" method="POST">';
     			    print '<input type="hidden" name="id" value="'.$id_projet.'" />';
     			    print '<input type="hidden" name="action" value="addcontact" />';
-    			    print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
-    			    print '<input type="hidden" name="id_story" value="'.$storyToEdit->id.'" />';
+    			    print '<input type="hidden" name="id_story" value="'.$storie_k.'" />';
     			    
     			    print '<tr>';
     			    

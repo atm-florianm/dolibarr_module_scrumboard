@@ -33,7 +33,7 @@ class ScrumboardColumn extends TObjetStd
 	function LoadAllBy(&$db, $TConditions = array(), $annexe = true)
 	{
 		$this->TColumn = parent::LoadAllBy($db, $TConditions, $annexe);
-		usort($this->TColumn, array(self, 'orderByRang'));
+		usort($this->TColumn, array($this, 'orderByRang'));
 		
 		return $this->TColumn;
 	}

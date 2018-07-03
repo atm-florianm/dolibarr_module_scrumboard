@@ -46,3 +46,5 @@ ContactProjectType=Type de contact projet
 ContactTaskType=Type de contact tâches
 LinkContact=Lier un contact
 UsersAddedToTask=%s tâche(s) modifiée(s)
+UsersAddedToTaskError=%s erreur(s) lors de l'affectation
+
