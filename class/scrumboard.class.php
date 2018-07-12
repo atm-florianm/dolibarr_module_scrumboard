@@ -138,9 +138,19 @@ class TStory extends TObjetStd {
 		$PDOdb = new TPDOdb;
 
 		$TConditions = array('fk_projet' => $fk_project);
-		return parent::LoadAllBy($PDOdb, $TConditions);
+		$TRes = parent::LoadAllBy($PDOdb, $TConditions);
+		usort($TRes, array($this, 'orderByStoryOrder'));
+		return $TRes;
 	}
-	
+
+	private function orderByStoryOrder($a, $b)
+	{
+		if ($a->storie_order < $b->storie_order) return -1;
+		elseif ($a->storie_order > $b->storie_order) return 1;
+
+		return 0;
+	}
+
 	function toggleVisibility() {
 		$PDOdb = new TPDOdb;
 
