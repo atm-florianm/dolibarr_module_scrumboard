@@ -111,7 +111,7 @@
                 
                 if(empty($id_task)){
                     // récupération des taches liées à la story 
-                    $Ttask = getAllTaskInStory($object->id, $id_story);
+                    $Ttask = getAllTaskInStory($object->id, $id_story - 1); // le -1 c'est moche... mais ça marche
                 }
                 else{
                     $Ttask = array($id_task);
