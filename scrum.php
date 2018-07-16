@@ -388,15 +388,18 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     			    $storyToEdit = new TStory;
     			    $storyToEdit->loadStory($id_projet, $storie_k);
     			    
+    			    
+    			    print '<tr>';
+    			    
+    			    print '<td  colspan="'.($nbColumns).'" >';
+    			    
+    			    
     			    print '<div id="form-add-ressource-story-'.$storyToEdit->id.'" >';
     			    print '<form  action="'.$_SERVER['PHP_SELF'].'" method="POST">';
     			    print '<input type="hidden" name="id" value="'.$id_projet.'" />';
     			    print '<input type="hidden" name="action" value="addcontact" />';
     			    print '<input type="hidden" name="id_story" value="'.$storie_k.'" />';
     			    
-    			    print '<tr>';
-    			    
-    			    print '<td  colspan="'.($nbColumns).'" >';
     			    print '<strong>'.$langs->trans('AddRessource',$storyToEdit->label).' :</strong>';
     			   
     			    print $form->select_dolusers($selected,'userid',0);
@@ -416,13 +419,16 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     			    
     			    print '<button class="butAction" type="submit" name="submit" value="1"  ><i class="fa fa-user-plus"></i> '.$langs->trans('Add').'</button>';
     			    print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'">'.$langs->trans('Cancel').'</a>';
+    			    
+    			    
+    			    
+    			    print '</form>';
     			    print '</td>';
     			    
     			    
     			    print '<td></td>';
     			    
     			    print '</tr>';
-    			    print '</form>';
     			    print '</div>';
     			}
 				elseif($action == 'edit' && $storie_k == $storie_k_toEdit) {
