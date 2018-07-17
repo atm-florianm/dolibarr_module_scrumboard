@@ -427,7 +427,13 @@ function pop_time(id_project, id_task) {
 				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'
 				,function() {
 					$('textarea[name=timespent_note]').attr('cols',25).focus();
-					
+                    <?php if((float) DOL_VERSION >= 7.0) { ?>
+					$('#time').datepicker({
+                                            showOn: 'button',
+                                            buttonImage: '<?php echo DOL_URL_ROOT."/theme/".$conf->theme."/img/object_calendarday.png"; ?>',
+                                            buttonImageOnly: true
+                                            });
+                    <?php } ?>
 					$('#saisie form').submit(function() {
 						
 						$.post( $(this).attr('action')
