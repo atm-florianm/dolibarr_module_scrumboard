@@ -44,7 +44,7 @@ function _put(&$db, $case) {
 			
 		case 'sort-task' :
 			
-			_sort_task($db, $_REQUEST['TTaskID']);
+			_sort_task($db, empty($_REQUEST['TTaskID']) ? array() : $_REQUEST['TTaskID']);
 			
 			break;
 		case 'reset-date-task':
