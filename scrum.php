@@ -291,7 +291,7 @@ td.projectDrag {
 					print $form->select_date((empty($storyToEdit->date_end) ? -1 : $storyToEdit->date_end), 'storie_date_end');
 					print '</td>';
 					
-					print '<td colspan="'.($nbColumns-3).'"></td>';
+					if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					
 					print '<td align="right">';
 					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" class="button" />';
@@ -314,8 +314,8 @@ td.projectDrag {
 				}
 				?>
 			</td>
-			<td colspan="<?php echo $nbColumns-3; ?>"></td>
 			<?php
+                    if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					print '<td align="right">';
 					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
 
@@ -338,9 +338,8 @@ td.projectDrag {
 
 					print '</a>';
 					print '</td>';
-				}
-			?>
-		</tr>
+      ?></tr>
+          <?php } ?>
 		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
