@@ -34,6 +34,7 @@
 
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss);
 	
+	$ref = GETPOST('ref', 'aZ09');
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
 	$storie_k_toEdit = GETPOST('storie_k', 'int');
@@ -76,7 +77,13 @@
 	}
 
 	$object = new Project($db);
-	$object->fetch($id_projet);
+	if ($id_projet > 0 || ! empty($ref))
+	{
+	    $ret = $object->fetch($id_projet,$ref);	// If we create project, ref may be defined into POST but record does not yet exists into database
+	    if ($ret > 0) {
+	        $id_projet=$object->id;
+	    }
+	}
 	if (method_exists($object, 'fetch_thirdparty')) $object->fetch_thirdparty();
 	if (empty($object->societe) && !empty($object->thirdparty)) $object->societe = $object->thirdparty; // Rétrocompatibilité
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
@@ -284,7 +291,7 @@ td.projectDrag {
 					print $form->select_date((empty($storyToEdit->date_end) ? -1 : $storyToEdit->date_end), 'storie_date_end');
 					print '</td>';
 					
-					print '<td colspan="'.($nbColumns-3).'"></td>';
+					if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					
 					print '<td align="right">';
 					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" class="button" />';
@@ -307,8 +314,8 @@ td.projectDrag {
 				}
 				?>
 			</td>
-			<td colspan="<?php echo $nbColumns-3; ?>"></td>
 			<?php
+                    if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					print '<td align="right">';
 					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
 
@@ -331,9 +338,8 @@ td.projectDrag {
 
 					print '</a>';
 					print '</td>';
-				}
-			?>
-		</tr>
+      ?></tr>
+          <?php } ?>
 		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {

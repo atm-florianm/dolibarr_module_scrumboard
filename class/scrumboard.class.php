@@ -33,7 +33,7 @@ class ScrumboardColumn extends TObjetStd
 	function LoadAllBy(&$db, $TConditions = array(), $annexe = true)
 	{
 		$this->TColumn = parent::LoadAllBy($db, $TConditions, $annexe);
-		usort($this->TColumn, array(self, 'orderByRang'));
+		usort($this->TColumn, array($this, 'orderByRang'));
 		
 		return $this->TColumn;
 	}
@@ -105,7 +105,7 @@ class TStory extends TObjetStd {
 		$this->set_table(MAIN_DB_PREFIX.self::$tablename);
 
 		$this->add_champs('fk_projet', array('type' => 'integer', 'index' => true));
-		$this->add_champs('storie_order', array('type' => 'integer'));
+		$this->add_champs('storie_order', array('type' => 'integer', 'index' => true));
 		$this->add_champs('label', array('type' => 'string', 'length' => 100));
 		$this->add_champs('visible', array('type' => 'integer'));
 		$this->add_champs('date_start,date_end', array('type' => 'date'));
@@ -138,9 +138,19 @@ class TStory extends TObjetStd {
 		$PDOdb = new TPDOdb;
 
 		$TConditions = array('fk_projet' => $fk_project);
-		return parent::LoadAllBy($PDOdb, $TConditions);
+		$TRes = parent::LoadAllBy($PDOdb, $TConditions);
+		usort($TRes, array($this, 'orderByStoryOrder'));
+		return $TRes;
 	}
-	
+
+	private function orderByStoryOrder($a, $b)
+	{
+		if ($a->storie_order < $b->storie_order) return -1;
+		elseif ($a->storie_order > $b->storie_order) return 1;
+
+		return 0;
+	}
+
 	function toggleVisibility() {
 		$PDOdb = new TPDOdb;
 

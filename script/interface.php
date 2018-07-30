@@ -44,7 +44,7 @@ function _put(&$db, $case) {
 			
 		case 'sort-task' :
 			
-			_sort_task($db, $_REQUEST['TTaskID']);
+			_sort_task($db, empty($_REQUEST['TTaskID']) ? array() : $_REQUEST['TTaskID']);
 			
 			break;
 		case 'reset-date-task':
@@ -230,8 +230,8 @@ function _task(&$db, $id_task, $values=array()) {
 	}
 	
 	$dayInSecond = 86400;
-	if($conf->global->TIMESHEET_WORKING_HOUR_PER_DAY){
-		$dayInSecond = 60*60*$conf->global->TIMESHEET_WORKING_HOUR_PER_DAY;
+	if($conf->global->SCRUM_DEFAULT_VELOCITY){
+		$dayInSecond = 60*60*$conf->global->SCRUM_DEFAULT_VELOCITY;
 	}
 	
 	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
