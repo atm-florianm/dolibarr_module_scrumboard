@@ -462,7 +462,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					print $form->select_date((empty($storyToEdit->date_end) ? -1 : $storyToEdit->date_end), 'storie_date_end');
 					print '</td>';
 					
-					print '<td colspan="'.($nbColumns-3).'"></td>';
+					if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					
 					print '<td align="right">';
 					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" class="button" />';
@@ -485,8 +485,8 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 				}
 				?>
 			</td>
-			<td colspan="<?php echo $nbColumns-3; ?>"></td>
 			<?php
+                    if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					print '<td align="right">';
 					
 					if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
@@ -514,9 +514,8 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 
 					print '</a>';
 					print '</td>';
-				}
-			?>
-		</tr>
+      ?></tr>
+          <?php } ?>
 		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
