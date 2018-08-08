@@ -182,14 +182,25 @@ function project_refresh_task(id_project, task) {
 	
 	$item.find('.task-real-time span').html(task.aff_time).attr('task-id', task.id);
 	$item.find('.task-allowed-time span').html(task.aff_planned_workload).attr('task-id', task.id);
-	
+
 	$item.find('.task-real-time, .task-allowed-time').on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
+	});
+	
+	$item.find('.task-add-contact').on("click", function(e) {
+		e.preventDefault();
+		pop_contact( $('#scrum').attr('id_projet'), task.id );
 	});
 	
 	if(task.origin == 'order') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('commande/card.php', 1); ?>?id='+task.origin_id);
 	else if(task.origin == 'propal') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('comm/propal/card.php', 1); ?>?id='+task.origin_id);
 	else $item.find('.task-origin a').remove();
+
+	<?php 
+	if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
+	    print ' $item.find(".task-add-contact a").attr("href", "'.dol_buildpath('scrumboard/scrum.php', 1).'?action=addressourcetotask&id="+ $("#scrum").attr("id_projet") + "&id_task=" + task.id); ';
+	}
+	?>
 	
 	<?php if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) { ?>
 	<!--  Commentary conf -->
@@ -393,7 +404,24 @@ function create_task(id_projet) {
 		
 	});
 }
-		
+
+
+function pop_contact(id_project, id_task) {
+	$("#saisie")
+				.load('<?php echo dol_buildpath('/scrumboard/scrum.php',1) ?>?id_task='+id_task+'&action=addressourcetotask&ajaxcall=1&id='+id_project+' #form-add-ressource-task-'+id_task
+				,function() {
+					//$('#saisie form').submit();
+				}
+				)
+				.dialog({
+					modal:true
+					,minWidth:1200
+					,minHeight:200
+					,title:$('li[task-id='+id_task+'] .task-title span').text()
+				});
+}
+
+
 function pop_time(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'

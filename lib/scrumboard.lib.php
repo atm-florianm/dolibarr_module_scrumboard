@@ -77,3 +77,25 @@ function scrum_getVelocity(&$db, $id_project) {
 
 	return $velocity;	
 }
+
+
+function getAllTaskInStory($fk_project, $story) {
+    global $db;
+    
+    // Sélectionne toutes les taches existantes liées à une story
+    $sql = 'SELECT t.rowid';
+    $sql .= ' FROM '.MAIN_DB_PREFIX.'projet_task AS t';
+    $sql .= ' WHERE t.story_k = '.intval($story).' AND t.fk_projet = '.intval($fk_project);
+    
+    $resql = $db->query($sql);
+    
+    $TData = array();
+    if($resql) {
+        while ($obj = $db->fetch_object($resql)) {
+            $TData[] = $obj->rowid;
+        }
+    }
+    
+    
+    return $TData;
+}
