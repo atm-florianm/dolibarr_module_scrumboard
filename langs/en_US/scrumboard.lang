@@ -17,6 +17,7 @@ ResetDate=Reset the dates ?
 ResetDateTask=Reset task dates
 showDescriptionInTask=Show description under title
 showDateInDescription=Show dates into description
+SCRUM_USE_LEFT_MENU=Activate global scrumboard (menu "Projects", submenu "Scrumboard")
 
 
 SB_realtimealt=Time spent
