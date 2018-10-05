@@ -100,8 +100,6 @@
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
-
-	$userFilter = '';
 	
 	if($id_projet) {
 		
@@ -259,7 +257,6 @@ td.projectDrag {
 		$currentProject = 0;
 		foreach($TStorie as &$obj) {
 			$storie_k = $obj->storie_order;
-			$story_id = $obj->getId();
 
 			if(empty($id_projet) && $currentProject != $obj->fk_projet)
 			{
@@ -347,12 +344,12 @@ td.projectDrag {
 					print '</td>';
       ?></tr>
           <?php } ?>
-		<tr class="hiddable" project-id="<?php echo ($id_projet > 0 ? $id_projet : $currentProject); ?>" story-id="<?php echo $story_id; ?>" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
+		<tr class="hiddable" project-id="<?php echo ($id_projet > 0 ? $id_projet : $currentProject); ?>" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
 				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';
 
-				echo '<ul class="task-list" data-code="'.$column->code.'" data-project-id="'.($id_projet > 0 ? $id_projet : $currentProject).'" data-story-id="' . $story_id . '" data-story-k="'.$storie_k.'" rel="'.$column->code.'" story-k="'.$storie_k.'">';
+				echo '<ul class="task-list" data-code="'.$column->code.'" data-project-id="'.($id_projet > 0 ? $id_projet : $currentProject).'" data-story-k="'.$storie_k.'" rel="'.$column->code.'" story-k="'.$storie_k.'">';
 				echo '</ul>';
 
 				echo '</td>';

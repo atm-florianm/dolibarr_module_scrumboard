@@ -348,18 +348,12 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	
-	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang';
+	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
+			FROM '.MAIN_DB_PREFIX.'projet_task pt';
 
 	if(empty($id_project) && $status != 'unknownColumn')
 	{
-		$sql.= ', ps.rowid as story_id';
-	}
-
-	$sql.= ' FROM '.MAIN_DB_PREFIX.'projet_task pt';
-
-	if(empty($id_project) && $status != 'unknownColumn')
-	{
-		$sql.= ' INNER JOIN ' . MAIN_DB_PREFIX . 'projet_storie ps ON (ps.fk_projet = pt.fk_projet AND ps.storie_order IN (0, pt.story_k))';
+		$sql.= ' INNER JOIN ' . MAIN_DB_PREFIX . 'projet_storie ps ON (ps.fk_projet = pt.fk_projet AND ps.storie_order = pt.story_k)';
 	}
 
 	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
@@ -416,7 +410,7 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	$TTask = array();
 	while($obj = $db->fetch_object($res)) {
 		if($status == 'unknownColumn') $obj->scrum_status = $defaultColumn;
-		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status,'story_k'=>$obj->story_k, 'story_id'=>$obj->story_id,'scrum_status'=>$obj->scrum_status));
+		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status,'story_k'=>$obj->story_k,'scrum_status'=>$obj->scrum_status));
 	}
 	
 	return $TTask;
