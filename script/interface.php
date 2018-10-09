@@ -348,7 +348,14 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	
-	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang FROM '.MAIN_DB_PREFIX.'projet_task pt';
+	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
+			FROM '.MAIN_DB_PREFIX.'projet_task pt';
+
+	if(empty($id_project) && $status != 'unknownColumn')
+	{
+		$sql.= ' INNER JOIN ' . MAIN_DB_PREFIX . 'projet_storie ps ON (ps.fk_projet = pt.fk_projet AND ps.storie_order = pt.story_k)';
+	}
+
 	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE) && $fk_user > 0)
 	{
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
@@ -373,7 +380,7 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 		else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
 		$sql .= ')';
 	}
-	
+
 	/** ORIGINE ***/
 //	if($status=='ideas') {
 //		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';

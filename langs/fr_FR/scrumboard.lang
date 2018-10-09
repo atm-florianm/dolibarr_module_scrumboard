@@ -18,7 +18,7 @@ ResetDateTask=Recalculer les dates des tâches
 
 ProjectStories=Histoires planifiées (séparées par des virgules)
 
-EnableFilterOnGlobalView=Activer le filtre par utilisateur sur la vue global
+EnableFilterOnGlobalView=Activer le filtre par utilisateur
 
 NumberOfWorkingHourInDay=Nombre d'heures travaillées par jour
 AllowCompleteModeBacklog=Ajoute 2 colonnes supplémentaires sur la vue scrumboard (backlog et review)

@@ -198,29 +198,21 @@
 		print '<div class="underbanner clearboth"></div>';
 		print '<table class="border" width="100%">';
 
-		if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
-		{
-			echo '<tr><td>';
-			echo $langs->trans('UserFilter');
-			echo '</td><td>';
-			$fk_user = GETPOST('fk_user');
-			if ($id_projet == 0 && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
-
-			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
-			echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
-			echo $form->select_dolusers($fk_user, 'fk_user',  1);
-			echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
-			echo '</form>';
-			echo '</td></tr>';
-		}
+		_printUserFilter($id_projet, $form);
 
 		print '</table>';
 		print '</div>';
 		print '</div>';
-	
 	}
 	else{
-		print $langs->trans("CurrentVelocity").' <span rel="currentVelocity"></span>';	
+		print '<table class="border" width="100%">';
+		echo '<tr><td>';
+		echo $langs->trans('CurrentVelocity');
+		echo '</td><td rel="currentVelocity"></td></tr>';
+
+		_printUserFilter($id_projet, $form);
+
+		print '</table>';
 	}
 
 	$TStorie = $story->getAllStoriesFromProject($id_projet);
@@ -262,9 +254,18 @@ td.projectDrag {
 		<?php 
 		$default_k = 1;
 		$storie_k = 0;
+		$currentProject = 0;
 		foreach($TStorie as &$obj) {
 			$storie_k = $obj->storie_order;
 
+			if(empty($id_projet) && $currentProject != $obj->fk_projet)
+			{
+				$projet = new Project($db);
+				$projet->fetch($obj->fk_projet);
+				print '<tr><td colspan="' . $nbColumns . '" style="font-size:140%">'.$projet->getNomUrl(1).'</td></tr>';
+				$currentProject = $projet->id;
+				$default_k = 1;
+			}
 		?>
 			<?php
 				if($action == 'edit' && $storie_k == $storie_k_toEdit) {
@@ -317,13 +318,16 @@ td.projectDrag {
 			<?php
                     if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
 					print '<td align="right">';
-					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
 
-					print '&nbsp;';
-					if($storie_k != 1) {
-						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
+					if($id_projet > 0)
+					{
+						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
+
+						print '&nbsp;';
+						if($storie_k != 1) {
+							print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
+						}
 					}
-
 					print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
 
 					if($obj->visible) {
@@ -340,12 +344,12 @@ td.projectDrag {
 					print '</td>';
       ?></tr>
           <?php } ?>
-		<tr class="hiddable" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
+		<tr class="hiddable" project-id="<?php echo ($id_projet > 0 ? $id_projet : $currentProject); ?>" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
 				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';
 
-				echo '<ul class="task-list" data-code="'.$column->code.'" data-story-k="'.$storie_k.'" rel="'.$column->code.'" story-k="'.$storie_k.'">';
+				echo '<ul class="task-list" data-code="'.$column->code.'" data-project-id="'.($id_projet > 0 ? $id_projet : $currentProject).'" data-story-k="'.$storie_k.'" rel="'.$column->code.'" story-k="'.$storie_k.'">';
 				echo '</ul>';
 
 				echo '</td>';
@@ -363,47 +367,51 @@ td.projectDrag {
 	/*
 	 * Actions
 	*/
-	print '<div class="tabsAction">';
 
-	if ($user->rights->projet->all->creer || $user->rights->projet->creer)
+	if($id_projet > 0)
 	{
-		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
-		{
-			print '<a class="butAction" href="javascript:add_storie_task('.$object->id.');">'.$langs->trans('AddStorieTask').'</a>';
-		}
-		else
-		{
-			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddStorieTask').'</a>';
-		}
-	}
+		print '<div class="tabsAction">';
 
-	if( (float)DOL_VERSION > 3.4 ) {
 		if ($user->rights->projet->all->creer || $user->rights->projet->creer)
 		{
 			if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
 			{
-				print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+				print '<a class="butAction" href="javascript:add_storie_task('.$object->id.');">'.$langs->trans('AddStorieTask').'</a>';
+			}
+			else
+			{
+				print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddStorieTask').'</a>';
 			}
 		}
-	}
 
-	if (($user->rights->projet->all->creer || $user->rights->projet->creer) && $id_projet)
-	{
-		if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+		if( (float)DOL_VERSION > 3.4 ) {
+			if ($user->rights->projet->all->creer || $user->rights->projet->creer)
+			{
+				if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+				{
+					print '<a class="butAction" href="javascript:reset_date_task('.$object->id.');">'.$langs->trans('ResetDateTask').'</a>';
+				}
+			}
+		}
+
+		if (($user->rights->projet->all->creer || $user->rights->projet->creer))
 		{
-			print '<a class="butAction" href="javascript:create_task('.$object->id.');">'.$langs->trans('AddTask').'</a>';
+			if ($object->public || $object->restrictedProjectArea($user,'write') > 0)
+			{
+				print '<a class="butAction" href="javascript:create_task('.$object->id.');">'.$langs->trans('AddTask').'</a>';
+			}
+			else
+			{
+				print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddTask').'</a>';
+			}
 		}
 		else
 		{
-			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotOwnerOfProject").'">'.$langs->trans('AddTask').'</a>';
+			print '<a class="butActionRefused" href="#" title="'.$langs->trans("NoPermission").'">'.$langs->trans('AddTask').'</a>';
 		}
-	}
-	elseif( $id_projet)
-	{
-		print '<a class="butActionRefused" href="#" title="'.$langs->trans("NoPermission").'">'.$langs->trans('AddTask').'</a>';
-	}
 
-	print '</div>';
+		print '</div>';
+	}
 ?>
 
 <div>
@@ -517,3 +525,26 @@ td.projectDrag {
 <?php
 
 	llxFooter();
+
+
+
+function _printUserFilter($id_projet, $form)
+{
+	global $conf, $langs, $user;
+
+	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
+	{
+		echo '<tr><td>';
+		echo $langs->trans('UserFilter');
+		echo '</td><td>';
+		$fk_user = GETPOST('fk_user');
+		if (empty($id_projet) && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
+
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+		echo $form->select_dolusers($fk_user, 'fk_user',  1);
+		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '</form>';
+		echo '</td></tr>';
+	}
+}

@@ -78,12 +78,12 @@ function project_get_tasks(id_project, status) {
 				print 'l_status = "'.$scrumColumn->getDefaultColumn().'";';
 				?>
 			}
-			
-			if($('tr[story-k='+task.story_k+']').length>0) {
-				$ul = $('tr[story-k='+task.story_k+']').find('ul[rel="'+l_status+'"]');
+
+			if($('tr[project-id='+task.fk_project+'][story-k='+task.story_k+']').length>0) {
+				$ul = $('tr[project-id='+task.fk_project+'][story-k='+task.story_k+']').find('ul[rel="'+l_status+'"]');
 			}
 			else{
-				$ul = $('tr[default-k=1]').find('ul[rel="'+l_status+'"]');
+				$ul = $('tr[project-id='+task.fk_project+'][default-k=1]').find('ul[rel="'+l_status+'"]');
 			}
 
 			project_draw_task(id_project, task, $ul);
