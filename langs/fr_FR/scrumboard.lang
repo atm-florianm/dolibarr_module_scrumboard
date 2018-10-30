@@ -21,7 +21,7 @@ ProjectStories=Histoires planifiées (séparées par des virgules)
 EnableFilterOnGlobalView=Activer le filtre par utilisateur
 
 NumberOfWorkingHourInDay=Nombre d'heures travaillées par jour
-AllowCompleteModeBacklog=Ajoute 2 colonnes supplémentaires sur la vue scrumboard (backlog et review)
+AllowCompleteModeBacklog=Activer la gestion des colonnes via le dictionnaire
 showLinkedContactToTask=Afficher les ressources associées aux tâches
 showDescriptionInTask=Voir la description sous le titre sans survol
 showDateInDescription=Voir les dates dans la description
