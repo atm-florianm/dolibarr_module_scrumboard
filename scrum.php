@@ -262,7 +262,7 @@ td.projectDrag {
 			{
 				$projet = new Project($db);
 				$projet->fetch($obj->fk_projet);
-				print '<tr><td colspan="' . $nbColumns . '" style="font-size:140%">'.$projet->getNomUrl(1).'</td></tr>';
+				print '<tr style="display:none"><td colspan="' . $nbColumns . '" style="font-size:140%">'.$projet->getNomUrl(1).'</td></tr>';
 				$currentProject = $projet->id;
 				$default_k = 1;
 			}
@@ -303,7 +303,7 @@ td.projectDrag {
 				}
 				else {
 			?>
-		<tr>
+		<tr<? echo (empty($id_projet) ? ' style="display:none"' : ''); ?>>
 			<td class="liste_titre">
 				<?php print $obj->label; ?>
 			</td>
@@ -344,7 +344,7 @@ td.projectDrag {
 					print '</td>';
       ?></tr>
           <?php } ?>
-		<tr class="hiddable" project-id="<?php echo ($id_projet > 0 ? $id_projet : $currentProject); ?>" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible) echo 'display: none;';?>">
+		<tr class="hiddable" project-id="<?php echo ($id_projet > 0 ? $id_projet : $currentProject); ?>" story-k="<?php echo $storie_k; ?>" default-k="<?php echo $default_k; ?>" style="<?php if(! $obj->visible || empty($id_projet)) echo 'display: none;';?>">
 			<?php
 			foreach($TColumn as $column) {
 				echo '<td class="projectDrag droppable" data-code="'.$column->code.'" rel="'.$column->code.'">';

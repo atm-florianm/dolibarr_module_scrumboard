@@ -135,6 +135,22 @@ function project_draw_task(id_project, task, ul) {
 
 function project_refresh_task(id_project, task) {
 	$item = $('#task-'+task.id);
+
+	if(id_project == 0)
+	{
+		$storyTR = $item.parent().parent().parent();
+
+		if($storyTR.is(':hidden'))
+		{
+			$storyTR.show();
+			$target = $storyTR;
+			while($target.is('.hiddable'))
+			{
+				$target = $target.prev();
+			}
+			$target.show().prev().show();
+		}
+	}
 	
 	// Generate js var with all scrumboard project to showdesc
 	var TShowDesc = (<?php echo json_encode($_SESSION['scrumboard']['showdesc']); ?>);
