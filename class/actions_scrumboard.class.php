@@ -54,4 +54,79 @@ class ActionsScrumboard
 
 		return 0;
 	}
+	
+	function doActions ($parameters, &$object, &$action, $hookmanager){
+		
+		global $db, $conf, $user, $langs;
+		
+		$TContext = explode(':',$parameters['context']);
+		if (in_array('projecttaskcard',$TContext) )
+		{
+			if ($action == 'addtimespent' && $user->rights->projet->lire && !empty($conf->global->SCRUM_ADD_TIMESPENT_ON_PROJECT_DRAFT))
+			{
+				$action = 'addtimespent_scrumboard';
+				$error=0;
+				
+				$timespent_durationhour = (double) GETPOST('timespent_durationhour','int');
+				$timespent_durationmin = (double) GETPOST('timespent_durationmin','int');
+				if (empty($timespent_durationhour) && empty($timespent_durationmin))
+				{
+					setEventMessages($langs->trans('ErrorFieldRequired',$langs->transnoentitiesnoconv("Duration")), null, 'errors');
+					$error++;
+				}
+				if (empty($_POST["userid"]))
+				{
+					$langs->load("errors");
+					setEventMessages($langs->trans('ErrorUserNotAssignedToTask'), null, 'errors');
+					$error++;
+				}
+				
+				if (! $error)
+				{
+					$object = new Task($db);
+					$object->fetch(GETPOST('id','int'), GETPOST('ref','alpha'));
+					if ($object->id > 0)
+					{
+						$object->fetch_projet();
+						
+						$object->timespent_note = GETPOST('timespent_note');
+						$object->progress = GETPOST('progress', 'int');
+						$object->timespent_duration = $timespent_durationhour*60*60;	// We store duration in seconds
+						$object->timespent_duration+= $timespent_durationmin*60;		// We store duration in seconds
+						if (GETPOST("timehour") != '' && GETPOST("timehour") >= 0)	// If hour was entered
+						{
+							$object->timespent_date = dol_mktime(GETPOST("timehour"),GETPOST("timemin"),0,GETPOST("timemonth"),GETPOST("timeday"),GETPOST("timeyear"));
+							$object->timespent_withhour = 1;
+						}
+						else
+						{
+							$object->timespent_date = dol_mktime(12,0,0,GETPOST("timemonth"),GETPOST("timeday"),GETPOST("timeyear"));
+						}
+						$object->timespent_fk_user = GETPOST('userid');
+						$result=$object->addTimeSpent($user);
+						if ($result >= 0)
+						{
+							setEventMessages($langs->trans("RecordSaved"), null, 'mesgs');
+						}
+						else
+						{
+							setEventMessages($langs->trans($object->error), null, 'errors');
+							$error++;
+						}
+					}
+				}
+				else
+				{
+					$action='';
+				}
+				
+					
+			}
+		}
+				
+		return 0;
+	}
+	
+	
+	
 }
