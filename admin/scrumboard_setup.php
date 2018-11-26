@@ -145,6 +145,16 @@ function showParameters() {
 	print ajax_constantonoff('SCRUM_SHOW_DATES_IN_DESCRIPTION');
 	
 	print '</td></tr>';
+	
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	
+	print '<td>'.$langs->trans("SCRUM_ADD_TIMESPENT_ON_PROJECT_DRAFT").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_ADD_TIMESPENT_ON_PROJECT_DRAFT');
+	
+	print '</td></tr>';
 
 	print '</table>';
 
