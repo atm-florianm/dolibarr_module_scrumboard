@@ -139,7 +139,8 @@ function project_refresh_task(id_project, task) {
 	if(id_project == 0)
 	{
 		$storyTR = $item.parent().parent().parent();
-
+		
+		
 		if($storyTR.is(':hidden'))
 		{
 			$storyTR.show();
@@ -149,7 +150,16 @@ function project_refresh_task(id_project, task) {
 				$target = $target.prev();
 			}
 			$target.show().prev().show();
+			
+			let icon = $target.find('i');
+			icon.removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
+
+			
 		}
+		
+		
+		
+		
 	}
 	
 	// Generate js var with all scrumboard project to showdesc
@@ -684,7 +694,7 @@ function toggle_visibility(id_project, storie_order) {
 	
 	// On récupère le tr à cacher/afficher
 	let tr = $('tr.hiddable[story-k='+storie_order+'][project-id='+id_project+']');
-	var icon = $('i[data-story-k='+storie_order+']');
+	var icon = $('i[data-story-k='+storie_order+'][data-project-id='+id_project+']');
 
 	// S'il n'est pas encore caché
 	if(tr.attr('style').indexOf('display') < 0) {

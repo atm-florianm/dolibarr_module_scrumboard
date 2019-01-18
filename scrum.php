@@ -512,7 +512,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 						$iconClass = 'fa fa-eye fa-lg';
 						$iconTitle = $langs->trans('Show');
 					}
-					print '<i class="'.$iconClass.'" title="'.$iconTitle.'" data-story-k="'.$storie_k.'"></i>';
+					print '<i class="'.$iconClass.'" title="'.$iconTitle.'" data-story-k="'.$storie_k.'" data-project-id="'.$currentProject.'"></i>';
 
 					print '</a>';
 					print '</td>';
