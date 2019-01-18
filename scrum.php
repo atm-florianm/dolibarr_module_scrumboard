@@ -328,7 +328,7 @@ td.projectDrag {
 							print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
 						}
 					}
-					print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+					print !empty($id_projet)?'<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">':'<a href="javascript:toggle_visibility('.$currentProject.', '.$storie_k.')">';
 
 					if($obj->visible) {
 						$iconClass = 'fa fa-eye-slash fa-lg';

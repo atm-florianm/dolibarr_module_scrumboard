@@ -655,7 +655,7 @@ function toggle_visibility(id_project, storie_order) {
 	toggle_storie_visibility(id_project, storie_order);
 	
 	// On récupère le tr à cacher/afficher
-	let tr = $('tr.hiddable[story-k='+storie_order+']');
+	let tr = $('tr.hiddable[story-k='+storie_order+'][project-id='+id_project+']');
 	var icon = $('i[data-story-k='+storie_order+']');
 
 	// S'il n'est pas encore caché
