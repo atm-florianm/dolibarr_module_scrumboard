@@ -303,7 +303,7 @@ td.projectDrag {
 				}
 				else {
 			?>
-		<tr<? echo (empty($id_projet) ? ' style="display:none"' : ''); ?>>
+		<tr<?php echo (empty($id_projet) ? ' style="display:none"' : ''); ?>>
 			<td class="liste_titre">
 				<?php print $obj->label; ?>
 			</td>
