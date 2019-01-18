@@ -62,7 +62,7 @@ class modscrumboard extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Description of module scrumboard";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '2.1.0';
+        $this->version = '2.1.1';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -278,6 +278,22 @@ class modscrumboard extends DolibarrModules
         //$r++;
         // Main menu entries
         $this->menus = array(); // List of menus to add
+        $r = 0;
+
+		$this->menu[$r]=array( 'fk_menu'=>'fk_mainmenu=project', // Put 0 if this is a top menu
+			'type'=>'left', // This is a Top menu entry
+			'titre'=>'Scrumboard',
+			'mainmenu'=>'project',
+			'leftmenu'=>'Scrumboard',
+			'url'=>'/scrumboard/scrum.php',
+			'langs'=>'mantis@mantis', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100,
+			'perms'=>'1', // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
+			'enabled'=>'$conf->scrumboard->enabled && $conf->global->SCRUM_USE_GLOBAL_BOARD'
+		);
+		$r++;
 
         // Add here entries to declare new menus
         //

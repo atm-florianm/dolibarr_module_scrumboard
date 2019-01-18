@@ -78,12 +78,12 @@ function project_get_tasks(id_project, status) {
 				print 'l_status = "'.$scrumColumn->getDefaultColumn().'";';
 				?>
 			}
-			
-			if($('tr[story-k='+task.story_k+']').length>0) {
-				$ul = $('tr[story-k='+task.story_k+']').find('ul[rel="'+l_status+'"]');
+
+			if($('tr[project-id='+task.fk_project+'][story-k='+task.story_k+']').length>0) {
+				$ul = $('tr[project-id='+task.fk_project+'][story-k='+task.story_k+']').find('ul[rel="'+l_status+'"]');
 			}
 			else{
-				$ul = $('tr[default-k=1]').find('ul[rel="'+l_status+'"]');
+				$ul = $('tr[project-id='+task.fk_project+'][default-k=1]').find('ul[rel="'+l_status+'"]');
 			}
 
 			project_draw_task(id_project, task, $ul);
@@ -135,6 +135,22 @@ function project_draw_task(id_project, task, ul) {
 
 function project_refresh_task(id_project, task) {
 	$item = $('#task-'+task.id);
+
+	if(id_project == 0)
+	{
+		$storyTR = $item.parent().parent().parent();
+
+		if($storyTR.is(':hidden'))
+		{
+			$storyTR.show();
+			$target = $storyTR;
+			while($target.is('.hiddable'))
+			{
+				$target = $target.prev();
+			}
+			$target.show().prev().show();
+		}
+	}
 	
 	// Generate js var with all scrumboard project to showdesc
 	var TShowDesc = (<?php echo json_encode($_SESSION['scrumboard']['showdesc']); ?>);
@@ -667,7 +683,7 @@ function toggle_visibility(id_project, storie_order) {
 	toggle_storie_visibility(id_project, storie_order);
 	
 	// On récupère le tr à cacher/afficher
-	let tr = $('tr.hiddable[story-k='+storie_order+']');
+	let tr = $('tr.hiddable[story-k='+storie_order+'][project-id='+id_project+']');
 	var icon = $('i[data-story-k='+storie_order+']');
 
 	// S'il n'est pas encore caché
