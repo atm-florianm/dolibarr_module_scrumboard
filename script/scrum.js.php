@@ -449,11 +449,15 @@ function pop_contact(id_project, id_task) {
 
 
 function pop_time(id_project, id_task) {
-	$("#saisie")
-				.load('<?php echo dol_buildpath('/projet/tasks/time.php',1) ?>?id='+id_task+' div.fiche form'
-				,function() {
-					$('textarea[name=timespent_note]').attr('cols',25).focus();
-                    <?php if((float) DOL_VERSION >= 7.0) { ?>
+    let path = '<?php echo dol_buildpath('/projet/tasks/time.php',1); ?>?id='+id_task;
+    <?php
+    if(((float) DOL_VERSION) >= 8.0) echo "path += '&action=createtime';";
+    ?>
+        $("#saisie")
+                    .load(path+' div.fiche form'
+                    ,function() {
+                        $('textarea[name=timespent_note]').attr('cols',25).focus();
+                        <?php if((float) DOL_VERSION >= 7.0) { ?>
 					$('#time').datepicker({
                                             showOn: 'button',
                                             buttonImage: '<?php echo DOL_URL_ROOT."/theme/".$conf->theme."/img/object_calendarday.png"; ?>',
