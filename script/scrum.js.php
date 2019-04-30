@@ -269,6 +269,9 @@ function project_refresh_task(id_project, task) {
 			$item.css('background-color','orange');
 		}
 	}
+
+
+    $item.trigger('endRenderTask', [task]);
 }
 
 function project_get_task(id_project, id_task) {

@@ -26,7 +26,9 @@
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-	
+
+    $hookmanager->initHooks(array('scrumboardcard'));
+
 	$TArrayOfCss = array();
 
 	if((float) DOL_VERSION == 6.0) {
