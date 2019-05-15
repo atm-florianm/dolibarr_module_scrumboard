@@ -229,15 +229,28 @@ function _task(&$db, $id_task, $values=array()) {
 		
 	}
 	
-	$dayInSecond = 86400;
-	if($conf->global->SCRUM_DEFAULT_VELOCITY){
+//    $timespentoutputformat='all';
+//    if (! empty($conf->global->PROJECT_TIMES_SPENT_FORMAT)) $timespentoutputformat=$conf->global->PROJECT_TIME_SPENT_FORMAT;
+    $working_timespentoutputformat='all';
+    if (! empty($conf->global->PROJECT_WORKING_TIMES_SPENT_FORMAT)) $working_timespentoutputformat=$conf->global->PROJECT_WORKING_TIMES_SPENT_FORMAT;
+
+    $working_days_per_weeks=7;
+    $dayInSecond = 86400;
+    if (!empty($conf->global->PROJECT_WORKING_HOURS_PER_DAY))
+    {
+        $working_days_per_weeks=!empty($conf->global->PROJECT_WORKING_DAYS_PER_WEEKS) ? $conf->global->PROJECT_WORKING_DAYS_PER_WEEKS : 5;
+        $working_hours_per_day=!empty($conf->global->PROJECT_WORKING_HOURS_PER_DAY) ? $conf->global->PROJECT_WORKING_HOURS_PER_DAY : 7;
+        $working_hours_per_day_in_seconds = 3600 * $working_hours_per_day;
+        $dayInSecond = $working_hours_per_day_in_seconds;
+    }
+	elseif($conf->global->SCRUM_DEFAULT_VELOCITY){
 		$dayInSecond = 60*60*$conf->global->SCRUM_DEFAULT_VELOCITY;
 	}
-	
-	$task->aff_time = convertSecondToTime($task->duration_effective,'all',$dayInSecond);
-	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,'all',$dayInSecond);
 
-	$task->long_description.='';
+	$task->aff_time = convertSecondToTime($task->duration_effective,$working_timespentoutputformat,$dayInSecond, $working_days_per_weeks);
+	$task->aff_planned_workload = convertSecondToTime($task->planned_workload,$working_timespentoutputformat,$dayInSecond, $working_days_per_weeks);
+
+    $task->long_description.='';
 	if(!empty($conf->global->SCRUM_SHOW_DATES_IN_DESCRIPTION)) {
 		if($task->date_start>0) $task->long_description .= $langs->trans('TaskDateStart').' : '.dol_print_date($task->date_start).'<br />';
 		if($task->date_end>0) $task->long_description .= $langs->trans('TaskDateEnd').' : '.dol_print_date($task->date_end).'<br />';
