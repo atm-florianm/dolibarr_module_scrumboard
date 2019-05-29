@@ -209,11 +209,11 @@ function project_refresh_task(id_project, task) {
 	$item.find('.task-real-time span').html(task.aff_time).attr('task-id', task.id);
 	$item.find('.task-allowed-time span').html(task.aff_planned_workload).attr('task-id', task.id);
 
-	$item.find('.task-real-time, .task-allowed-time').on("click", function() {
+	$item.find('.task-real-time, .task-allowed-time').off('click').on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
 	});
 	
-	$item.find('.task-add-contact').on("click", function(e) {
+	$item.find('.task-add-contact').off('click').on("click", function(e) {
 		e.preventDefault();
 		pop_contact( $('#scrum').attr('id_projet'), task.id );
 	});
@@ -232,7 +232,7 @@ function project_refresh_task(id_project, task) {
 	<!--  Commentary conf -->
 	$item.find('.task-comment span').html(task.nbcomment).attr('task-id', task.id);
 		
-	$item.find('.task-comment').on("click", function() {
+	$item.find('.task-comment').off('click').on("click", function() {
 		pop_comment( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
 	});
 	<!--  fin conf -->
