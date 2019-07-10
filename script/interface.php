@@ -154,7 +154,7 @@ function _set_values(&$object, $values) {
 	
 	foreach($values as $k=>$v) {
 		
-		if(isset($object->{$k})) {
+		if(property_exists($object, $k)) {
 			
 			$object->{$k} = $v;
 			
