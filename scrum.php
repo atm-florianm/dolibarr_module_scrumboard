@@ -495,16 +495,17 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					if($id_projet > 0)
 					{
 						if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
-					   		print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=addressourcetostorie#form-add-ressource-story-'.$storie_k.'"><i class="fa fa-user-plus"></i></a>';
+							print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=addressourcetostorie#form-add-ressource-story-'.$storie_k.'"><i class="fa fa-user-plus" style="color: #444444;"></i></a>';
 						}
-						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png').'</a>';
+						print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=edit">'.img_picto($langs->trans('Modify'), 'edit.png', '', false, 0, 0, '', 'marginleftonlyshort').'</a>';
 
-						print '&nbsp;';
 						if($storie_k != 1) {
-							print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png').'</a>';
+							print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'&storie_k='.$storie_k.'&action=confirm_delete">'.img_picto($langs->trans('Delete'), 'delete.png', '', false, 0, 0, '', 'marginleftonlyshort').'</a>';
 						}
 					}
-					print !empty($id_projet)?'<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">':'<a href="javascript:toggle_visibility('.$currentProject.', '.$storie_k.')">';
+
+					if(!empty($id_projet)) print '<a href="javascript:toggle_visibility('.$id_projet.', '.$storie_k.')">';
+					else print '<a href="javascript:toggle_visibility('.$currentProject.', '.$storie_k.')">';
 
 					if($obj->visible) {
 						$iconClass = 'fa fa-eye-slash fa-lg';
@@ -514,7 +515,10 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 						$iconClass = 'fa fa-eye fa-lg';
 						$iconTitle = $langs->trans('Show');
 					}
-					print !empty($id_projet)?'<i class="'.$iconClass.'" title="'.$iconTitle.'" data-story-k="'.$storie_k.'" data-project-id="'.$id_projet.'"></i>':'<i class="'.$iconClass.'" title="'.$iconTitle.'" data-story-k="'.$storie_k.'" data-project-id="'.$currentProject.'"></i>';
+                    $iconClass .= ' marginleftonlyshort';
+
+                    if(! empty($id_projet)) print '<i class="'.$iconClass.'" style="color: #444444;" title="'.$iconTitle.'" data-story-k="'.$storie_k.'" data-project-id="'.$id_projet.'"></i>';
+                    else print '<i class="'.$iconClass.'" style="color: #444444;" title="'.$iconTitle.'" data-story-k="'.$storie_k.'" data-project-id="'.$currentProject.'"></i>';
 
 					print '</a>';
 					print '</td>';
