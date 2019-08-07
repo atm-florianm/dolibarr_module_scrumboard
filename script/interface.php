@@ -16,7 +16,7 @@ function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
 			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user') ));
+			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type') ));
 
 			break;
 		case 'task' :
@@ -360,12 +360,13 @@ function _reset_date_task(&$db, $id_project, $velocity) {
 
 }
 
-function _tasks(&$db, $id_project, $status, $fk_user) {
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
-			FROM '.MAIN_DB_PREFIX.'projet_task pt';
+			FROM '.MAIN_DB_PREFIX.'projet_task pt
+			INNER JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = pt.fk_projet)';
 
 	if(empty($id_project) && $status != 'unknownColumn')
 	{
@@ -396,21 +397,6 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 		else if($status=='finish') $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
 		$sql .= ')';
 	}
-
-	/** ORIGINE ***/
-//	if($status=='ideas') {
-//		$sql.= ' WHERE  (progress = 0 OR progress IS NULL) AND datee IS NULL';
-//	}
-//	else if($status=='todo') {
-//		$sql.= ' WHERE (progress = 0  OR progress IS NULL)';
-//	}
-//	else if($status=='inprogress') {
-//		$sql.= ' WHERE progress > 0 AND progress < 100';
-//	}
-//	else if($status=='finish') {
-//		$sql.= ' WHERE progress=100';
-//	}
-	/****/
 	
 	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;
 	
@@ -418,7 +404,44 @@ function _tasks(&$db, $id_project, $status, $fk_user) {
 	{
 		$sql.= ' AND tc.element = \'project_task\' AND ec.fk_socpeople = '.$fk_user;
 	}
-	
+
+
+	if ($fk_soc > 0)
+	{
+		if ($soc_type === 'onlycompany' || $soc_type === 'both')
+		{
+			$sql.= ' AND ';
+			if ($soc_type === 'both') $sql.= ' ( ';
+			$sql.= 'p.fk_soc = '.$fk_soc;
+		}
+
+		if ($soc_type === 'onlychildren' || $soc_type === 'both')
+		{
+			$resql = $db->query('SELECT rowid FROM '.MAIN_DB_PREFIX.'societe WHERE parent = '.$fk_soc);
+			if ($resql)
+			{
+				$TSocId = array();
+				while ($obj = $db->fetch_object($resql))
+				{
+					$TSocId[] = $obj->rowid;
+				}
+
+				if (!empty($TSocId))
+				{
+					if ($soc_type === 'both') $sql.= ' OR ';
+					else $sql.= ' AND ';
+					$sql.= 'p.fk_soc IN ('.implode(',', $TSocId).')';
+				}
+			}
+			else
+			{
+				dol_print_error($db);
+			}
+
+			if ($soc_type === 'both') $sql.= ' ) ';
+		}
+	}
+
 	$sql.= ' ORDER BY pt.rang';
 
 	$res = $db->query($sql);
