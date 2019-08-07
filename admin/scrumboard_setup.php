@@ -164,6 +164,14 @@ function showParameters() {
 	print ajax_constantonoff('SCRUM_USE_GLOBAL_BOARD');
 	print '</td></tr>';
 
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SCRUM_SHOW_DATES").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('SCRUM_SHOW_DATES');
+	print '</td></tr>';
+
 	print '</table>';
 
 }

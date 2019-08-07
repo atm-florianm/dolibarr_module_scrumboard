@@ -643,6 +643,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					</div>
 					<div class="clearboth"></div>
 					<div class="task-users-affected"></div>
+					<div class="task-dates"></div>
 					<div class="progressbaruser"></div>
 					<div class="progressbar"></div>
 				</li>

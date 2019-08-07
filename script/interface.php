@@ -259,6 +259,9 @@ function _task(&$db, $id_task, $values=array()) {
 	$task->long_description.=nl2br($task->description);
 
 	if (!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)) _getTContact($task);
+
+	$task->formated_date_start_end = '';
+	if (!empty($conf->global->SCRUM_SHOW_DATES)) $task->formated_date_start_end = dol_print_date($task->date_start, 'day') . ' - ' . dol_print_date($task->date_end, 'day');
 	
 	return _as_array($task);
 }
