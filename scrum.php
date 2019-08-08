@@ -774,7 +774,7 @@ function _printExtrafieldsFilter()
 {
 	global $db;
 
-	$task = new Task;
+	$task = new Task($db);
 	$extrafieldstask = new ExtraFields($db);
 	$extrafieldstask->fetch_name_optionals_label($task->table_element);
 
