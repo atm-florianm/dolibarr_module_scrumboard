@@ -172,7 +172,7 @@
 		$head=project_prepare_head($object);
 	}
 	else{
-		$head=array(0=>array('#', $langs->trans("Scrumboard"), 'scrumboard'));
+		$head=array(0=>array(dol_buildpath('/scrumboard/scrum.php', 1), $langs->trans("Scrumboard"), 'scrumboard'));
 	}
 	
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
@@ -275,23 +275,39 @@
 		print '<div class="fichehalfright">';
 		print '<div class="ficheaddleft">';
 		print '<div class="underbanner clearboth"></div>';
+
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+
 		print '<table class="border" width="100%">';
 
 		_printUserFilter($id_projet, $form);
 
+
 		print '</table>';
+
+		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '</form>';
+
 		print '</div>';
 		print '</div>';
 	}
 	else{
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
+		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
+
 		print '<table class="border" width="100%">';
 		echo '<tr><td>';
 		echo $langs->trans('CurrentVelocity');
 		echo '</td><td rel="currentVelocity"></td></tr>';
 
 		_printUserFilter($id_projet, $form);
+		_printSocieteFilter($form);
 
 		print '</table>';
+
+		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '</form>';
 	}
 
 	$TStorie = $story->getAllStoriesFromProject($id_projet);
@@ -643,6 +659,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					</div>
 					<div class="clearboth"></div>
 					<div class="task-users-affected"></div>
+					<div class="task-dates"></div>
 					<div class="progressbaruser"></div>
 					<div class="progressbar"></div>
 				</li>
@@ -721,12 +738,29 @@ function _printUserFilter($id_projet, $form)
 		echo '</td><td>';
 		$fk_user = GETPOST('fk_user');
 		if (empty($id_projet) && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
-
-		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" id="scrum_filter_by_user">';
-		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
 		echo $form->select_dolusers($fk_user, 'fk_user',  1);
-		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
-		echo '</form>';
 		echo '</td></tr>';
 	}
+}
+
+/**
+ * @param Form $form
+ */
+function _printSocieteFilter($form)
+{
+	global $langs;
+
+	echo '<tr><td>';
+	echo $langs->trans('Company');
+	echo '</td><td>';
+	echo $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 1);
+	echo '&nbsp;&nbsp;&nbsp;';
+
+	$soc_type = GETPOST('soc_type');
+
+	echo '<label for="soc_type_onlycompany">'.$langs->trans('soc_type_onlycompany').'</label>&nbsp;<input type="radio" name="soc_type" value="onlycompany" id="soc_type_onlycompany" '.((empty($soc_type) || $soc_type === 'onlycompany') ? 'checked' : '').'>';
+	echo '&nbsp;&nbsp;<label for="soc_type_onlycompany">'.$langs->trans('soc_type_onlychildren').'</label>&nbsp;<input type="radio" name="soc_type" value="onlychildren" id="soc_type_onlychildren" '.(($soc_type === 'onlychildren') ? 'checked' : '').'>';
+	echo '&nbsp;&nbsp;<label for="soc_type_onlycompany">'.$langs->trans('soc_type_both').'</label>&nbsp;<input type="radio" name="soc_type" value="both" id="soc_type_both" '.(($soc_type === 'both') ? 'checked' : '').'>';
+//	echo $form->select_dolusers($fk_user, 'fk_user',  1);
+	echo '</td></tr>';
 }

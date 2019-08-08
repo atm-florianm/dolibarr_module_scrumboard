@@ -45,7 +45,10 @@ function project_get_tasks(id_project, status) {
 	<?php if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE)) { ?>
 		fk_user = $('#fk_user').val();
 	<?php } ?>
-	
+
+	var fk_soc = $('#fk_soc').val();
+	var soc_type = $('[name=soc_type]:checked').val();
+
 	$.ajax({
 		url : "./script/interface.php"
 		,data: {
@@ -55,11 +58,13 @@ function project_get_tasks(id_project, status) {
 			,id_project : id_project
 			,async:false
 			,fk_user:fk_user
+			,fk_soc:fk_soc
+			,soc_type:soc_type
 		}
 		,dataType: 'json'
 	})
 	.done(function (tasks) {
-		
+
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
@@ -205,7 +210,7 @@ function project_refresh_task(id_project, task) {
 	}
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?withproject=1&id='+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
-	
+	$item.find('.task-dates').html(task.formated_date_start_end);
 	$item.find('.task-real-time span').html(task.aff_time).attr('task-id', task.id);
 	$item.find('.task-allowed-time span').html(task.aff_planned_workload).attr('task-id', task.id);
 
