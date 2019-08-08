@@ -283,6 +283,7 @@
 		print '<table class="border" width="100%">';
 
 		_printUserFilter($id_projet, $form);
+        _printDateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -304,6 +305,7 @@
 
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
+		_printDateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -743,6 +745,57 @@ function _printUserFilter($id_projet, $form)
 		echo $form->select_dolusers($fk_user, 'fk_user',  1);
 		echo '</td></tr>';
 	}
+}
+
+/**
+ * @param Form $form
+ */
+function _printDateFilter($form)
+{
+	global $langs;
+	$dates = array(
+	    'start_date_after' => $langs->trans('FilterDateStartAfter'),
+        'start_date_before' => $langs->trans('FilterDateStartBefore'),
+        'end_date_after' => $langs->trans('FilterDateEndAfter'),
+        'end_date_before' => $langs->trans('FilterDateEndBefore')
+    );
+	$dateFormData = array();
+	foreach ($dates as $datePrefix => $labelText) {
+	    $h = $m = $s = 0;
+	    if (preg_match('/.*before$/', $datePrefix)) {
+            $h = 23;
+            $m = $s = 59;
+        }
+	    $timestamp = dol_mktime(
+            $h, $m, $s,
+            GETPOST($datePrefix . 'month'),
+            GETPOST($datePrefix . 'day'),
+            GETPOST($datePrefix . 'year')
+        );
+	    $dateFormData[$datePrefix] = array(
+	        'label' => '<label for="filter_"' . $datePrefix . '>' . $langs->trans($labelText) . '</label>',
+            'input' => $form->select_date(
+                $timestamp,
+                $datePrefix,
+                0,
+                0,
+                1,
+                '',
+                1,
+                1,
+                1,
+                0
+            )
+        );
+    }
+    echo '<tr><td>' . $dateFormData['start_date_after']['label'] . '</td>'
+        . '<td>' . $dateFormData['start_date_after']['input'] . '<br/>'
+        . $dateFormData['start_date_before']['label']
+        . $dateFormData['start_date_before']['input'] . '</td></tr>';
+    echo '<tr><td>' . $dateFormData['end_date_after']['label'] . '</td>'
+        . '<td>' . $dateFormData['end_date_after']['input'] . '<br/>'
+        . $dateFormData['end_date_before']['label']
+        . $dateFormData['end_date_before']['input'] . '</td></tr>';
 }
 
 /**

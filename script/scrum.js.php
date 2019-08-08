@@ -5,9 +5,10 @@
 	include_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 	include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
-	$task = new Task;
+	$task = new Task($db);
 	$extrafieldstask = new ExtraFields($db);
 	$extrafieldstask->fetch_name_optionals_label($task->table_element);
+	header('Content-type: text/javascript');
 
 ?>
 /* <script type="text/javascript"> */

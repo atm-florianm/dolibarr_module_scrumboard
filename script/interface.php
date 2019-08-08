@@ -15,12 +15,35 @@ _get($db, $get);
 function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
-			$task = new Task;
+			$task = new Task($db);
 			$extrafieldstask = new ExtraFields($db);
 			$extrafieldstask->fetch_name_optionals_label($task->table_element);
 			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
-
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $search_array_options, $task, $extrafieldstask ));
+			$dates = array(
+                'start_date_after',
+                'start_date_before',
+                'end_date_after',
+                'end_date_before'
+            );
+			$TDateFilters = array_map(
+			    function ($datePrefix) use ($db) {
+			        $h = $m = $s = 0;
+			        if (preg_match('/.*before$/', $datePrefix)) {
+			            $h = 23;
+			            $m = $s = 59;
+                    }
+			        return $db->idate(
+			            dol_mktime(
+			                $h, $m, $s,
+                            GETPOST($datePrefix . 'month'),
+                            GETPOST($datePrefix . 'day'),
+                            GETPOST($datePrefix . 'year')
+                        )
+                    );
+                },
+                $dates
+            );
+			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask ));
 
 			break;
 		case 'task' :
@@ -376,10 +399,9 @@ function _reset_date_task(&$db, $id_project, $velocity) {
  * @param ExtraFields $extrafieldstask
  * @return array
  */
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $search_array_options, $object, $extrafieldstask) {
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
-	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
 			FROM '.MAIN_DB_PREFIX.'projet_task pt
 			INNER JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = pt.fk_projet)';
@@ -460,6 +482,12 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $searc
 		}
 	}
 
+	foreach ($TDateFilters as $i => $date) {
+	    if (empty($date)) continue;
+	    $operator = ($i % 2) ? '<=' : '>=';
+	    $field = ($i < 2) ? 'pt.dateo' : 'pt.datee';
+	    $sql .= ' AND ' . $field . ' ' . $operator . "'" . $date . "'";
+    }
 	if (!empty($search_array_options))
 	{
 		// Add where from extra fields

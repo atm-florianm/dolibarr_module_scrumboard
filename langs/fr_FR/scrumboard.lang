@@ -52,3 +52,8 @@ UsersAddedToTaskError=%s erreur(s) lors de l'affectation
 soc_type_onlycompany=Uniquement sur maison mère
 soc_type_onlychildren=Uniquement sur les filiales
 soc_type_both=Les deux
+
+FilterDateStartAfter = Date de début entre
+FilterDateStartBefore = et
+FilterDateEndAfter = Date de fin entre
+FilterDateEndBefore = et
