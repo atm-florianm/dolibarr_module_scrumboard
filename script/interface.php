@@ -15,8 +15,12 @@ _get($db, $get);
 function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
-			
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type') ));
+			$task = new Task;
+			$extrafieldstask = new ExtraFields($db);
+			$extrafieldstask->fetch_name_optionals_label($task->table_element);
+			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
+
+			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $search_array_options, $task, $extrafieldstask ));
 
 			break;
 		case 'task' :
@@ -360,13 +364,27 @@ function _reset_date_task(&$db, $id_project, $velocity) {
 
 }
 
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type) {
+/**
+ * @param DoliDB $db
+ * @param int $id_project
+ * @param int $status
+ * @param int $fk_user
+ * @param int $fk_soc
+ * @param string $soc_type
+ * @param array $TPostExtrafields
+ * @param Task $object used by extrafields_list_search_sql.tpl.php
+ * @param ExtraFields $extrafieldstask
+ * @return array
+ */
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $search_array_options, $object, $extrafieldstask) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
 			FROM '.MAIN_DB_PREFIX.'projet_task pt
 			INNER JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = pt.fk_projet)';
+
+	if (!empty($search_array_options)) $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'projet_task_extrafields ef ON (ef.fk_object = pt.rowid)';
 
 	if(empty($id_project) && $status != 'unknownColumn')
 	{
@@ -440,6 +458,12 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type) {
 
 			if ($soc_type === 'both') $sql.= ' ) ';
 		}
+	}
+
+	if (!empty($search_array_options))
+	{
+		// Add where from extra fields
+		include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
 	}
 
 	$sql.= ' ORDER BY pt.rang';

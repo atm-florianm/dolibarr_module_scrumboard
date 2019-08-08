@@ -26,6 +26,7 @@
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
     $hookmanager->initHooks(array('scrumboardcard'));
 
@@ -282,7 +283,7 @@
 		print '<table class="border" width="100%">';
 
 		_printUserFilter($id_projet, $form);
-
+		_printExtrafieldsFilter();
 
 		print '</table>';
 
@@ -303,6 +304,7 @@
 
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
+		_printExtrafieldsFilter();
 
 		print '</table>';
 
@@ -763,4 +765,30 @@ function _printSocieteFilter($form)
 	echo '&nbsp;&nbsp;<label for="soc_type_onlycompany">'.$langs->trans('soc_type_both').'</label>&nbsp;<input type="radio" name="soc_type" value="both" id="soc_type_both" '.(($soc_type === 'both') ? 'checked' : '').'>';
 //	echo $form->select_dolusers($fk_user, 'fk_user',  1);
 	echo '</td></tr>';
+}
+
+/**
+ * @param ExtraFields $extrafieldstask
+ */
+function _printExtrafieldsFilter()
+{
+	global $db;
+
+	$task = new Task;
+	$extrafieldstask = new ExtraFields($db);
+	$extrafieldstask->fetch_name_optionals_label($task->table_element);
+
+	$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
+
+	foreach ($extrafieldstask->attributes[$task->table_element]['list'] as $key => $list)
+	{
+		if ($list > 0)
+		{
+			echo '<tr><td>';
+			echo $extrafieldstask->attributes[$task->table_element]['label'][$key];
+			echo '</td><td>';
+			echo $extrafieldstask->showInputField($key, $search_array_options['search_options_'.$key], '', '', 'search_');
+			echo '</td></tr>';
+		}
+	}
 }

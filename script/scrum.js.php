@@ -2,11 +2,35 @@
 	require('../config.php');
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
-	
+	include_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
+	include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+
+	$task = new Task;
+	$extrafieldstask = new ExtraFields($db);
+	$extrafieldstask->fetch_name_optionals_label($task->table_element);
 
 ?>
 /* <script type="text/javascript"> */
-	
+
+(function ($) {
+    $.fn.serializeFormJSON = function () {
+
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+})(jQuery);
+
 function project_velocity(id_project) {
 	$.ajax({
 		url : "./script/interface.php"
@@ -40,27 +64,16 @@ function project_velocity(id_project) {
 
 function project_get_tasks(id_project, status) {
 	$('ul[rel="'+status+'"]').empty();
-	
-	var fk_user = 0;
-	<?php if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE)) { ?>
-		fk_user = $('#fk_user').val();
-	<?php } ?>
 
-	var fk_soc = $('#fk_soc').val();
-	var soc_type = $('[name=soc_type]:checked').val();
+    var data = $('#scrum_filter_by_user').serializeFormJSON();
+    data.get = 'tasks';
+    data.status = status;
+    data.id_project = id_project;
+    data.async = false;
 
 	$.ajax({
 		url : "./script/interface.php"
-		,data: {
-			json:1
-			,get : 'tasks'
-			,status : status
-			,id_project : id_project
-			,async:false
-			,fk_user:fk_user
-			,fk_soc:fk_soc
-			,soc_type:soc_type
-		}
+		,data: data
 		,dataType: 'json'
 	})
 	.done(function (tasks) {
