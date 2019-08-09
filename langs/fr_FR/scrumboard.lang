@@ -58,3 +58,5 @@ FilterDateStartBefore=et
 FilterDateEndAfter=Date de fin entre
 FilterDateEndBefore=et
 FilterErrorNegativeDateRange=La plage de dates du filtre est négative (date de fin avant date de début)
+SCRUM_SHOW_DATES=Afficher les dates de la tâche sur le kanban
+SCRUM_ADD_TIMESPENT_ON_PROJECT_DRAFT=Ajouter le temps consommé sur les projets au statut brouillon

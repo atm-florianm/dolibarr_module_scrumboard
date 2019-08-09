@@ -23,29 +23,29 @@ td.projectDrag {
 	display:block;
 	color:#fff;
 	position:relative;
-	margin-top: 0.5em;
-	padding-top: 2.1em; /* .task-date.height + .task-date.padding-top/bottom */
+	margin-top: 2px;
+	box-shadow: 1px 1px 1px #999999;
+}
+.task-dates {
+	height: 1.5em;
+	padding: 0 3px;
+	position: absolute;
+	right: 0px;
+	top: -1.5em;
+	background: #2AA8B9;
+	border: 1px solid #2AA8B9;
+	border-bottom: none;
+	box-shadow: -1px -1px 1px #999999;
+}
+.task-dates > * {
+	font-size: 80%;
 }
 .task-card-container {
 	background: #2AA8B9;
 	font-size:14px;
 	overflow: hidden;
-	/*box-shadow: 1px 1px 1px #999999;*/
 	border:1px solid #2AA8B9;
 	border-bottom: 1px solid #194B7E;
-}
-.task-dates {
-	height: 1.5em;
-	padding: 0.3em 0.5em;
-	position: absolute;
-	right: 0px;
-	top: 0px;
-	/*box-shadow: 1px -1px 1px #999999;*/
-	border:1px solid #2AA8B9;
-	border-bottom: none;
-}
-.task-dates > * {
-	font-size: 80%;
 }
 
 .projectDrag ul li div.progressbar, .projectDrag ul li div.progressbaruser {
@@ -66,7 +66,7 @@ td.projectDrag {
 .projectDrag ul li div.actions select[rel=progress] {
 	display:none;
 }
-.projectDrag ul[rel=inprogress] li {
+.projectDrag ul[rel=inprogress] li > * {
 	background: #63ac34;
 }
 .projectDrag ul[rel=inprogress] li div.actions select[rel=progress] {
@@ -103,6 +103,13 @@ td.projectDrag {
 .projectDrag ul[rel=backlog] li > * {
 	background: #a96e9c;
 }
+.projectDrag ul li.late-time > * {
+	background: #dd4545;
+}
+.projectDrag ul li.late-delivery > * {
+	background: orange;
+}
+
 .projectDrag ul li a {
 	color:#fff;
 	display:inline-block;
