@@ -15,7 +15,7 @@ _get($db, $get);
 function _get(&$db, $case) {
 	switch ($case) {
 		case 'tasks' :
-			$task = new Task;
+			$task = new Task($db);
 			$extrafieldstask = new ExtraFields($db);
 			$extrafieldstask->fetch_name_optionals_label($task->table_element);
 			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
