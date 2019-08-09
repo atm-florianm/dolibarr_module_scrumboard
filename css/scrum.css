@@ -7,13 +7,8 @@ td.projectDrag {
 	vertical-align: top;
 	background: #fff;
 	border:1px solid #2AA8B9;
-	width:50%;
-	padding:10px 20px;
-	
-}
-td.projectDrag {
 	width:33%;
-	min-width: 200px;	
+	min-width: 200px;
 	padding:1px 1px 1px 1px;
 }
 .projectDrag ul {
@@ -22,19 +17,37 @@ td.projectDrag {
 	min-height: 200px;
 }
 .projectDrag ul li:hover {
-	cursor: pointer;	
+	cursor: pointer;
 }
 .projectDrag ul li {
 	display:block;
-	background: #2AA8B9;
 	color:#fff;
+	position:relative;
+	margin-top: 0.5em;
+	padding-top: 2.1em; /* .task-date.height + .task-date.padding-top/bottom */
+}
+.task-card-container {
+	background: #2AA8B9;
 	font-size:14px;
 	overflow: hidden;
-	position:relative;
-	box-shadow: 1px 1px 1px #999999;
+	/*box-shadow: 1px 1px 1px #999999;*/
 	border:1px solid #2AA8B9;
 	border-bottom: 1px solid #194B7E;
 }
+.task-dates {
+	height: 1.5em;
+	padding: 0.3em 0.5em;
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	/*box-shadow: 1px -1px 1px #999999;*/
+	border:1px solid #2AA8B9;
+	border-bottom: none;
+}
+.task-dates > * {
+	font-size: 80%;
+}
+
 .projectDrag ul li div.progressbar, .projectDrag ul li div.progressbaruser {
 	background: #000;
 	height:8px;
@@ -65,7 +78,6 @@ td.projectDrag {
 	display:inline-block;
 }
 
-
 .projectDrag ul .ui-state-highlight {
 	background: #fff !important;
 	border:1px solid yellow;
@@ -82,13 +94,13 @@ td.projectDrag {
 	border-radius: 5px;
 	padding:3px;
 }
-.projectDrag ul[rel=finish] li {
+.projectDrag ul[rel=finish] li > * {
 	background: grey;
 }
-.projectDrag ul[rel=review] li {
+.projectDrag ul[rel=review] li > * {
 	background: #e2cc93;
 }
-.projectDrag ul[rel=backlog] li {
+.projectDrag ul[rel=backlog] li > * {
 	background: #a96e9c;
 }
 .projectDrag ul li a {
