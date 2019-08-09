@@ -23,8 +23,12 @@ td.projectDrag {
 	display:block;
 	color:#fff;
 	position:relative;
-	margin-top: 2px;
 	box-shadow: 1px 1px 1px #999999;
+	margin-top: 0.1em;
+}
+body.withDatesOnTasks .projectDrag ul li {
+	/* When dates are shown on the cards (on an additional tab-like div), increase the margin to prevent overlap */
+	margin-top: 1.8em;
 }
 .task-dates {
 	height: 1.5em;

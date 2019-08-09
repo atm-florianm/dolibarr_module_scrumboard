@@ -31,12 +31,16 @@
     $hookmanager->initHooks(array('scrumboardcard'));
 
 	$TArrayOfCss = array();
+	$TArrayOfCssClasses = array();
 
 	if((float) DOL_VERSION == 6.0) {
 		$TArrayOfCss[] = '/theme/common/fontawesome/css/font-awesome.css';
 	}
+	if(!empty($conf->global->SCRUM_SHOW_DATES)) {
+		$TArrayOfCssClasses[] = 'withDatesOnTasks';
+	}
 
-	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss);
+	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss, '', join(' ', $TArrayOfCssClasses));
 	
 	$ref = GETPOST('ref', 'aZ09');
 	$id_projet = (int)GETPOST('id');
