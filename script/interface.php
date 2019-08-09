@@ -19,31 +19,37 @@ function _get(&$db, $case) {
 			$extrafieldstask = new ExtraFields($db);
 			$extrafieldstask->fetch_name_optionals_label($task->table_element);
 			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
-			$dates = array(
-                'start_date_after',
-                'start_date_before',
-                'end_date_after',
-                'end_date_before'
-            );
+			$datePrefixes = array(
+				'start_date_after', // task start date must be after this date
+				'start_date_before',// task start date must be before this date
+				'end_date_after',   // task end date must be after this date
+				'end_date_before'   // task end date must be before this date
+			);
+			// make an array of 4 timestamps for the 4 filter dates from
+			// the 12 corresponding query parameters 4 × (month, day, year) triplets
 			$TDateFilters = array_map(
-			    function ($datePrefix) use ($db) {
-			        $h = $m = $s = 0;
-			        if (preg_match('/.*before$/', $datePrefix)) {
-			            $h = 23;
-			            $m = $s = 59;
-                    }
-			        return $db->idate(
-			            dol_mktime(
-			                $h, $m, $s,
-                            GETPOST($datePrefix . 'month'),
-                            GETPOST($datePrefix . 'day'),
-                            GETPOST($datePrefix . 'year')
-                        )
-                    );
-                },
-                $dates
-            );
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask ));
+				function ($datePrefix) use ($db) {
+					$h = $m = $s = 0;
+					// if the prefix ends with 'before', set the time to 23:59:59
+					// to avoid excluding the last day of the range
+					if (preg_match('/.*before$/', $datePrefix)) {
+						$h = 23;
+						$m = $s = 59;
+					}
+					$month = GETPOST($datePrefix . 'month');
+					$day   = GETPOST($datePrefix . 'day');
+					$year  = GETPOST($datePrefix . 'year');
+					if (empty($year) || empty($day) || empty($month)) return 0;
+					return dol_mktime(
+						$h, $m, $s,
+						GETPOST($datePrefix . 'month'),
+						GETPOST($datePrefix . 'day'),
+						GETPOST($datePrefix . 'year')
+					);
+				},
+				$datePrefixes
+			);
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask ));
 
 			break;
 		case 'task' :
@@ -54,7 +60,7 @@ function _get(&$db, $case) {
 			
 		case 'velocity':
 			
-			print json_encode(_velocity($db, (int)$_REQUEST['id_project']));
+			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
 	}
@@ -70,8 +76,8 @@ function _put(&$db, $case) {
 			break;
 			
 		case 'sort-task' :
-			
-			_sort_task($db, empty($_REQUEST['TTaskID']) ? array() : $_REQUEST['TTaskID']);
+			$TTaskID = GETPOST('TTaskID');
+			_sort_task($db, empty($TTaskID) ? array() : $TTaskID);
 			
 			break;
 		case 'reset-date-task':
@@ -481,13 +487,26 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 			if ($soc_type === 'both') $sql.= ' ) ';
 		}
 	}
+	// date filter
+	LIST ($start_date_after, $start_date_before, $end_date_after, $end_date_before) = $TDateFilters;
 
-	foreach ($TDateFilters as $i => $date) {
-	    if (empty($date)) continue;
-	    $operator = ($i % 2) ? '<=' : '>=';
-	    $field = ($i < 2) ? 'pt.dateo' : 'pt.datee';
-	    $sql .= ' AND ' . $field . ' ' . $operator . "'" . $date . "'";
-    }
+	// add error if date range boundaries are not in the right order (negative range)
+	$startDateNegativeDateRange = !empty($start_date_before) && $start_date_after > $start_date_before;
+	$endDateNegativeDateRange   = !empty($end_date_before)   && $end_date_after   > $end_date_before;
+	if ($startDateNegativeDateRange || $endDateNegativeDateRange)
+	{
+		global $langs;
+		return array(
+			'error' => true,
+			'message' => $langs->trans('FilterErrorNegativeDateRange')
+		);
+	}
+	if (!empty($start_date_after))  $sql .= ' AND pt.dateo >= ' . "'" . $db->idate($start_date_after)  . "'";
+	if (!empty($start_date_before)) $sql .= ' AND pt.dateo <= ' . "'" . $db->idate($start_date_before) . "'";
+	if (!empty($end_date_after))    $sql .= ' AND pt.datee >= ' . "'" . $db->idate($end_date_after)    . "'";
+	if (!empty($end_date_before))   $sql .= ' AND pt.datee <= ' . "'" . $db->idate($end_date_before)   . "'";
+
+	// extrafields filters
 	if (!empty($search_array_options))
 	{
 		// Add where from extra fields

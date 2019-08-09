@@ -78,7 +78,10 @@ function project_get_tasks(id_project, status) {
 		,dataType: 'json'
 	})
 	.done(function (tasks) {
-
+		if (tasks.error) {
+			$.jnotify(tasks.message, 'error', true);
+			return;
+		}
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
