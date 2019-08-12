@@ -284,7 +284,8 @@
 
 		_printUserFilter($id_projet, $form);
 		_printDateFilter($form);
-		_printLabelFilter($form);
+		_printLabelFilter();
+		_printStateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -307,7 +308,8 @@
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
 		_printDateFilter($form);
-		_printLabelFilter($form);
+		_printLabelFilter();
+		_printStateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -801,15 +803,34 @@ function _printDateFilter($form)
 }
 
 /**
- * @param Form $form
  */
-function _printLabelFilter($form)
+function _printLabelFilter()
 {
 	global $langs;
 	$labelValue = dol_escape_htmltag(GETPOST('label'));
-	$labelFilterLabel = '<label for="filter_label">' . $langs->trans('Label') . '</label>';
+	$labelFilterLabel = '<label for="filter">' . $langs->trans('Label') . '</label>';
 	$labelFilterInput = '<input type="text" name="label" id="label_filter" value="'. $labelValue .'" />';
 	echo '<tr><td>' . $labelFilterLabel . '</td><td>' . $labelFilterInput . '</td></tr>';
+}
+
+/**
+ * @param Form $form
+ */
+function _printStateFilter($form)
+{
+    $formcompany = new FormCompany($form->db);
+    global $langs, $conf;
+    if (!empty($conf->global->SOCIETE_DISABLE_STATE)) return;
+    $state_id = dol_escape_htmltag(GETPOST('state_id'));
+    $country_id = GETPOST('country_id');
+    dol_include_once('/core/lib/company.lib.php');
+    $country_code = $country_id ? getCountry($country_id, 2, $form->db, $langs) : '';
+    $countryFilterInput = $form->select_country($country_id,'country_id', 'onchange="state_filter_on_change()"');
+    $stateFilterLabel = '<label for="state">' . $langs->trans('State') . '</label>';
+    $countryFilterLabel = '<label for="country">' . $langs->trans('Country') . '</label>';
+    $stateFilterInput = $formcompany->select_state($state_id, $country_code, 'state_id');
+    echo '<tr><td>' . $countryFilterLabel . '</td><td>' . $countryFilterInput . '</td></tr>';
+    echo '<tr><td>' . $stateFilterLabel . '</td><td>' . $stateFilterInput . '</td></tr>';
 }
 
 /**

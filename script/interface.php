@@ -50,7 +50,9 @@ function _get(&$db, $case) {
 				$datePrefixes
 			);
 			$labelFilter = GETPOST('label');
-			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask, $labelFilter));
+			$countryFilter = GETPOST('country_id');
+			$stateFilter = GETPOST('state_id');
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask, $labelFilter, $countryFilter, $stateFilter));
 
 			break;
 		case 'task' :
@@ -64,6 +66,8 @@ function _get(&$db, $case) {
 			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
+        case 'get_state_selector':
+            _print_state_selector($db, GETPOST('preselected_state_id'), GETPOST('country_id'));
 	}
 
 }
@@ -406,7 +410,7 @@ function _reset_date_task(&$db, $id_project, $velocity) {
  * @param ExtraFields $extrafieldstask
  * @return array
  */
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter) {
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter, $country_filter, $state_filter) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
@@ -425,6 +429,10 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
 	}
+    if (!empty($country_filter) || !empty($state_filter))
+    {
+        $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'societe soc ON (ef.fk_etablissement = soc.rowid)';
+    }
 
 	if($status == 'unknownColumn') {
 		$scrumboardColumn = new ScrumboardColumn;
@@ -522,6 +530,15 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	{
 		$sql .= ' AND pt.label LIKE \'%' . $db->escape($label_filter) . '%\'';
 	}
+	// filter on state / country
+    if (!empty($country_filter))
+    {
+        $sql .= ' AND soc.fk_pays = ' . $country_filter;
+    }
+    if (!empty($state_filter))
+    {
+        $sql .= ' AND soc.fk_departement = ' . $state_filter;
+    }
 
 	$sql.= ' ORDER BY pt.rang';
 
@@ -564,4 +581,17 @@ function _toggle_storie_visibility($id_project, $storie_order) {
 	$story->loadStory($id_project, $storie_order);
 
 	$story->toggleVisibility();
+}
+
+/**
+ * Prints a <select> element whose options only include the states of the provided
+ * country.
+ * @param $db
+ * @param $preselected_state_id
+ * @param $country_id
+ */
+function _print_state_selector($db, $preselected_state_id, $country_id){
+    dol_include_once('/core/class/html.formcompany.class.php');
+    $formcompany = new FormCompany($db);
+    echo $formcompany->select_state($preselected_state_id, $country_id, 'state_id');
 }
