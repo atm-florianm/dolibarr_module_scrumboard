@@ -284,6 +284,7 @@
 
 		_printUserFilter($id_projet, $form);
 		_printDateFilter($form);
+		_printLabelFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -306,6 +307,7 @@
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
 		_printDateFilter($form);
+		_printLabelFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -796,6 +798,18 @@ function _printDateFilter($form)
 		. '<td>' . $dateFormData['end_date_after']['input'] . '<br/>'
 		. $dateFormData['end_date_before']['label']
 		. $dateFormData['end_date_before']['input'] . '</td></tr>';
+}
+
+/**
+ * @param Form $form
+ */
+function _printLabelFilter($form)
+{
+	global $langs;
+	$labelValue = dol_escape_htmltag(GETPOST('label'));
+	$labelFilterLabel = '<label for="filter_label">' . $langs->trans('Label') . '</label>';
+	$labelFilterInput = '<input type="text" name="label" id="label_filter" value="'. $labelValue .'" />';
+	echo '<tr><td>' . $labelFilterLabel . '</td><td>' . $labelFilterInput . '</td></tr>';
 }
 
 /**

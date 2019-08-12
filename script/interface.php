@@ -49,7 +49,8 @@ function _get(&$db, $case) {
 				},
 				$datePrefixes
 			);
-			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask ));
+			$labelFilter = GETPOST('label');
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask, $labelFilter));
 
 			break;
 		case 'task' :
@@ -405,7 +406,7 @@ function _reset_date_task(&$db, $id_project, $velocity) {
  * @param ExtraFields $extrafieldstask
  * @return array
  */
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask) {
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
@@ -515,6 +516,11 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	{
 		// Add where from extra fields
 		include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
+	}
+	// filter on label
+	if (!empty($label_filter))
+	{
+		$sql .= ' AND pt.label LIKE \'%' . $db->escape($label_filter) . '%\'';
 	}
 
 	$sql.= ' ORDER BY pt.rang';
