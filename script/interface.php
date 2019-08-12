@@ -478,6 +478,10 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 					else $sql.= ' AND ';
 					$sql.= 'p.fk_soc IN ('.implode(',', $TSocId).')';
 				}
+				else
+				{
+					$sql.= 'p.fk_soc = -1';
+				}
 			}
 			else
 			{
