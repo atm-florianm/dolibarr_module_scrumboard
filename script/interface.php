@@ -19,40 +19,16 @@ function _get(&$db, $case) {
 			$extrafieldstask = new ExtraFields($db);
 			$extrafieldstask->fetch_name_optionals_label($task->table_element);
 			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
-			$datePrefixes = array(
-				'start_date_after', // task start date must be after this date
-				'start_date_before',// task start date must be before this date
-				'end_date_after',   // task end date must be after this date
-				'end_date_before'   // task end date must be before this date
-			);
-			// make an array of 4 timestamps for the 4 filter dates from
-			// the 12 corresponding query parameters 4 × (month, day, year) triplets
-			$TDateFilters = array_map(
-				function ($datePrefix) use ($db) {
-					$h = $m = $s = 0;
-					// if the prefix ends with 'before', set the time to 23:59:59
-					// to avoid excluding the last day of the range
-					if (preg_match('/.*before$/', $datePrefix)) {
-						$h = 23;
-						$m = $s = 59;
-					}
-					$month = GETPOST($datePrefix . 'month');
-					$day   = GETPOST($datePrefix . 'day');
-					$year  = GETPOST($datePrefix . 'year');
-					if (empty($year) || empty($day) || empty($month)) return 0;
-					return dol_mktime(
-						$h, $m, $s,
-						GETPOST($datePrefix . 'month'),
-						GETPOST($datePrefix . 'day'),
-						GETPOST($datePrefix . 'year')
-					);
-				},
-				$datePrefixes
-			);
+            $TDateFilter = array(
+                dol_mktime(0,   0,  0, GETPOST('start_date_aftermonth'),  GETPOST('start_date_afterday'),  GETPOST('start_date_afteryear')),
+                dol_mktime(23, 59, 59, GETPOST('start_date_beforemonth'), GETPOST('start_date_beforeday'), GETPOST('start_date_beforeyear')),
+                dol_mktime(0,   0,  0, GETPOST('end_date_aftermonth'),    GETPOST('end_date_afterday'),    GETPOST('end_date_afteryear')),
+                dol_mktime(23, 59, 59, GETPOST('end_date_beforemonth'),   GETPOST('end_date_beforeday'),   GETPOST('end_date_beforeyear')),
+            );
 			$labelFilter = GETPOST('label');
 			$countryFilter = GETPOST('country_id');
 			$stateFilter = GETPOST('state_id');
-			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilters, $search_array_options, $task, $extrafieldstask, $labelFilter, $countryFilter, $stateFilter));
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilter, $search_array_options, $task, $extrafieldstask, $labelFilter, $countryFilter, $stateFilter));
 
 			break;
 		case 'task' :
@@ -429,7 +405,7 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
 	}
-    if (!empty($country_filter) || !empty($state_filter))
+    if ((!empty($country_filter) || !empty($state_filter)) && !empty($search_array_options))
     {
         $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'societe soc ON (ef.fk_etablissement = soc.rowid)';
     }
