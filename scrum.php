@@ -756,50 +756,25 @@ function _printUserFilter($id_projet, $form)
  */
 function _printDateFilter($form)
 {
-	global $langs;
-	$dates = array(
-		'start_date_after' => $langs->trans('FilterDateStartAfter'),
-		'start_date_before' => $langs->trans('FilterDateStartBefore'),
-		'end_date_after' => $langs->trans('FilterDateEndAfter'),
-		'end_date_before' => $langs->trans('FilterDateEndBefore')
-	);
-	$dateFormData = array();
-	foreach ($dates as $datePrefix => $labelText) {
-		$h = $m = $s = 0;
-		if (preg_match('/.*before$/', $datePrefix)) {
-			$h = 23;
-			$m = $s = 59;
-		}
-		$timestamp = dol_mktime(
-			$h, $m, $s,
-			GETPOST($datePrefix . 'month'),
-			GETPOST($datePrefix . 'day'),
-			GETPOST($datePrefix . 'year')
-		);
-		$dateFormData[$datePrefix] = array(
-			'label' => '<label for="filter_"' . $datePrefix . '>' . $langs->trans($labelText) . '</label>',
-			'input' => $form->select_date(
-				$timestamp,
-				$datePrefix,
-				0,
-				0,
-				1,
-				'',
-				1,
-				1,
-				1,
-				0
-			)
-		);
-	}
-	echo '<tr><td>' . $dateFormData['start_date_after']['label'] . '</td>'
-		. '<td>' . $dateFormData['start_date_after']['input'] . '<br/>'
-		. $dateFormData['start_date_before']['label']
-		. $dateFormData['start_date_before']['input'] . '</td></tr>';
-	echo '<tr><td>' . $dateFormData['end_date_after']['label'] . '</td>'
-		. '<td>' . $dateFormData['end_date_after']['input'] . '<br/>'
-		. $dateFormData['end_date_before']['label']
-		. $dateFormData['end_date_before']['input'] . '</td></tr>';
+    global $langs;
+    echo  '<tr>'
+         .   '<td>' . $langs->trans('FilterDateStartAfter') . '</td>'
+         .   '<td>'
+         .      $form->select_date(dol_mktime(0, 0, 0, GETPOST('start_date_aftermonth'), GETPOST('start_date_afterday'), GETPOST('start_date_afteryear')), 'start_date_after', 0, 0, 1, '', 1, 1, 1, 0)
+         .      '<br/>'
+         .      $langs->trans('FilterDateStartBefore')
+         .      $form->select_date(dol_mktime(23, 59, 59, GETPOST('start_date_beforemonth'), GETPOST('start_date_beforeday'), GETPOST('start_date_beforeyear')), 'start_date_before', 0, 0, 1, '', 1, 1, 1, 0)
+         .   '</td>'
+         .'</tr>';
+    echo  '<tr>'
+        .   '<td>' . $langs->trans('FilterDateEndAfter') . '</td>'
+        .   '<td>'
+        .      $form->select_date(dol_mktime(0, 0, 0, GETPOST('end_date_aftermonth'), GETPOST('end_date_afterday'), GETPOST('end_date_afteryear')), 'end_date_after', 0, 0, 1, '', 1, 1, 1, 0)
+        .      '<br/>'
+        .      $langs->trans('FilterDateEndBefore')
+        .      $form->select_date(dol_mktime(23, 59, 59, GETPOST('end_date_beforemonth'), GETPOST('end_date_beforeday'), GETPOST('end_date_beforeyear')), 'end_date_before', 0, 0, 1, '', 1, 1, 1, 0)
+        .   '</td>'
+        .'</tr>';
 }
 
 /**
@@ -818,12 +793,14 @@ function _printLabelFilter()
  */
 function _printStateFilter($form)
 {
-    $formcompany = new FormCompany($form->db);
     global $langs, $conf;
+
+    $formcompany = new FormCompany($form->db);
     if (!empty($conf->global->SOCIETE_DISABLE_STATE)) return;
+    dol_include_once('/core/lib/company.lib.php');
+
     $state_id = dol_escape_htmltag(GETPOST('state_id'));
     $country_id = GETPOST('country_id');
-    dol_include_once('/core/lib/company.lib.php');
     $country_code = $country_id ? getCountry($country_id, 2, $form->db, $langs) : '';
     $countryFilterInput = $form->select_country($country_id,'country_id', 'onchange="state_filter_on_change()"');
     $stateFilterLabel = '<label for="state">' . $langs->trans('State') . '</label>';
