@@ -8,6 +8,7 @@
 	$task = new Task($db);
 	$extrafieldstask = new ExtraFields($db);
 	$extrafieldstask->fetch_name_optionals_label($task->table_element);
+	header('Content-type: text/javascript');
 
 ?>
 /* <script type="text/javascript"> */
@@ -77,7 +78,10 @@ function project_get_tasks(id_project, status) {
 		,dataType: 'json'
 	})
 	.done(function (tasks) {
-
+		if (tasks.error) {
+			$.jnotify(tasks.message, 'error', true);
+			return;
+		}
 		$.each(tasks, function(i, task) {
 			var l_status = status;
 			// Si on utilise la conf de backlog et review, il faut tester si le scrum_status est vide pour mettre la tache dans la colonne la plus à gauche par défaut (test à faire unique si conf activé sinon on perd les taches sans scrum_status si désactivé)
@@ -732,4 +736,26 @@ function toggle_visibility(id_project, storie_order) {
 		// On change l'image du bouton
 		icon.removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
 	}
+}
+
+/**
+ * Send an ajax query to interface.php, which returns a HTML string with
+ * a newe <select> (with select2) input whose options are restricted to the
+ * selected country; replaces the old <select> with the one returned.
+ */
+function state_filter_on_change() {
+    let country_id = $('#selectcountry_id').children('option:selected').val();
+    $.ajax({
+        url : "./script/interface.php"
+        ,data: {
+            json:0
+            ,get: 'get_state_selector'
+            ,country_id: country_id
+            ,preselected_state_id: 0
+            ,async:true
+        }
+        ,dataType: 'html'
+    }).done(function(html) {
+        $('#state_id').parent().html(html);
+	});
 }

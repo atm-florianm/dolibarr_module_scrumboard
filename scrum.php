@@ -283,6 +283,9 @@
 		print '<table class="border" width="100%">';
 
 		_printUserFilter($id_projet, $form);
+		_printDateFilter($form);
+		_printLabelFilter();
+		_printStateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -304,6 +307,9 @@
 
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
+		_printDateFilter($form);
+		_printLabelFilter();
+		_printStateFilter($form);
 		_printExtrafieldsFilter();
 
 		print '</table>';
@@ -743,6 +749,65 @@ function _printUserFilter($id_projet, $form)
 		echo $form->select_dolusers($fk_user, 'fk_user',  1);
 		echo '</td></tr>';
 	}
+}
+
+/**
+ * @param Form $form
+ */
+function _printDateFilter($form)
+{
+    global $langs;
+    echo  '<tr>'
+         .   '<td>' . $langs->trans('FilterDateStartAfter') . '</td>'
+         .   '<td>'
+         .      $form->select_date(dol_mktime(0, 0, 0, GETPOST('start_date_aftermonth'), GETPOST('start_date_afterday'), GETPOST('start_date_afteryear')), 'start_date_after', 0, 0, 1, '', 1, 1, 1, 0)
+         .      '<br/>'
+         .      $langs->trans('FilterDateStartBefore')
+         .      $form->select_date(dol_mktime(23, 59, 59, GETPOST('start_date_beforemonth'), GETPOST('start_date_beforeday'), GETPOST('start_date_beforeyear')), 'start_date_before', 0, 0, 1, '', 1, 1, 1, 0)
+         .   '</td>'
+         .'</tr>';
+    echo  '<tr>'
+        .   '<td>' . $langs->trans('FilterDateEndAfter') . '</td>'
+        .   '<td>'
+        .      $form->select_date(dol_mktime(0, 0, 0, GETPOST('end_date_aftermonth'), GETPOST('end_date_afterday'), GETPOST('end_date_afteryear')), 'end_date_after', 0, 0, 1, '', 1, 1, 1, 0)
+        .      '<br/>'
+        .      $langs->trans('FilterDateEndBefore')
+        .      $form->select_date(dol_mktime(23, 59, 59, GETPOST('end_date_beforemonth'), GETPOST('end_date_beforeday'), GETPOST('end_date_beforeyear')), 'end_date_before', 0, 0, 1, '', 1, 1, 1, 0)
+        .   '</td>'
+        .'</tr>';
+}
+
+/**
+ */
+function _printLabelFilter()
+{
+	global $langs;
+	$labelValue = dol_escape_htmltag(GETPOST('label'));
+	$labelFilterLabel = '<label for="filter">' . $langs->trans('Label') . '</label>';
+	$labelFilterInput = '<input type="text" name="label" id="label_filter" value="'. $labelValue .'" />';
+	echo '<tr><td>' . $labelFilterLabel . '</td><td>' . $labelFilterInput . '</td></tr>';
+}
+
+/**
+ * @param Form $form
+ */
+function _printStateFilter($form)
+{
+    global $langs, $conf;
+
+    $formcompany = new FormCompany($form->db);
+    if (!empty($conf->global->SOCIETE_DISABLE_STATE)) return;
+    dol_include_once('/core/lib/company.lib.php');
+
+    $state_id = dol_escape_htmltag(GETPOST('state_id'));
+    $country_id = GETPOST('country_id');
+    $country_code = $country_id ? getCountry($country_id, 2, $form->db, $langs) : '';
+    $countryFilterInput = $form->select_country($country_id,'country_id', 'onchange="state_filter_on_change()"');
+    $stateFilterLabel = '<label for="state">' . $langs->trans('State') . '</label>';
+    $countryFilterLabel = '<label for="country">' . $langs->trans('Country') . '</label>';
+    $stateFilterInput = $formcompany->select_state($state_id, $country_code, 'state_id');
+    echo '<tr><td>' . $countryFilterLabel . '</td><td>' . $countryFilterInput . '</td></tr>';
+    echo '<tr><td>' . $stateFilterLabel . '</td><td>' . $stateFilterInput . '</td></tr>';
 }
 
 /**

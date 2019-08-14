@@ -19,8 +19,16 @@ function _get(&$db, $case) {
 			$extrafieldstask = new ExtraFields($db);
 			$extrafieldstask->fetch_name_optionals_label($task->table_element);
 			$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
-
-			print json_encode(_tasks($db, (int)$_REQUEST['id_project'], $_REQUEST['status'], GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $search_array_options, $task, $extrafieldstask ));
+            $TDateFilter = array(
+                dol_mktime(0,   0,  0, GETPOST('start_date_aftermonth'),  GETPOST('start_date_afterday'),  GETPOST('start_date_afteryear')),
+                dol_mktime(23, 59, 59, GETPOST('start_date_beforemonth'), GETPOST('start_date_beforeday'), GETPOST('start_date_beforeyear')),
+                dol_mktime(0,   0,  0, GETPOST('end_date_aftermonth'),    GETPOST('end_date_afterday'),    GETPOST('end_date_afteryear')),
+                dol_mktime(23, 59, 59, GETPOST('end_date_beforemonth'),   GETPOST('end_date_beforeday'),   GETPOST('end_date_beforeyear')),
+            );
+			$labelFilter = GETPOST('label');
+			$countryFilter = GETPOST('country_id');
+			$stateFilter = GETPOST('state_id');
+			print json_encode(_tasks($db, (int)GETPOST('id_project'), GETPOST('status'), GETPOST('fk_user'), GETPOST('fk_soc'), GETPOST('soc_type'), $TDateFilter, $search_array_options, $task, $extrafieldstask, $labelFilter, $countryFilter, $stateFilter));
 
 			break;
 		case 'task' :
@@ -31,9 +39,11 @@ function _get(&$db, $case) {
 			
 		case 'velocity':
 			
-			print json_encode(_velocity($db, (int)$_REQUEST['id_project']));
+			print json_encode(_velocity($db, (int)GETPOST('id_project')));
 			
 			break;
+        case 'get_state_selector':
+            _print_state_selector($db, GETPOST('preselected_state_id'), GETPOST('country_id'));
 	}
 
 }
@@ -47,8 +57,8 @@ function _put(&$db, $case) {
 			break;
 			
 		case 'sort-task' :
-			
-			_sort_task($db, empty($_REQUEST['TTaskID']) ? array() : $_REQUEST['TTaskID']);
+			$TTaskID = GETPOST('TTaskID');
+			_sort_task($db, empty($TTaskID) ? array() : $TTaskID);
 			
 			break;
 		case 'reset-date-task':
@@ -376,10 +386,9 @@ function _reset_date_task(&$db, $id_project, $velocity) {
  * @param ExtraFields $extrafieldstask
  * @return array
  */
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $search_array_options, $object, $extrafieldstask) {
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter, $country_filter, $state_filter) {
 	global $user,$conf;
 	dol_include_once('scrumboard/class/scrumboard.class.php');
-	
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
 			FROM '.MAIN_DB_PREFIX.'projet_task pt
 			INNER JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = pt.fk_projet)';
@@ -396,6 +405,10 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $searc
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_contact ec ON (ec.element_id = pt.rowid)';
 		$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'c_type_contact tc ON (tc.rowid = ec.fk_c_type_contact)';
 	}
+    if ((!empty($country_filter) || !empty($state_filter)) && !empty($search_array_options))
+    {
+        $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'societe soc ON (ef.fk_etablissement = soc.rowid)';
+    }
 
 	if($status == 'unknownColumn') {
 		$scrumboardColumn = new ScrumboardColumn;
@@ -463,12 +476,45 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $searc
 			if ($soc_type === 'both') $sql.= ' ) ';
 		}
 	}
+	// date filter
+	LIST ($start_date_after, $start_date_before, $end_date_after, $end_date_before) = $TDateFilters;
 
+	// add error if date range boundaries are not in the right order (negative range)
+	$startDateNegativeDateRange = !empty($start_date_before) && $start_date_after > $start_date_before;
+	$endDateNegativeDateRange   = !empty($end_date_before)   && $end_date_after   > $end_date_before;
+	if ($startDateNegativeDateRange || $endDateNegativeDateRange)
+	{
+		global $langs;
+		return array(
+			'error' => true,
+			'message' => $langs->trans('FilterErrorNegativeDateRange')
+		);
+	}
+	if (!empty($start_date_after))  $sql .= ' AND pt.dateo >= ' . "'" . $db->idate($start_date_after)  . "'";
+	if (!empty($start_date_before)) $sql .= ' AND pt.dateo <= ' . "'" . $db->idate($start_date_before) . "'";
+	if (!empty($end_date_after))    $sql .= ' AND pt.datee >= ' . "'" . $db->idate($end_date_after)    . "'";
+	if (!empty($end_date_before))   $sql .= ' AND pt.datee <= ' . "'" . $db->idate($end_date_before)   . "'";
+
+	// extrafields filters
 	if (!empty($search_array_options))
 	{
 		// Add where from extra fields
 		include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
 	}
+	// filter on label
+	if (!empty($label_filter))
+	{
+		$sql .= ' AND pt.label LIKE \'%' . $db->escape($label_filter) . '%\'';
+	}
+	// filter on state / country
+    if (!empty($country_filter))
+    {
+        $sql .= ' AND soc.fk_pays = ' . $country_filter;
+    }
+    if (!empty($state_filter))
+    {
+        $sql .= ' AND soc.fk_departement = ' . $state_filter;
+    }
 
 	$sql.= ' ORDER BY pt.rang';
 
@@ -511,4 +557,17 @@ function _toggle_storie_visibility($id_project, $storie_order) {
 	$story->loadStory($id_project, $storie_order);
 
 	$story->toggleVisibility();
+}
+
+/**
+ * Prints a <select> element whose options only include the states of the provided
+ * country.
+ * @param $db
+ * @param $preselected_state_id
+ * @param $country_id
+ */
+function _print_state_selector($db, $preselected_state_id, $country_id){
+    dol_include_once('/core/class/html.formcompany.class.php');
+    $formcompany = new FormCompany($db);
+    echo $formcompany->select_state($preselected_state_id, $country_id, 'state_id');
 }
