@@ -227,7 +227,11 @@ function project_refresh_task(id_project, task) {
 	}
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?withproject=1&id='+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
-	$item.find('.task-dates').html(task.formated_date_start_end);
+	if (task.formatted_date_start_end) {
+        $item.find('.task-dates').html('<span>' + task.formatted_date_start_end + '</span>');
+    } else {
+	    $item.find('.task-dates').hide();
+	}
 	$item.find('.task-real-time span').html(task.aff_time).attr('task-id', task.id);
 	$item.find('.task-allowed-time span').html(task.aff_planned_workload).attr('task-id', task.id);
 
@@ -285,10 +289,10 @@ function project_refresh_task(id_project, task) {
 		var t = new Date().getTime() /1000;
 		
 		if( task.time_date_end>0 && task.time_date_end < t ) {
-			$item.css('background-color','#dd4545');
-		}	
+		    $item.addClass('late-time');
+		}
 		else if(task.time_date_delivery>0 && task.time_date_delivery>task.time_date_end) {
-			$item.css('background-color','orange');
+		    $item.addClass('late-delivery');
 		}
 	}
 

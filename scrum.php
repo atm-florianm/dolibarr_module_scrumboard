@@ -31,12 +31,16 @@
     $hookmanager->initHooks(array('scrumboardcard'));
 
 	$TArrayOfCss = array();
+	$TArrayOfCssClasses = array();
 
 	if((float) DOL_VERSION == 6.0) {
 		$TArrayOfCss[] = '/theme/common/fontawesome/css/font-awesome.css';
 	}
+	if(!empty($conf->global->SCRUM_SHOW_DATES)) {
+		$TArrayOfCssClasses[] = 'withDatesOnTasks';
+	}
 
-	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss);
+	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss, '', join(' ', $TArrayOfCssClasses));
 	
 	$ref = GETPOST('ref', 'aZ09');
 	$id_projet = (int)GETPOST('id');
@@ -628,48 +632,50 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 			
 			<ul>
 				<li id="task-blank">
-					<div class="task-content width68p float">
-						<div class="task-ref"><?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>]</div>
-						<div class="task-title"><span></span></div>
-						<div class="task-desc"><span></span></div>
-					</div>
-					<div class="task-actions width32p float">
-						<div class="task-times">
-							<div class="task-real-time"><?php echo img_picto($langs->trans('SB_realtimealt'), 'object_realtime@scrumboard') ?><span></span></div>
-							<div class="task-allowed-time"><?php echo img_picto($langs->trans('SB_allowedtimealt'), 'object_allowedtime@scrumboard') ?><span></span></div>
-						</div>
-						<div class="task-progress"><?php echo img_picto('', 'object_progress@scrumboard') ?>
-							<span>
-								<select class="nodisplaybutinprogress">
-									<?php
-									for($i=5; $i<=95;$i+=5) {
-										?><option value="<?php echo $i ?>"><?php echo $i ?>%</option><?php
-									}
-									?>
-								</select>
-							</span>
-						</div>
-						<?php
-						// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
-						if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && method_exists('Task', 'fetchComments')) {
-						?>
-						<div class="task-comment"><?php echo img_picto('', 'object_comment@scrumboard') ?><span></span></div>
-						<?php
-							}
-						?>
-						<div class="task-origin"><a title="<?php echo $langs->trans('OriginFile'); ?>"><i style="color: black;" class="fa fa-link fa-lg"></i></a></div>
-					
-    					<?php 
-    					if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
-    					   print '<div class="task-add-contact" ><a ><i style="color: black;" class="fa fa-user-plus"></i> '.$langs->trans('LinkContact').'</a></div>';
-    					}
-    					?>
-					</div>
-					<div class="clearboth"></div>
-					<div class="task-users-affected"></div>
 					<div class="task-dates"></div>
-					<div class="progressbaruser"></div>
-					<div class="progressbar"></div>
+					<div class="task-card-container">
+						<div class="task-content width68p float">
+							<div class="task-ref"><?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>]</div>
+							<div class="task-title"><span></span></div>
+							<div class="task-desc"><span></span></div>
+						</div>
+						<div class="task-actions width32p float">
+							<div class="task-times">
+								<div class="task-real-time"><?php echo img_picto($langs->trans('SB_realtimealt'), 'object_realtime@scrumboard') ?><span></span></div>
+								<div class="task-allowed-time"><?php echo img_picto($langs->trans('SB_allowedtimealt'), 'object_allowedtime@scrumboard') ?><span></span></div>
+							</div>
+							<div class="task-progress"><?php echo img_picto('', 'object_progress@scrumboard') ?>
+								<span>
+									<select class="nodisplaybutinprogress">
+										<?php
+										for($i=5; $i<=95;$i+=5) {
+											?><option value="<?php echo $i ?>"><?php echo $i ?>%</option><?php
+										}
+										?>
+									</select>
+								</span>
+							</div>
+							<?php
+							// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
+							if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && method_exists('Task', 'fetchComments')) {
+							?>
+							<div class="task-comment"><?php echo img_picto('', 'object_comment@scrumboard') ?><span></span></div>
+							<?php
+								}
+							?>
+							<div class="task-origin"><a title="<?php echo $langs->trans('OriginFile'); ?>"><i style="color: black;" class="fa fa-link fa-lg"></i></a></div>
+
+							<?php
+							if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
+							   print '<div class="task-add-contact" ><a ><i style="color: black;" class="fa fa-user-plus"></i> '.$langs->trans('LinkContact').'</a></div>';
+							}
+							?>
+						</div>
+						<div class="clearboth"></div>
+						<div class="task-users-affected"></div>
+						<div class="progressbaruser"></div>
+						<div class="progressbar"></div>
+					</div>
 				</li>
 			
 			
