@@ -6,6 +6,8 @@ require_once DOL_DOCUMENT_ROOT . '/comm/propal/class/propal.class.php';
 dol_include_once('scrumboard/lib/scrumboard.lib.php');
 dol_include_once('scrumboard/class/scrumboard.class.php');
 
+$hookmanager->initHooks(array('scrumboardinterface'));
+
 $get = GETPOST('get','alpha');
 $put = GETPOST('put','alpha');
 	
@@ -386,9 +388,12 @@ function _reset_date_task(&$db, $id_project, $velocity) {
  * @param ExtraFields $extrafieldstask
  * @return array
  */
-function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter, $country_filter, $state_filter) {
-	global $user,$conf;
+function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDateFilters, $search_array_options, $object, $extrafieldstask, $label_filter, $country_filter, $state_filter)
+{
+	global $conf, $hookmanager;
+
 	dol_include_once('scrumboard/class/scrumboard.class.php');
+
 	$sql = 'SELECT DISTINCT pt.rowid, pt.story_k, pt.scrum_status, pt.rang
 			FROM '.MAIN_DB_PREFIX.'projet_task pt
 			INNER JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = pt.fk_projet)';
@@ -498,8 +503,17 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	// extrafields filters
 	if (!empty($search_array_options))
 	{
-		// Add where from extra fields
-		include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
+        $extrafields = &$extrafieldstask; // Compatibility for tpl
+        $action = 'setSqlExtrafields';
+        $parameters = array('sql' => &$sql, 'id_project' => $id_project, 'status' => $status, 'fk_user' => $fk_user, 'fk_soc' => $fk_soc, 'soc_type' => $soc_type, 'TDateFilters' => $TDateFilters, 'search_array_options' => $search_array_options, 'extrafieldstask' => $extrafieldstask, 'label_filter' => $label_filter, 'country_filter' => $country_filter, 'state_filter' => $state_filter);
+        $reshook = $hookmanager->executeHooks('doTasks', $parameters, $object, $action); // Note that $action and $object may have been modified by some
+        if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+
+        if (empty($reshook))
+        {
+            // Add where from extra fields
+            include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
+        }
 	}
 	// filter on label
 	if (!empty($label_filter))
