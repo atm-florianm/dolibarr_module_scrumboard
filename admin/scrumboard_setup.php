@@ -172,6 +172,14 @@ function showParameters() {
 	print ajax_constantonoff('SCRUM_SHOW_DATES');
 	print '</td></tr>';
 
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("GLOBAL_SB_PREFILTERED_ON_USER_RIGHTS").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print ajax_constantonoff('GLOBAL_SB_PREFILTERED_ON_USER_RIGHTS');
+	print '</td></tr>';
+
 	print '</table>';
 
 }

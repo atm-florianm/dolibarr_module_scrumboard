@@ -743,7 +743,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 
 function _printUserFilter($id_projet, $form)
 {
-	global $conf, $langs, $user, $db;
+	global $conf, $langs, $user;
 
 	if (!empty($conf->global->SCRUM_FILTER_BY_USER_ENABLE))
 	{
@@ -752,15 +752,17 @@ function _printUserFilter($id_projet, $form)
 		echo '</td><td>';
 		$fk_user = GETPOST('fk_user');
 		if (empty($id_projet) && empty($fk_user)) $fk_user = $user->id; // Si on selectionne vide dans le champ on aura -1
-		if (!empty($user->rights->projet->all->lire))
-		{
-			echo $form->select_dolusers($fk_user, 'fk_user',  1);
-		}
-		else
+
+		if (empty($id_projet) && empty($user->rights->projet->all->lire) && $conf->global->GLOBAL_SB_PREFILTERED_ON_USER_RIGHTS) // filtrage du scrumboard global sur le user courant si pas le droit de tout voir
 		{
 			echo "<input type='hidden' name='fk_user' value='".$user->id."'>";
 			echo $user->getNomUrl(1);
 		}
+		else
+		{
+			echo $form->select_dolusers($fk_user, 'fk_user',  1);
+		}
+
 		echo '</td></tr>';
 	}
 }
