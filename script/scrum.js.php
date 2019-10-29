@@ -436,18 +436,23 @@ function create_task(id_projet) {
 
 
 function pop_contact(id_project, id_task) {
-	$("#saisie")
-				.load('<?php echo dol_buildpath('/scrumboard/scrum.php',1) ?>?id_task='+id_task+'&action=addressourcetotask&ajaxcall=1&id='+id_project+' #form-add-ressource-task-'+id_task
-				,function() {
-					//$('#saisie form').submit();
-				}
-				)
-				.dialog({
-					modal:true
-					,minWidth:1200
-					,minHeight:200
-					,title:$('li[task-id='+id_task+'] .task-title span').text()
-				});
+
+	$.ajax({
+		url: '<?php echo dol_buildpath('/scrumboard/scrum.php', 1); ?>?id_task=' + id_task + '&action=addressourcetotask&ajaxcall=1&id=' + id_project
+		, method: 'GET'
+		, dataType: 'html'
+		, success: function(data)
+		{
+		    $('#saisie').empty();
+		    $(data).find('#form-add-ressource-task-' + id_task).first().appendTo('#saisie');
+		    $('#saisie').dialog({
+                modal:true
+                , minWidth:1200
+                , minHeight:200
+                , title:$('li[task-id=' + id_task + '] .task-title span').text()
+            });
+		}
+	});
 }
 
 
