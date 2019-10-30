@@ -170,7 +170,7 @@ function _set_values(&$object, $values) {
 	
 	foreach($values as $k=>$v) {
 		
-		if(isset($object->{$k})) {
+		if(property_exists($object, $k)) {
 			
 			$object->{$k} = $v;
 			
@@ -184,15 +184,22 @@ function _task(&$db, $id_task, $values=array()) {
 
 	$task=new Task($db);
 	if($id_task) $task->fetch($id_task);
-	$task->fetchObjectLinked('', '', $task->id, $task->element);
+
+    $sql = 'SELECT sourcetype, fk_source
+            FROM ' . MAIN_DB_PREFIX . 'element_element
+            WHERE targettype = "' . $task->element . '"
+            AND fk_target = ' . intval($task->id);
+
+    $resql = $db->query($sql);
+
+    $obj = $db->fetch_object($resql);
 
 	// Méthodes sur les commentaires ajoutées en standard depuis la 7.0
 	if(! empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK) && empty($task->comments) && method_exists($task, 'fetchComments')) $task->fetchComments();
 
-	$linkedObjectsIds = $task->linkedObjectsIds;
-	if(! empty($linkedObjectsIds)) {
-		$sourcetype = key($linkedObjectsIds);
-		$fk_line = current($task->linkedObjectsIds[$sourcetype]);
+	if(! empty($obj)) {
+		$sourcetype = $obj->sourcetype;
+		$fk_line = $obj->fk_source;
 
 		if($sourcetype == 'orderline') $line = new OrderLine($db);
 		else if($sourcetype == 'propaldet') $line = new PropaleLigne($db);

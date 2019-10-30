@@ -50,6 +50,13 @@
 	$storie_date_start = dol_mktime(12, 0, 0, GETPOST('storie_date_startmonth'), GETPOST('storie_date_startday'), GETPOST('storie_date_startyear'));
 	$storie_date_end = dol_mktime(12, 0, 0, GETPOST('storie_date_endmonth'), GETPOST('storie_date_endday'), GETPOST('storie_date_endyear'));
 	$id_task =  GETPOST('id_task', 'int');
+	$userid = GETPOST('userid');
+
+	if($userid <= 0)
+	{
+		$userid = $user->id;
+	}
+
 	$story = new TStory;
 	$PDOdb = new TPDOdb;
 	// Init new session var if not exist
@@ -114,10 +121,10 @@
             
             // si le contact n'est pas dejà affecté au projet, on l'affecte au project
             $result = false;
-            if(!empty($idfortaskuser) && !in_array($idfortaskuser, $contactsofproject)){
-                $result = $object->add_contact($idfortaskuser, $typeForProject, 'internal');
+            if(!empty($userid) && !in_array($userid, $contactsofproject)){
+                $result = $object->add_contact($userid, $typeForProject, 'internal');
             }
-            elseif(!empty($idfortaskuser)){
+            elseif(!empty($userid)){
                 $result = true;
             }
             
@@ -142,7 +149,7 @@
                         $taskObject = new Task($db);
                         $result = $taskObject->fetch($task_id);
                         if($result>0){
-                            $result = $taskObject->add_contact($idfortaskuser, $typeForTask, 'internal');
+                            $result = $taskObject->add_contact($userid, $typeForTask, 'internal');
                             if($result>0){
                                 $taskAddCount++;
                             }
@@ -362,7 +369,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     
     print '<h4>'.$langs->trans('AddRessource',$taskObject->label).' :</h4>';
     
-    print $form->select_dolusers($selected,'userid',0);
+    print $form->select_dolusers($userid,'userid',0, null, 0, '', '', '0', 0, 0, '', 0, '', '', 1);
     
     $contactsofproject=$object->getListContactId('internal');
     
@@ -440,7 +447,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     			    
     			    print '<strong>'.$langs->trans('AddRessource',$storyToEdit->label).' :</strong>';
     			   
-    			    print $form->select_dolusers($selected,'userid',0);
+    			    print $form->select_dolusers($userid, 'userid', 0, null, 0, '', '', '0', 0, 0, '', 0, '', '', 1);
     			    
     			    
     			    
