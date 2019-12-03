@@ -312,9 +312,12 @@
 		echo '<input name="id" value="'.$id_projet.'" type="hidden" />';
 
 		print '<table class="border" width="100%">';
-		echo '<tr><td>';
-		echo $langs->trans('CurrentVelocity');
-		echo '</td><td rel="currentVelocity"></td></tr>';
+		if (empty($conf->global->SCRUMBOARD_HIDE_VELOCITY))
+		{
+			echo '<tr><td>';
+			echo $langs->trans('CurrentVelocity');
+			echo '</td><td rel="currentVelocity"></td></tr>';
+		}
 
 		_printUserFilter($id_projet, $form);
 		_printSocieteFilter($form);
