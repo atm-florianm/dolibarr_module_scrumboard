@@ -360,6 +360,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 
     $taskObject = new Task($db);
     $taskObject->fetch($id_task);
+    if (!empty($taskObject->id)) $object->fetch($taskObject->fk_project);
     $ajaxCall = GETPOST('ajaxcall','int');
 
     print '<hr style="clear:both;" />';
