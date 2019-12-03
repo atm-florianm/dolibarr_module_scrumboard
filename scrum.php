@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2014 Alexis Algoud        <support@atm-conuslting.fr>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -21,7 +21,7 @@
  *	\brief      Project card
  */
 
- 
+
 	require('config.php');
 	dol_include_once('/scrumboard/lib/scrumboard.lib.php');
 	dol_include_once('/scrumboard/class/scrumboard.class.php');
@@ -41,7 +41,7 @@
 	}
 
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss, '', join(' ', $TArrayOfCssClasses));
-	
+
 	$ref = GETPOST('ref', 'aZ09');
 	$id_projet = (int)GETPOST('id');
 	$action = GETPOST('action');
@@ -63,7 +63,7 @@
 	if(empty($_SESSION['scrumboard']['showdesc'])) {
 		$_SESSION['scrumboard']['showdesc'] = array();
 	}
-	
+
 	if($action == 'show_desc') {
 		$_SESSION['scrumboard']['showdesc'][$id_projet] = 1;
 	}else if ($action == 'hide_desc') {
@@ -104,9 +104,9 @@
 	if ($object->societe->id > 0)  $result=$object->societe->fetch($object->societe->id);
 
 	if (!empty($id_projet)) $object->fetch_optionals();
-	
+
 	if($id_projet>0) {
-	    
+
 	    // Add new contact
 	    if ($action == 'addcontact' && $user->rights->projet->creer)
 	    {
@@ -117,8 +117,8 @@
             $id_story = GETPOST('id_story','int');
             $Ttask = array();
             $id_task = GETPOST('id_task','int');
-	    
-            
+
+
             // si le contact n'est pas dejà affecté au projet, on l'affecte au project
             $result = false;
             if(!empty($userid) && !in_array($userid, $contactsofproject)){
@@ -127,9 +127,9 @@
             elseif(!empty($userid)){
                 $result = true;
             }
-            
+
             if($result){
-                
+
                 if(empty($id_task)){
                     // récupération des taches liées à la story
                     $Ttask = getAllTaskInStory($object->id, $id_story);
@@ -137,13 +137,13 @@
                 else{
                     $Ttask = array($id_task);
                 }
-                
-                
+
+
                 if(!empty($Ttask)){
-                    
+
                     $taskAddCount = 0;
                     $taskErrorCount = 0;
-                    
+
                     foreach ($Ttask as $task_id)
                     {
                         $taskObject = new Task($db);
@@ -162,38 +162,38 @@
                             $taskErrorCount++;
                             setEventMessage($langs->trans('TaskNotFound'),'errors');
                         }
-                        
+
                     }
-                    
+
                     if($taskAddCount>0){
                         setEventMessage($langs->trans('UsersAddedToTask',$taskAddCount));
                     }
-                    
+
                     if($taskErrorCount>0){
                         setEventMessage($langs->trans('UsersAddedToTaskError',$taskErrorCount),'errors');
                     }
-                    
+
                 }
-                
+
             }
-            
+
 	    }
-	    
-	    
-	    
+
+
+
 		$head=project_prepare_head($object);
 	}
 	else{
 		$head=array(0=>array(dol_buildpath('/scrumboard/scrum.php', 1), $langs->trans("Scrumboard"), 'scrumboard'));
 	}
-	
+
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
 
 	$form = new Form($db);
 	$formcompany   = new FormCompany($db);
-	
+
 	if($id_projet) {
-		
+
 	/*
 		 *   Projet synthese pour rappel
 		 */
@@ -234,7 +234,7 @@
 		print ($end?$end:'?');
 		if ($object->hasDelay()) print img_warning("Late");
 		print '</td></tr>';
-		
+
 		print '<tr><td>'.$langs->trans("CurrentVelocity").'</td><td rel="currentVelocity"></td></tr>';
 
 		print '</table>';
@@ -301,7 +301,7 @@
 
 		print '</table>';
 
-		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '<div class="tabsAction"><input type="submit" value="'.$langs->trans('Filter').'" class="butAction" /></div>';
 		echo '</form>';
 
 		print '</div>';
@@ -325,12 +325,12 @@
 
 		print '</table>';
 
-		echo '<input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		echo '<div class="tabsAction"><input type="submit" value="'.$langs->trans('Filter').'" class="butAction" /></div>';
 		echo '</form>';
 	}
 
 	$TStorie = $story->getAllStoriesFromProject($id_projet);
-	
+
 	$scrumboardColumn = new ScrumboardColumn;
 	$TColumn = $scrumboardColumn->getTColumnOrder();
 	$nbColumns = count($TColumn);
@@ -351,14 +351,14 @@ td.projectDrag {
 </style>
 
 <div class="content">
-<?php 
+<?php
 
 if($action == 'addressourcetotask' && !empty($id_task)) {
-    
+
     $taskObject = new Task($db);
     $taskObject->fetch($id_task);
     $ajaxCall = GETPOST('ajaxcall','int');
-    
+
     print '<hr style="clear:both;" />';
     print '<div id="form-add-ressource-task-'.$id_task.'" style="clear:both; margin: 2em 0;" >';
     print '<form  action="'.dol_buildpath('scrumboard/scrum.php',2).'" method="POST">';
@@ -366,29 +366,29 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     print '<input type="hidden" name="action" value="addcontact" />';
     print '<input type="hidden" name="id_story" value="0" />';
     print '<input type="hidden" name="id_task" value="'.$taskObject->id.'" />';
-    
+
     print '<h4>'.$langs->trans('AddRessource',$taskObject->label).' :</h4>';
-    
+
     print $form->select_dolusers($userid,'userid',0, null, 0, '', '', '0', 0, 0, '', 0, '', '', 1);
-    
+
     $contactsofproject=$object->getListContactId('internal');
-    
+
     print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactProjectType');
     print $formcompany->selectTypeContact($object, '', 'typeForProject','internal','rowid');
-    
-    
+
+
     print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactTaskType');
     print $formcompany->selectTypeContact($taskObject, '', 'typeForTask','internal','rowid');
-    
+
     if(!$ajaxCall) print '<br/>';
-    
+
     print '<button class="butAction" type="submit" name="submit" value="1"  ><i class="fa fa-user-plus"></i> '.$langs->trans('Add').'</button>';
-    
-    
+
+
     if(!$ajaxCall){
         print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'">'.$langs->trans('Cancel').'</a>';
     }
-    
+
     print '</form>';
     print '</div>';
     print '<hr style="clear:both;" />';
@@ -412,7 +412,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 			}
 			?>
 		</tr>
-		<?php 
+		<?php
 		$default_k = 1;
 		$storie_k = 0;
 		$currentProject = 0;
@@ -432,47 +432,47 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     			if($action == 'addressourcetostorie' && $storie_k == $storie_k_toEdit) {
     			    $storyToEdit = new TStory;
     			    $storyToEdit->loadStory($id_projet, $storie_k);
-    			    
-    			    
+
+
     			    print '<tr>';
-    			    
+
     			    print '<td  colspan="'.($nbColumns).'" >';
-    			    
-    			    
+
+
     			    print '<div id="form-add-ressource-story-'.$storyToEdit->id.'" >';
     			    print '<form  action="'.$_SERVER['PHP_SELF'].'" method="POST">';
     			    print '<input type="hidden" name="id" value="'.$id_projet.'" />';
     			    print '<input type="hidden" name="action" value="addcontact" />';
     			    print '<input type="hidden" name="id_story" value="'.$storie_k.'" />';
-    			    
+
     			    print '<strong>'.$langs->trans('AddRessource',$storyToEdit->label).' :</strong>';
-    			   
+
     			    print $form->select_dolusers($userid, 'userid', 0, null, 0, '', '', '0', 0, 0, '', 0, '', '', 1);
-    			    
-    			    
-    			    
+
+
+
     			    $contactsofproject=$object->getListContactId('internal');
-    			    
+
     			    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactProjectType');
     			    print $formcompany->selectTypeContact($object, '', 'typeForProject','internal','rowid');
-    			    
-    			    
+
+
     			    print ' &nbsp;&nbsp;&nbsp;'.$langs->trans('ContactTaskType');
     			    $taskObject = new Task($db);
     			    print $formcompany->selectTypeContact($taskObject, '', 'typeForTask','internal','rowid');
-    			    
-    			    
+
+
     			    print '<button class="butAction" type="submit" name="submit" value="1"  ><i class="fa fa-user-plus"></i> '.$langs->trans('Add').'</button>';
     			    print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$id_projet.'">'.$langs->trans('Cancel').'</a>';
-    			    
-    			    
-    			    
+
+
+
     			    print '</form>';
     			    print '</td>';
-    			    
-    			    
+
+
     			    print '<td></td>';
-    			    
+
     			    print '</tr>';
     			    print '</div>';
     			}
@@ -485,13 +485,13 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					print '<input type="hidden" name="action" value="save" />';
 					print '<input type="hidden" name="storie_k" value="'.$storie_k.'" />';
 					print '<input type="hidden" name="id_story" value="'.$storyToEdit->id.'" />';
-					
+
 					print '<tr>';
-					
+
 					print '<td>';
 					print '<input type="text" name="storieName" storie-k="'.$storie_k.'" value="'.$storyToEdit->label.'"/>';
 					print '</td>';
-					
+
 					print '<td>';
 					print $langs->trans('From').' : ';
 					print $form->select_date((empty($storyToEdit->date_start) ? -1 : $storyToEdit->date_start), 'storie_date_start');
@@ -499,13 +499,13 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					print $langs->trans('to').' : ';
 					print $form->select_date((empty($storyToEdit->date_end) ? -1 : $storyToEdit->date_end), 'storie_date_end');
 					print '</td>';
-					
+
 					if($nbColumns > 3) print '<td colspan="'.($nbColumns-3).'"></td>';
-					
+
 					print '<td align="right">';
 					print '<input type="submit" name="submit" value="'.$langs->trans('Save').'" class="button" />';
 					print '</td>';
-					
+
 					print '</tr>';
 					print '</form>';
 				}
@@ -568,13 +568,13 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 			?>
 		</tr>
 
-		<?php 	
+		<?php
 		$default_k = 0;
 		}
 		?>
 
 	</table>
-<?php	
+<?php
 	/*
 	 * Actions
 	*/
@@ -629,14 +629,14 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 	<span style="background-color:red;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskWontfinishInTime'); ?><br />
 	<span style="background-color:orange;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('TaskMightNotfinishInTime'); ?><br />
 	<span style="background-color:#CCCCCC;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <?php echo $langs->trans('BarProgressionHelp'); ?>
-	
+
 </div>
 
-		
+
 		</div>
-		
+
 		<div style="display:none">
-			
+
 			<ul>
 				<li id="task-blank">
 					<div class="task-dates"></div>
@@ -684,8 +684,8 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 						<div class="progressbar"></div>
 					</div>
 				</li>
-			
-			
+
+
 			<!-- <li id="task-blank">
 				<div class="progressbaruser"></div>
 				<div class="progressbar"></div>
@@ -699,21 +699,21 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 					</select>
 					<span rel="time"></span>
 				</div>
-				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span> 
-				<br /><span class="font-small" rel="list_of_user_affected"></span> 
+				<?php echo img_picto('', 'object_scrumboard@scrumboard') ?><span rel="project"></span> [<a href="#" rel="ref"> </a>] <span rel="label" class="classfortooltip" title="">label</span>
+				<br /><span class="font-small" rel="list_of_user_affected"></span>
 			</li> -->
 			</ul>
-			
+
 		</div>
-		
-		
+
+
 		<div id="saisie" style="display:none;"></div>
 		<div id="reset-date" title="<?php echo $langs->trans('ResetDate'); ?>" style="display:none;">
-			
+
 			<p><?php echo $langs->trans('ResetDateWithThisVelocity'); ?> : </p>
-			
+
 			<input type="text" name="velocity" size="5" id="current-velocity" value="<?php echo $conf->global->SCRUM_DEFAULT_VELOCITY*3600; ?>" /> <?php echo $langs->trans('HoursPerDay') ?>
-			
+
 		</div>
 		<div id="add-storie" title="<?php echo $langs->trans('AddStorie'); ?>" style="display:none;">
 
@@ -721,19 +721,19 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 			<input type="hidden" name="add_storie_k" id="add_storie_k" value="<?php $storie_k++; echo $storie_k; ?>" />
 			<input type="text" name="storieName" size="20" id="newStorieName" value="<?php echo 'Sprint '.$storie_k; ?>" required="required"/>
 			<br />
-			
+
 			<?php
 
 			print '<span>'.$langs->trans('From').' : </span>';
 			print $form->select_date(-1, 'add_storie_date_start');
-			
+
 			print '<span>'.$langs->trans('to').' : </span>';
 			print $form->select_date(-1, 'add_storie_date_end');
 
 			?>
 
 		</div>
-		
+
 		<script type="text/javascript">
 			$(document).ready(function() {
 				project_loadTasks(<?php echo $id_projet ?>);
@@ -741,7 +741,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 				project_velocity(<?php echo $id_projet ?>);
 			});
 		</script>
-		
+
 <?php
 
 	llxFooter();
