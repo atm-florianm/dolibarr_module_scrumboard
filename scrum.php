@@ -185,6 +185,63 @@
 	}
 	else{
 		$head=array(0=>array(dol_buildpath('/scrumboard/scrum.php', 1), $langs->trans("Scrumboard"), 'scrumboard'));
+
+		if ($action == 'addcontact' && $user->rights->projet->creer)
+		{
+			$idfortaskuser=GETPOST('userid','int');
+			$typeForTask = GETPOST('typeForTask','int');
+			$typeForProject = GETPOST('typeForProject','int');
+			$id_story = GETPOST('id_story','int');
+			$id_task = GETPOST('id_task','int');
+
+			$taskObject = new Task($db);
+			$resulttaskfetch = $taskObject->fetch($id_task);
+
+			$proj = new Project($db);
+			if ($taskObject->fk_project) $proj->fetch($taskObject->fk_project);
+
+			$contactsofproject=$proj->getListContactId('internal');
+
+			// si le contact n'est pas dejà affecté au projet, on l'affecte au project
+			$result = false;
+			if(!empty($userid) && !in_array($userid, $contactsofproject)){
+				$result = $proj->add_contact($userid, $typeForProject, 'internal');
+			}
+			elseif(!empty($userid)){
+				$result = true;
+			}
+
+			if ($result && !empty($id_task))
+			{
+				$taskAddCount = 0;
+				$taskErrorCount = 0;
+
+				if($resulttaskfetch>0){
+					$result = $taskObject->add_contact($userid, $typeForTask, 'internal');
+					if($result>0){
+						$taskAddCount++;
+					}
+					else{
+						$taskErrorCount ++;
+						setEventMessage($taskObject->error,'errors');
+					}
+				}
+				else{
+					$taskErrorCount++;
+					setEventMessage($langs->trans('TaskNotFound'),'errors');
+				}
+
+
+			}
+
+			if($taskAddCount>0){
+				setEventMessage($langs->trans('UsersAddedToTask',$taskAddCount));
+			}
+
+			if($taskErrorCount>0){
+				setEventMessage($langs->trans('UsersAddedToTaskError',$taskErrorCount),'errors');
+			}
+		}
 	}
 
 	dol_fiche_head($head, 'scrumboard', $langs->trans("Scrumboard"),0,($object->public?'projectpub':'project'));
@@ -361,6 +418,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
     $taskObject = new Task($db);
     $taskObject->fetch($id_task);
     if (!empty($taskObject->id)) $object->fetch($taskObject->fk_project);
+
     $ajaxCall = GETPOST('ajaxcall','int');
 
     print '<hr style="clear:both;" />';

@@ -44,7 +44,7 @@ function project_velocity(id_project) {
 		,dataType: 'json'
 	})
 	.done(function (data) {
-		
+
 		if(data.current) {
 			$('td[rel=currentVelocity]').html(data.current);
 		}
@@ -57,10 +57,10 @@ function project_velocity(id_project) {
 		if(data.velocity) {
 			$('#current-velocity').val(Math.round(data.velocity / 3600 * 100) / 100);
 		}
-				
-	}); 
-	
-	
+
+	});
+
+
 }
 
 function project_get_tasks(id_project, status) {
@@ -110,8 +110,8 @@ function project_get_tasks(id_project, status) {
 
 			project_draw_task(id_project, task, $ul);
 		});
-				
-	}); 
+
+	});
 }
 
 function project_create_task(id_project) {
@@ -126,23 +126,23 @@ function project_create_task(id_project) {
 		,dataType: 'json'
 	})
 	.done(function (task) {
-	
-		<?php 
+
+		<?php
 		// TODO: Conf SCRUM_ADD_BACKLOG_REVIEW_COLUMN !
 					if(!empty($conf->global->SCRUM_ADD_BACKLOG_REVIEW_COLUMN)) {
 						echo '$ul = $(\'tr[default-k=1]\').find(\'ul[rel=backlog]\')';
 					}
 					else{
-						
+
 						echo '$ul = $(\'tr[default-k=1]\').find(\'ul[rel=todo]\')';
 					}
 		?>
-		
-		
+
+
 		project_draw_task(id_project, task, $ul);
 		project_develop_task(task.id);
-	}); 
-	
+	});
+
 }
 
 function project_draw_task(id_project, task, ul) {
@@ -161,8 +161,8 @@ function project_refresh_task(id_project, task) {
 	if(id_project == 0)
 	{
 		$storyTR = $item.parent().parent().parent();
-		
-		
+
+
 		if($storyTR.is(':hidden'))
 		{
 			$storyTR.show();
@@ -172,26 +172,26 @@ function project_refresh_task(id_project, task) {
 				$target = $target.prev();
 			}
 			$target.show().prev().show();
-			
+
 			let icon = $target.find('i');
 			icon.removeClass().addClass('fa fa-eye-slash fa-lg').attr('title', '<?php print $langs->trans('Hide'); ?>');
 
-			
+
 		}
-		
-		
-		
-		
+
+
+
+
 	}
-	
+
 	// Generate js var with all scrumboard project to showdesc
 	var TShowDesc = (<?php echo json_encode($_SESSION['scrumboard']['showdesc']); ?>);
-	
+
 	$item.attr('task-id', task.id);
-	
+
 	$item.removeClass('idea todo inprogress finish backlog review');
 	$item.addClass(task.status);
-	
+
 	var progress= Math.round(task.progress / 5) * 5 ; // round 5
 	$item.find('.task-progress select').val( progress ).attr('task-id', task.id).off( "change").on("change", function() {
 		var id_projet = $('#scrum').attr('id_projet');
@@ -201,7 +201,7 @@ function project_refresh_task(id_project, task) {
 		task.status = 'inprogress';
 		task.story_k = $(this).closest('ul').attr('story-k');
 		task.scrum_status = $(this).closest('ul').attr('rel');
-		
+
 		project_save_task(id_project, task);
 	});
 	if(task.status != 'todo' && task.status != 'finish') {
@@ -209,7 +209,7 @@ function project_refresh_task(id_project, task) {
 	}else{
 		$item.find('.task-progress').hide(0);
 	}
-	
+
 	// Test sur conf voir description taches
 	if(TShowDesc[id_project] == 1) {
 		$item.find('.task-title span').html(task.label);
@@ -238,32 +238,32 @@ function project_refresh_task(id_project, task) {
 	$item.find('.task-real-time, .task-allowed-time').off('click').on("click", function() {
 		pop_time( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
 	});
-	
+
 	$item.find('.task-add-contact').off('click').on("click", function(e) {
 		e.preventDefault();
 		pop_contact( $('#scrum').attr('id_projet'), task.id );
 	});
-	
+
 	if(task.origin == 'order') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('commande/card.php', 1); ?>?id='+task.origin_id);
 	else if(task.origin == 'propal') $item.find('.task-origin a').attr('href', '<?php echo dol_buildpath('comm/propal/card.php', 1); ?>?id='+task.origin_id);
 	else $item.find('.task-origin a').remove();
 
-	<?php 
+	<?php
 	if(!empty($conf->global->SCRUM_SHOW_LINKED_CONTACT)){
 	    print ' $item.find(".task-add-contact a").attr("href", "'.dol_buildpath('scrumboard/scrum.php', 1).'?action=addressourcetotask&id="+ $("#scrum").attr("id_projet") + "&id_task=" + task.id); ';
 	}
 	?>
-	
+
 	<?php if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) { ?>
 	<!--  Commentary conf -->
 	$item.find('.task-comment span').html(task.nbcomment).attr('task-id', task.id);
-		
+
 	$item.find('.task-comment').off('click').on("click", function() {
 		pop_comment( $('#scrum').attr('id_projet'), $(this).find('span').attr('task-id'));
 	});
 	<!--  fin conf -->
 	<?php } ?>
-	
+
 
 	var percent_progress = Math.round(task.duration_effective / task.planned_workload * 100);
 	if(percent_progress > 100) {
@@ -276,18 +276,18 @@ function project_refresh_task(id_project, task) {
 
 	}
 	else {
-		$item.find('div.progressbar').css('width', percent_progress+'%');	
+		$item.find('div.progressbar').css('width', percent_progress+'%');
 		$item.find('div.progressbar').css('background-color', '');
-	
-	}
-	
 
-	$item.find('div.progressbaruser').css('width', progress+'%');	
-	
+	}
+
+
+	$item.find('div.progressbaruser').css('width', progress+'%');
+
 	if(progress<100 && (task.scrum_status=='todo' || task.scrum_status=='inprogress' ) ) {
-		
+
 		var t = new Date().getTime() /1000;
-		
+
 		if( task.time_date_end>0 && task.time_date_end < t ) {
 		    $item.addClass('late-time');
 		}
@@ -316,13 +316,13 @@ function project_get_task(id_project, id_task) {
 	.done(function (lTask) {
 		//alert(lTask.name);
 		taskReturn = lTask;
-	}); 
-	
+	});
+
 	return taskReturn;
 }
 
 function project_init_change_type(id_project) {
-	
+
     $('.task-list').sortable( {
     	connectWith: ".task-list"
     	, placeholder: "ui-state-highlight"
@@ -334,27 +334,27 @@ function project_init_change_type(id_project) {
 			task.status = $(this).attr('rel');
 			task.story_k = $(this).closest('ul').attr('story-k');
 			task.scrum_status = $(this).closest('ul').attr('rel');
-			
+
 			$('#task-'+task.id).css('top','');
-	        $('#task-'+task.id).css('left','');	
-			$('#list-task-'+task.status).prepend( $('#task-'+task.id) );	
-			
+	        $('#task-'+task.id).css('left','');
+			$('#list-task-'+task.status).prepend( $('#task-'+task.id) );
+
 			if(task.scrum_status=='backlog') task.status = 'todo';
 			else if(task.scrum_status=='review') task.status = 'finish';
-			
+
 			project_save_task(id_project, task);
-					        
-	  }  
+
+	  }
 	  ,update:function(event,ui) {
 	  	var sortedIDs = $( this ).sortable( "toArray" );
-	  	
+
 	  	var TTaskID=[];
 	  	$.each(sortedIDs, function(i, id) {
-	  		
+
 	  		taskid = $('#'+id).attr('task-id');
 	  		TTaskID.push( taskid );
 	  	});
-	  		
+
 	  	$.ajax({
 			url : "./script/interface.php"
 			,data: {
@@ -364,16 +364,16 @@ function project_init_change_type(id_project) {
 			}
 			,dataType: 'json'
 		});
-	  	
+
 	  }
     });
 }
 
 function project_getsave_task(id_project, id_task) {
-	
+
 	task = project_get_task(id_project, id_task);
 	$item = $('#task-'+task.id);
-	
+
 	task.name = $item.find('[rel=name]').val();
 	task.status = $item.find('[rel=status]').val();
 	task.type = $item.find('[rel=type]').val();
@@ -381,10 +381,10 @@ function project_getsave_task(id_project, id_task) {
 	task.description = $item.find('[rel=description]').val();
 	task.story_k = $item.closest('ul').attr('story-k');
 	task.scrum_status = $item.closest('ul').attr('rel');
-	
+
 	if(task.scrum_status=='backlog') task.status = 'todo';
 	else if(task.scrum_status=='review') task.status = 'finish';
-	
+
 	project_save_task(id_project, task);
 }
 
@@ -408,10 +408,10 @@ function project_save_task(id_project, task) {
 	})
 	.done(function (task) {
 		project_refresh_task(id_project, task);
-		project_velocity(id_project);				
+		project_velocity(id_project);
 		$('#task-'+task.id).css({ opacity:1 });
-	}); 
-	
+	});
+
 }
 
 function project_develop_task(id_task) {
@@ -429,34 +429,34 @@ function project_loadTasks(id_projet) {
 	project_get_tasks(id_projet , 'unknownColumn');
 }
 function create_task(id_projet) {
-	
+
 	if($('#dialog-create-task').length==0) {
 		$('body').append('<div id="dialog-create-task"></div>');
 	}
 	var url ="<?php echo  dol_buildpath('/projet/tasks.php',1) ?>?action=create&id="+id_projet
-		
+
 	$('#dialog-create-task').load(url+" div.fiche form",function() {
-		
+
 		$('#dialog-create-task input[name=cancel]').remove();
 		$('#dialog-create-task form').submit(function() {
-			
+
 			$.post($(this).attr('action'), $(this).serialize(), function() {
 				project_loadTasks(id_projet);
 			});
-		
-			$('#dialog-create-task').dialog('close');			
-			
+
+			$('#dialog-create-task').dialog('close');
+
 			return false;
-	
-			
+
+
 		});
-		
+
 		$(this).dialog({
 			title: "<?php echo $langs->trans('AddTask') ?>"
 			,width:800
 			,modal:true
 		});
-		
+
 	});
 }
 
@@ -471,6 +471,12 @@ function pop_contact(id_project, id_task) {
 		{
 		    $('#saisie').empty();
 		    $(data).find('#form-add-ressource-task-' + id_task).first().appendTo('#saisie');
+		    var fk_user = $("#fk_user").val();
+		    var input = $('<input type="hidden" name="fk_user" value="'+fk_user+'" >')
+		    var form = $('#saisie').find('form');
+
+		    form.append(input);
+
 		    $('#saisie').dialog({
                 modal:true
                 , minWidth:1200
@@ -499,7 +505,7 @@ function pop_time(id_project, id_task) {
                                             });
                     <?php } ?>
 					$('#saisie form').submit(function() {
-						
+
 						$.post( $(this).attr('action')
 							, {
 								token : $(this).find('input[name=token]').val()
@@ -510,21 +516,21 @@ function pop_time(id_project, id_task) {
 								,timeday : $(this).find('input[name=timeday]').val()
 								,timemonth : $(this).find('input[name=timemonth]').val()
 								,timeyear : $(this).find('input[name=timeyear]').val()
-								
+
 								<?php if((float) DOL_VERSION > 3.6) {
 									?>
 									,progress : $(this).find('select[name=progress]').val()
 									<?php
 								}
 								?>
-								
+
 								,userid : $(this).find('[name=userid]').val()
 								,timespent_note : $(this).find('textarea[name=timespent_note]').val()
 								,timespent_durationmin : $(this).find('[name=timespent_durationmin]').val()
 								,timespent_durationhour : $(this).find('[name=timespent_durationhour]').val()
-								
+
 							}
-							
+
 						) .done(function(data) {
 							/*
 							 * Récupération de l'erreur de sauvegarde du temps
@@ -532,7 +538,7 @@ function pop_time(id_project, id_task) {
 							jStart = data.indexOf("$.jnotify(");
 							if(jStart>0) {
 								jStart=jStart+11;
-								jEnd = data.indexOf('"error"', jStart) - 10; 
+								jEnd = data.indexOf('"error"', jStart) - 10;
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
 								if(message != "") { // Test on message empty. But could be jEnd > 0
 								// ERror case
@@ -545,18 +551,18 @@ function pop_time(id_project, id_task) {
 							{
 								$.jnotify('<?php echo $langs->trans('TimeAdded') ?>');
 							}
-							
+
 						});
-						
+
 						$("#saisie").dialog('close');
-						
-						
+
+
 						task = project_get_task(id_project, id_task);
 						task.status = 'inprogress';
 						project_refresh_task(id_project, task);
-	
+
 						return false;
-					
+
 					});
 				}
 				)
@@ -571,54 +577,54 @@ function pop_time(id_project, id_task) {
 <?php if(!empty($conf->global->PROJECT_ALLOW_COMMENT_ON_TASK)) { ?>
 <!--  Commentary conf -->
 
-		
+
 function pop_comment(id_project, id_task) {
 	$("#saisie")
 				.load('<?php echo dol_buildpath('/projet/tasks/comment.php',1) ?>?id='+id_task+' #comment'
 				,function() {
 					$('textarea[name="comment_description"]').attr('cols',25).focus();
-					
+
 					$('#saisie form').submit(function() {
-						
+
 						$.post( $(this).attr('action')
 							, {
 								token : $(this).find('input[name=token]').val()
 								,action : 'addcomment'
 								,id : $(this).find('input[name=id]').val()
-								,withproject : 0								
+								,withproject : 0
 								,userid : $(this).find('[name=userid]').val()
 								,comment_element_type : $(this).find('[name=comment_element_type]').val()
 								,comment_description : $(this).find('textarea[name=comment_description]').val()
-								
+
 							}
-							
+
 						) .done(function(data) {
 							/*
 							 * Récupération de l'erreur de sauvegarde du temps
 							 */
 							jStart = data.indexOf("$.jnotify(");
-							
+
 							if(jStart>0) {
 								jStart=jStart+11;
-								
-								jEnd = data.indexOf('"error"', jStart) - 10; 
+
+								jEnd = data.indexOf('"error"', jStart) - 10;
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
 								$.jnotify('<?php echo $langs->trans('CommentAdded') ?>');
 							}
 							else {
 								$.jnotify('<?php echo $langs->trans('CommentAdded') ?>', "ok");
-								project_velocity(id_project);	
+								project_velocity(id_project);
 							}
-							
+
 						});
-						
+
 						$("#saisie").dialog('close');
-						
+
 						task = project_get_task(id_project, id_task);
 						project_refresh_task(id_project, task);
-	
+
 						return false;
-					
+
 					});
 				}
 				)
@@ -633,7 +639,7 @@ function pop_comment(id_project, id_task) {
 <?php } ?>
 
 function reset_the_dates(id_project) {
-	
+
 	var velocity = parseFloat($('#current-velocity').val());
 	$.ajax({
 		url : "./script/interface.php"
@@ -649,9 +655,9 @@ function reset_the_dates(id_project) {
 	})
 	.done(function (task) {
 		project_loadTasks(id_project);
-		project_velocity(id_project);				
-	}); 
-	
+		project_velocity(id_project);
+	});
+
 }
 
 function reset_date_task(id_project) {
@@ -659,10 +665,10 @@ function reset_date_task(id_project) {
 			modal:true
 			,minWidth:400
 			,minHeight:200
-			,buttons: [ 
-				{ text: "<?php echo $langs->trans('Yes'); ?>", click: function() { reset_the_dates(id_project); $( this ).dialog( "close" ); } } 
+			,buttons: [
+				{ text: "<?php echo $langs->trans('Yes'); ?>", click: function() { reset_the_dates(id_project); $( this ).dialog( "close" ); } }
 				, { text: "<?php echo $langs->trans('No'); ?>", click: function() { $( this ).dialog( "close" ); } }
-			] 
+			]
 	});
 }
 
@@ -676,7 +682,7 @@ function add_storie(id_project) {
 	var add_storie_date_endday = $('#add_storie_date_endday').val();
 	var add_storie_date_endmonth = $('#add_storie_date_endmonth').val();
 	var add_storie_date_endyear = $('#add_storie_date_endyear').val();
-	
+
 	$.ajax({
 		url : "./script/interface.php"
 		,data: {
@@ -723,13 +729,13 @@ function toggle_storie_visibility(id_project, storie_order) {
 		,type: 'POST'
 		,async: true
 	}).done(function(data) {
-		
+
 	});
 }
 
 function toggle_visibility(id_project, storie_order) {
 	toggle_storie_visibility(id_project, storie_order);
-	
+
 	// On récupère le tr à cacher/afficher
 	let tr = $('tr.hiddable[story-k='+storie_order+'][project-id='+id_project+']');
 	var icon = $('i[data-story-k='+storie_order+'][data-project-id='+id_project+']');
