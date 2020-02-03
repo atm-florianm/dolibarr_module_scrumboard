@@ -92,8 +92,7 @@ global $langs;
 		// ne peut pas gérér la résolution car pas de temps plannifié
 	}
 	else {
-
-		if($velocity>0) {
+		if($velocity>0 && !empty($id_project)) {
 
 			$time = time();
 			$res=$db->query("SELECT SUM(planned_workload-duration_effective) as duration
