@@ -425,7 +425,7 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	if($status == 'unknownColumn') {
 		$scrumboardColumn = new ScrumboardColumn;
 		$PDOdb=new TPDOdb;
-		$scrumboardColumn->LoadAllBy($PDOdb);
+		$scrumboardColumn->LoadAllBy($PDOdb, array('entity'=>$conf->entity));
 		$defaultColumn = $scrumboardColumn->getDefaultColumn();
 
 		$sql .= ' WHERE (scrum_status NOT IN (SELECT code FROM '.MAIN_DB_PREFIX.'c_scrum_columns WHERE active=1))';
