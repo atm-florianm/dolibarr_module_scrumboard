@@ -129,31 +129,6 @@ global $langs;
 
 }
 
-function _as_array(&$object, $recursif=false, $exclude=array('db')) {
-	global $langs;
-	$Tab=array();
-
-	foreach ($object as $key => $value) {
-		if (in_array($key, $exclude)) continue;
-
-		if(is_object($value) || is_array($value)) {
-			if($recursif) $Tab[$key] = _as_array($recursif, $value);
-			else $Tab[$key] = $value;
-		}
-		else if(strpos($key,'date_')===0){
-
-			$Tab['time_'.$key] = $value;
-
-			if(empty($value))$Tab[$key] = '0000-00-00 00:00:00';
-			else $Tab[$key] = date('Y-m-d H:i:s',$value);
-		}
-		else{
-			$Tab[$key]=$value;
-		}
-	}
-	return $Tab;
-
-}
 
 function _sort_task(&$db, $TTask) {
 	global $user;
@@ -177,100 +152,6 @@ function _set_values(&$object, $values) {
 		}
 
 	}
-
-}
-
-function _getTContact(&$task)
-{
-	global $db;
-
-	$TInternalContact = $task->liste_contact(-1, 'internal');
-	$TExternalContact = $task->liste_contact(-1, 'external');
-
-	$task->internal_contacts = '';
-	$task->external_contacts = '';
-	if (!empty($TInternalContact))
-	{
-		dol_include_once('/user/class/user.class.php');
-		$user = new User($db);
-		foreach ($TInternalContact as &$row)
-		{
-			$user->id = $row['id'];
-			$user->lastname = $row['lastname'];
-			$user->firstname = $row['firstname'];
-			$task->internal_contacts .= $user->getNomUrl(1).'&nbsp;';
-		}
-	}
-
-	if (!empty($TExternalContact))
-	{
-		dol_include_once('/contact/class/contact.class.php');
-		$contact = new Contact($db);
-		foreach ($TExternalContact as &$row)
-		{
-			$contact->id = $row['id'];
-			$contact->lastname = $row['lastname'];
-			$contact->firstname = $row['firstname'];
-			$task->external_contacts .= $contact->getNomUrl(1).'&nbsp;';
-		}
-	}
-}
-
-function _get_delivery_date_with_velocity(&$db, &$task, $velocity, $time=null) {
-
-	if( (float)DOL_VERSION <= 3.4 || $velocity==0) {
-		return 0;
-
-	}
-	else {
-		$rest = $task->planned_workload - $task->duration_effective; // nombre de seconde restante
-
-		if(is_null($time)) {
-			$time = time();
-			if($time<$task->start_date)$time = $task->start_date;
-		}
-
-		$time += ( 86400 * $rest / $velocity  )  ;
-
-		return $time;
-
-	}
-}
-
-function _reset_date_task(&$db, $id_project, $velocity) {
-	global $user;
-
-	if($velocity==0) return false;
-
-	$project=new Project($db);
-	$project->fetch($id_project);
-
-
-	$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."projet_task
-	WHERE fk_projet=".$id_project." AND progress<100
-	ORDER BY rang";
-
-	$res = $db->query($sql);
-
-	$current_time = time();
-
-	while($obj = $db->fetch_object($res)) {
-
-		$task=new Task($db);
-		$task->fetch($obj->rowid);
-
-		if($task->progress==0)$task->date_start = $current_time;
-
-		$task->date_end = _get_delivery_date_with_velocity($db, $task, $velocity, $current_time);
-
-		$current_time = $task->date_end;
-
-		$task->update($user);
-
-	}
-
-	$project->date_end = $current_time;
-	$project->update($user);
 
 }
 
