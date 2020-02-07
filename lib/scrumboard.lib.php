@@ -157,22 +157,19 @@ function getSQLForTasks(
 	}
 
 	if($status == 'unknownColumn') {
-		$scrumboardColumn = new ScrumboardColumn;
-		$PDOdb=new TPDOdb;
-		$scrumboardColumn->LoadAllBy($PDOdb);
-		$defaultColumn = $scrumboardColumn->getDefaultColumn();
-
 		$sql .= ' WHERE (scrum_status NOT IN (SELECT code FROM '.MAIN_DB_PREFIX.'c_scrum_columns WHERE active=1))';
 	}
 	else {
 		$sql.= ' WHERE 1 ';
-		$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$db->escape($status).'")';
 
-		if      ($status=='ideas')      $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
-		else if ($status=='todo')       $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL))';
-		else if ($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
-		else if ($status=='finish')     $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
-		$sql .= ')';
+		if (!empty($status)) {
+			$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$db->escape($status).'")';
+			if      ($status=='ideas')      $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
+			else if ($status=='todo')       $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL))';
+			else if ($status=='inprogress') $sql.= ' OR (scrum_status IS NULL AND  progress > 0 AND progress < 100)';
+			else if ($status=='finish')     $sql.= ' OR (scrum_status IS NULL AND  progress=100)';
+			$sql .= ')';
+		}
 	}
 
 	if($id_project > 0) $sql.= ' AND fk_projet='.$id_project;

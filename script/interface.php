@@ -418,6 +418,13 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 
 	$TTask = array();
 
+	if($status == 'unknownColumn') {
+		$scrumboardColumn = new ScrumboardColumn;
+		$PDOdb=new TPDOdb;
+		$scrumboardColumn->LoadAllBy($PDOdb);
+		$defaultColumn = $scrumboardColumn->getDefaultColumn();
+	}
+
 	while($obj = $db->fetch_object($res)) {
 		if($status == 'unknownColumn') $obj->scrum_status = $defaultColumn;
 		$TTask[] = array_merge( _task($db, $obj->rowid) , array('status'=>$status,'story_k'=>$obj->story_k,'scrum_status'=>$obj->scrum_status));
