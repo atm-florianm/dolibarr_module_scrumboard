@@ -92,8 +92,7 @@ global $langs;
 		// ne peut pas gérér la résolution car pas de temps plannifié
 	}
 	else {
-
-		if($velocity>0) {
+		if($velocity>0 && !empty($id_project)) {
 
 			$time = time();
 			$res=$db->query("SELECT SUM(planned_workload-duration_effective) as duration
@@ -130,28 +129,29 @@ global $langs;
 
 }
 
-function _as_array(&$object, $recursif=false) {
-global $langs;
+function _as_array(&$object, $recursif=false, $exclude=array('db')) {
+	global $langs;
 	$Tab=array();
 
-		foreach ($object as $key => $value) {
+	foreach ($object as $key => $value) {
+		if (in_array($key, $exclude)) continue;
 
-			if(is_object($value) || is_array($value)) {
-				if($recursif) $Tab[$key] = _as_array($recursif, $value);
-				else $Tab[$key] = $value;
-			}
-			else if(strpos($key,'date_')===0){
-
-				$Tab['time_'.$key] = $value;
-
-				if(empty($value))$Tab[$key] = '0000-00-00 00:00:00';
-				else $Tab[$key] = date('Y-m-d H:i:s',$value);
-			}
-			else{
-				$Tab[$key]=$value;
-			}
+		if(is_object($value) || is_array($value)) {
+			if($recursif) $Tab[$key] = _as_array($recursif, $value);
+			else $Tab[$key] = $value;
 		}
-		return $Tab;
+		else if(strpos($key,'date_')===0){
+
+			$Tab['time_'.$key] = $value;
+
+			if(empty($value))$Tab[$key] = '0000-00-00 00:00:00';
+			else $Tab[$key] = date('Y-m-d H:i:s',$value);
+		}
+		else{
+			$Tab[$key]=$value;
+		}
+	}
+	return $Tab;
 
 }
 
