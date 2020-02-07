@@ -40,6 +40,252 @@
 		$TArrayOfCssClasses[] = 'withDatesOnTasks';
 	}
 
+
+
+	if (GETPOST('submitAction') === 'getCSV') {
+
+		$projectId = intval(GETPOST('id', 'int'));
+		$task = new Task($db);
+		$extrafieldstask = new ExtraFields($db);
+		$extrafieldstask->fetch_name_optionals_label($task->table_element);
+		$search_array_options = $extrafieldstask->getOptionalsFromPost($task->table_element, '', 'search_');
+		$TDateFilter = array(
+			dol_mktime(0,   0,  0, GETPOST('start_date_aftermonth', 'int'),  GETPOST('start_date_afterday', 'int'),  GETPOST('start_date_afteryear', 'int')),
+			dol_mktime(23, 59, 59, GETPOST('start_date_beforemonth', 'int'), GETPOST('start_date_beforeday', 'int'), GETPOST('start_date_beforeyear', 'int')),
+			dol_mktime(0,   0,  0, GETPOST('end_date_aftermonth', 'int'),    GETPOST('end_date_afterday', 'int'),    GETPOST('end_date_afteryear', 'int')),
+			dol_mktime(23, 59, 59, GETPOST('end_date_beforemonth', 'int'),   GETPOST('end_date_beforeday', 'int'),   GETPOST('end_date_beforeyear', 'int')),
+		);
+		$labelFilter = GETPOST('label', 'alpha');
+		$countryFilter = GETPOST('country_id', 'int');
+		$stateFilter = GETPOST('state_id', 'int');
+
+
+		$scrumboardColumn = new ScrumboardColumn;
+		$TColumn = array_map(function ($c) { return $c->code; }, $scrumboardColumn->getTColumnOrder());
+		$TColumn[] = 'unknownColumn';
+		$fk_user = GETPOST('fk_user', 'int');
+		$fk_soc = GETPOST('fk_soc', 'int');
+		$soc_type = GETPOST('soc_type');
+
+		// CMMCM pour rester iso avec l’écran
+
+		$task = new Task($db);
+
+		// Configure columns for the CSV export
+		$selectedColumns = array(
+			'id' => '',
+			'ref' => '',
+			'label' => '',
+			'date_start' => '',
+			'date_end' => '',
+			'projectRef' => function (&$obj) use ($db) {
+				$project = new Project($db);
+				if ($project->fetch($obj['fk_project']) > 0) return $project->ref;
+				return 'error';
+			},
+			'projectTitle' => function (&$obj) use ($db) {
+				$project = new Project($db);
+				if ($project->fetch($obj['fk_project']) > 0) return $project->title;
+				return 'error';
+			},
+			'thirdPartyName' => function (&$obj) use ($db) {
+				$thirdParty = new Societe($db);
+				if ($thirdParty->fetch($obj['fk_soc']) > 0) return $thirdParty->name;
+				return 'error';
+			},
+			'projectStatus' => function (&$obj) use ($db) {
+				$project = new Project($db);
+				if ($project->fetch($obj['fk_project']) > 0) return $project->statut;
+				return 'error';
+			},
+			'planned_workload' => function (&$obj) use ($db) {
+				return secondsAsHoursMinutes(intval($obj['planned_workload']));
+			},
+			'duration_effective' => '',
+			'progress_calculated' => function(&$obj) {
+				return round(100 * $obj['duration_effective'] / $obj['planned_workload'], 2) . '%';
+			},
+			'progress' => '',
+			'tobill' => '',
+			'billed' => '',
+			'tms' => '',
+			'description' => '',
+			'date_c' => '',
+			'fk_statut' => '',
+		);
+		// Automatically add extrafields in the CSV export
+		$extrafields = new ExtraFields($db);
+		$extralabels = $extrafields->fetch_name_optionals_label($task->table_element);
+
+		// adapted from Extrafields::showOutputField() (we can't use it directly as it outputs HTML, not plain text)
+		if (is_array($extralabels)) {
+			foreach ($extralabels as $key => $label) {
+				$extrafieldType = $extrafields->attribute_type[$key];
+				$extrafieldParam = $extrafields->attribute_param[$key];
+//				var_dump($key, $extrafieldType);
+				switch ($extrafieldType) {
+					case 'date':
+						$callback = function (&$obj) use ($key) {
+							return dol_print_date($obj['array_options']['options_' . $key]);
+						};
+						break;
+					case 'datetime':
+						$callback = function (&$obj) use ($key) {
+							return dol_print_date($obj['array_options']['options_' . $key]);
+						};
+						break;
+					case 'boolean':
+						$callback = function (&$obj) use ($key, $langs) {
+							return !empty($obj['array_options']['options_' . $key]) ? $langs->trans('yes') : $langs->trans('no');
+						};
+						break;
+					case 'mail':case 'url':case 'phone':case 'price':
+						$callback = function (&$obj) use ($key) {
+							return $obj['array_options']['options_' . $key];
+						};
+						break;
+					case 'select':
+						$callback = function (&$obj) use ($key) {
+							return $obj['array_options']['options_' . $key];
+						};
+						break;
+					case 'sellist':
+						$callback = function (&$obj) use ($key) {
+							return $obj['array_options']['options_' . $key];
+						};
+						break;
+					case 'radio':
+						$callback = function (&$obj) use ($key) {
+							return $obj['array_options']['options_' . $key];
+						};
+						break;
+					case 'checkbox':
+						$callback = function (&$obj) use ($key, $extrafieldParam) {
+							$TValue = explode(',', $obj['array_options']['options_' . $key]);
+							$toprint = array();
+							if (is_array($TValue))
+							{
+								foreach ($TValue as $keyval => $valueval) {
+									$toprint[] = $extrafieldParam['options'][$valueval];
+								}
+							}
+							return implode("\n", $toprint);
+						};
+						break;
+					case 'chkbxlst':
+						$infoFieldList = explode(':', array_keys($extrafieldParam['options'])[0]);
+						// Several field into label (eq table:code|libelle:rowid)
+						$field_labels = explode('|', $infoFieldList[1]);
+						$callback = function (&$obj) use ($langs, $key, $infoFieldList, $field_labels, $db) {
+							$toprint = array();
+							$TValue = explode(',', $obj['array_options']['options_' . $key]);
+							if (!is_array($TValue)) return '';
+							$selectKey = $keyList = 'rowid';
+							if (count($infoFieldList) >= 3) {
+								$selectKey = $infoFieldList[2];
+								$keyList = $infoFieldList[2] . ' as rowid';
+							}
+							if (is_array($field_labels)) {
+								$keyList .= ', ' . implode(', ', $field_labels);
+							}
+							$sql = 'SELECT ' . $keyList . ' FROM ' . MAIN_DB_PREFIX . $infoFieldList[0];
+							if (strpos($infoFieldList[4], 'extra') !== false) {
+								$sql .= ' as main';
+							}
+							$resql = $db->query($sql);
+							if (!$resql) {
+								return 'error';
+							}
+							while ($obj = $db->fetch_object($resql)) {
+								if (in_array($obj->rowid, $TValue)) {
+									if (is_array($field_labels) && count($field_labels) > 1) {
+										foreach ($field_labels as $field_toshow) {
+											$translabel = '';
+											if (!empty($obj->{$field_toshow})) {
+												$translabel = $langs->trans($obj->{$field_toshow});
+											}
+											if ($translabel == $field_toshow) $toprint[] = $obj->{$field_toshow};
+											else $toprint[] = $translabel;
+										}
+									} else {
+										$translabel = '';
+										if (!empty($obj->{$infoFieldList[1]})) {
+											$translabel = $langs->trans($obj->{$infoFieldList[1]});
+										}
+										if ($translabel == $obj->{$infoFieldList[1]}) $toprint[] = $translabel;
+										else $toprint[] = $obj->{$infoFieldList[1]};
+									}
+								}
+							}
+							return implode("\n", $toprint);
+						};
+						break;
+					case 'link':
+						LIST($classname, $classpath) = explode(':', array_keys($extrafieldParam['options'])[0]);
+						if (!empty($classpath)) {
+							dol_include_once($classpath);
+							if ($classname && class_exists($classname)) {
+								$object = new $classname($db);
+							}
+							$callback = function (&$obj) use ($key, $object) {
+								if ($object->fetch($obj['array_options']['options_' . $key]) > 0) return strip_tags($object->getNomUrl(3));
+								return 'error';
+							};
+						} else {
+							$callback = function (&$obj) use ($key) {
+								return 'Error bad setup of extrafield';
+							};
+						}
+						break;
+					case 'text':case 'longtext':
+						$callback = function (&$obj) use ($key) {
+							return html_entity_decode($obj['array_options']['options_' . $key]);
+						};
+						break;
+					case 'varchar':
+						$callback = function (&$obj) use ($key) {return $obj['array_options']['options_' . $key];};
+						break;
+					case 'password':
+						$callback = function (&$obj) use ($key) {return $obj['array_options']['options_' . $key];};
+						break;
+					default:
+						$callback = function (&$obj) use ($key, $extrafields) {
+							return strip_tags($extrafields->showOutputField($key,  $obj['array_options']['options_' . $key]));
+						};
+						break;
+				}
+				$selectedColumns[$label] = $callback;
+			}
+		}
+
+		$csvFileHandle = null;
+		foreach($TColumn as $columnCode) {
+			$sql = getSQLForTasks(
+				$db,
+				$projectId,
+				$columnCode,
+				$fk_user,
+				$fk_soc,
+				$soc_type,
+				$TDateFilter,
+				$search_array_options,
+				$task,
+				$extrafieldstask,
+				$labelFilter,
+				$countryFilter,
+				$stateFilter);
+			$csvFileHandle = _getCSV($sql, $selectedColumns, $columnCode, 'Project_' . $projectId . '_tasks.csv', $csvFileHandle);
+		}
+
+		$fileName = stream_get_meta_data($csvFileHandle)['uri'];
+
+		header('Content-Type: application/csv');
+		header('Content-Disposition: attachment; filename=' . $filename);
+		header('Pragma: no-cache');
+		readfile($fileName);
+		exit;
+	}
+
 	llxHeader('', $langs->trans('Tasks') , '','',0,0, array('/scrumboard/script/scrum.js.php'), $TArrayOfCss, '', join(' ', $TArrayOfCssClasses));
 
 	$ref = GETPOST('ref', 'aZ09');
@@ -269,7 +515,6 @@
         $morehtmlref.='</div>';
 
 		dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
-
 		print '<div class="fichecenter">';
 		print '<div class="fichehalfleft">';
 		print '<div class="underbanner clearboth"></div>';
@@ -358,7 +603,16 @@
 
 		print '</table>';
 
-		echo '<div class="tabsAction"><input type="submit" value="'.$langs->trans('Filter').'" class="butAction" /></div>';
+		$exportBtn = '<input type="submit" value="' . $langs->trans('ExportCSV') . '" class="ButAction" />';
+		if ($user->rights->scrumboard->export || true) {
+
+		}
+		echo '<div class="tabsAction">'
+			 . '<input type="submit" name="submitAction" value="' . $langs->trans('Filter') . '" class="butAction" />'
+			 . '<button type="submit" name="submitAction" value="getCSV" formtarget="_blank" title="' . $langs->trans('ExportCSVHelp') . '" class="butAction">'
+			 . $langs->trans('ExportCSV')
+			 . '</button>'
+			 . '</div>';
 		echo '</form>';
 
 		print '</div>';
@@ -412,6 +666,61 @@ td.projectDrag {
 
 <div class="content">
 <?php
+
+/**
+ * @param string        $sql              SQL query that filters tasks
+ * @param array         $selectedColumns  Assoc array: keys are the column names, values are either empty (in which
+ *                                        case the key will be used to get the CSV value) or a function (in which case
+ *                                        the value returned by the function, called on the $taskDetails object, will be
+ *                                        used as the CSV value).
+ * @param string        $scrumboardColumn
+ * @param string        $filename
+ * @param resource|null $csvFileHandle
+ * @return resource|null Null on error, else the CSV file handle to which the function has written.
+ */
+function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileHandle=null) {
+	global $conf, $user, $db, $langs;
+
+	if ($csvFileHandle === null) {
+		$is_first = True;
+		$tmpName = tempnam(sys_get_temp_dir(), 'data');
+		$csvFileHandle = fopen($tmpName, 'w');
+	} else {
+		$is_first = False;
+	}
+
+	$resql = $db->query($sql);
+	if (!$resql) return null;
+	if (($num_rows = $db->num_rows($resql)) === 0) return null;
+
+	for ($i = 0; $i < $num_rows; $i++) {
+		$obj = $db->fetch_object($resql);
+		if (!$obj) continue;
+		$taskDetails = array_merge(getTaskDetailsForScrumboardCard($db, $obj->rowid) , array('story_k' => $obj->story_k, 'scrum_status' => $obj->scrum_status));
+
+		if ($is_first && $i === 0) {
+			fputcsv($csvFileHandle, array_keys($selectedColumns), "\t", '"', "\\");
+		}
+
+		$values = array();
+		foreach ($selectedColumns as $columnName => $valueGetter) {
+			if (empty($valueGetter)) {
+				$values[] = $taskDetails[$columnName];
+			} else {
+				$values[] = $valueGetter($taskDetails);
+			}
+		}
+
+		fputcsv(
+			$csvFileHandle,
+			$values,
+			"\t",
+			'"',
+			"\\"
+		);
+	}
+	return $csvFileHandle;
+}
 
 if($action == 'addressourcetotask' && !empty($id_task)) {
 

@@ -516,3 +516,16 @@ function _as_array(&$object, $recursif=false, $exclude=array('db')) {
 	return $Tab;
 
 }
+
+	/**
+	 * Formats a time in seconds (e.g. 7600) as a HH:MM:SS string ('02:06:40')
+	 * @param int $seconds
+	 * @param bool $includeSeconds  Whether to include the remaining seconds in the returned string.
+	 * @return string
+	 */
+function secondsAsHoursMinutes($seconds, $includeSeconds=true) {
+	$hours = (int)($seconds / 3600); $seconds %= 3600;
+	$minutes = (int)($seconds / 60); $seconds %= 60;
+	if ($includeSeconds) return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+	return sprintf('%02d:%02d', $hours, $minutes);
+}
