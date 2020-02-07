@@ -415,6 +415,16 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	);
 
 	$res = $db->query($sql);
+	if (empty($res)) {
+		global $langs, $user, $dolibarr_main_prod;
+		$ret = array('error' => True, 'message' => $langs->trans('ErrorInvalidSQL', $langs->trans($status)));
+		if ($user->admin  && !$dolibarr_main_prod ) {
+			// debugging context only for admins in a non-production environment
+			$ret['sql'] = $sql;
+			$ret['dblasterror'] = $db->lasterror();
+		}
+		return $ret;
+	}
 
 	$TTask = array();
 
