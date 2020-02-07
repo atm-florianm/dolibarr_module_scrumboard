@@ -166,7 +166,7 @@ function getSQLForTasks(
 	}
 	else {
 		$sql.= ' WHERE 1 ';
-		$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$status.'")';
+		$sql.= ' AND ((scrum_status IS NOT NULL AND scrum_status = "'.$db->escape($status).'")';
 
 		if      ($status=='ideas')      $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL) AND datee IS NULL)';
 		else if ($status=='todo')       $sql.= ' OR (scrum_status IS NULL AND (progress = 0 OR progress IS NULL))';
