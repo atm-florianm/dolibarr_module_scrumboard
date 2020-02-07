@@ -286,6 +286,18 @@ function _task(&$db, $id_task, $values=array()) {
 	$task->formatted_date_start_end = '';
 	if (!empty($conf->global->SCRUM_SHOW_DATES)) $task->formatted_date_start_end = dol_print_date($task->date_start, 'day') . ' - ' . dol_print_date($task->date_end, 'day');
 
+	if (!empty($task->array_options))
+	{
+		$ef = new ExtraFields($db);
+		$labels = $ef->fetch_name_optionals_label('projet_task');
+
+		foreach ($task->array_options as $key => $value)
+		{
+			$task->options_display[$key] = $labels[str_replace('options_', '', $key)] . ' : ' . $ef->showOutputField(str_replace('options_', '', $key), $value, '', 'projet_task');
+		}
+
+	}
+
 	return _as_array($task);
 }
 
