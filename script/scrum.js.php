@@ -96,7 +96,7 @@ function project_get_tasks(id_project, status) {
 				<?php
 				$scrumColumn = new ScrumboardColumn;
 				$PDOdb = new TPDOdb;
-				$scrumColumn->LoadAllBy($PDOdb);
+				$scrumColumn->LoadAllBy($PDOdb, array('entity'=>$conf->entity));
 				print 'l_status = "'.$scrumColumn->getDefaultColumn().'";';
 				?>
 			}

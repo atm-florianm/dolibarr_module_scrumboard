@@ -203,7 +203,7 @@ function _tasks(&$db, $id_project, $status, $fk_user, $fk_soc, $soc_type, $TDate
 	if($status == 'unknownColumn') {
 		$scrumboardColumn = new ScrumboardColumn;
 		$PDOdb=new TPDOdb;
-		$scrumboardColumn->LoadAllBy($PDOdb);
+		$scrumboardColumn->LoadAllBy($PDOdb, array('entity'=>$conf->entity));
 		$defaultColumn = $scrumboardColumn->getDefaultColumn();
 	}
 
