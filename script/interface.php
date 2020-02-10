@@ -290,10 +290,11 @@ function _task(&$db, $id_task, $values=array()) {
 	{
 		$ef = new ExtraFields($db);
 		$labels = $ef->fetch_name_optionals_label('projet_task');
+		$TTaskEFToShow = explode(',', $conf->global->SCRUM_DISPLAY_TASKS_EXTRAFIELDS);
 
 		foreach ($task->array_options as $key => $value)
 		{
-			$task->options_display[$key] = $labels[str_replace('options_', '', $key)] . ' : ' . $ef->showOutputField(str_replace('options_', '', $key), $value, '', 'projet_task');
+			if (in_array(str_replace('options_', '', $key), $TTaskEFToShow)) $task->options_display .= "<p>" . $labels[str_replace('options_', '', $key)] . ' : ' . $ef->showOutputField(str_replace('options_', '', $key), $value, '', 'projet_task')."</p>";
 		}
 
 	}
