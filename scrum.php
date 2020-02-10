@@ -678,7 +678,7 @@ td.projectDrag {
  * @param resource|null $csvFileHandle
  * @return resource|null Null on error, else the CSV file handle to which the function has written.
  */
-function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileHandle=null) {
+function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileHandle=null, $delimiter=';', $enclosure='"', $escapeChar="\\") {
 	global $conf, $user, $db, $langs;
 
 	if ($csvFileHandle === null) {
@@ -699,7 +699,7 @@ function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileH
 		$taskDetails = array_merge(getTaskDetailsForScrumboardCard($db, $obj->rowid) , array('story_k' => $obj->story_k, 'scrum_status' => $obj->scrum_status));
 
 		if ($is_first && $i === 0) {
-			fputcsv($csvFileHandle, array_keys($selectedColumns), "\t", '"', "\\");
+			fputcsv($csvFileHandle, array_keys($selectedColumns), $delimiter, $enclosure, $escapeChar);
 		}
 
 		$values = array();
@@ -714,9 +714,9 @@ function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileH
 		fputcsv(
 			$csvFileHandle,
 			$values,
-			"\t",
-			'"',
-			"\\"
+			$delimiter,
+			$enclosure,
+			$escapeChar
 		);
 	}
 	return $csvFileHandle;
