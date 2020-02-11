@@ -707,6 +707,7 @@ if($action == 'addressourcetotask' && !empty($id_task)) {
 							<div class="task-ref"><?php echo img_picto('', 'object_scrumboard@scrumboard') ?> [<a href="#" rel="ref"> </a>]</div>
 							<div class="task-title"><span></span></div>
 							<div class="task-desc"><span></span></div>
+							<div class="task-extrafields"></div>
 						</div>
 						<div class="task-actions width32p float">
 							<div class="task-times">

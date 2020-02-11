@@ -225,6 +225,9 @@ function project_refresh_task(id_project, task) {
 				}
 		});
 	}
+	//console.log(task.options_display);
+	$item.find('.task-extrafields').html(task.options_display);
+
 	$item.find('.task-ref a').html(task.ref).attr("href", '<?php echo dol_buildpath('/projet/tasks/task.php',1) ?>?withproject=1&id='+task.id);
 	$item.find('.task-users-affected').html(task.internal_contacts).append(task.external_contacts);
 	if (task.formatted_date_start_end) {
