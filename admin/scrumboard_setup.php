@@ -41,7 +41,17 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	if ($code == 'SCRUM_DISPLAY_TASKS_EXTRAFIELDS')
+	{
+		$TtasksEF = GETPOST('SCRUM_DISPLAY_TASKS_EXTRAFIELDS');
+		if (dolibarr_set_const($db, $code, implode(',', $TtasksEF), 'chaine', 0, '', $conf->entity) > 0)
+		{
+			setEventMessage( $langs->trans('RegisterSuccess') );
+			header("Location: ".$_SERVER["PHP_SELF"]);
+			exit;
+		}
+	}
+	else if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
 	{
 		
         setEventMessage( $langs->trans('RegisterSuccess') );
@@ -179,6 +189,22 @@ function showParameters() {
 	print '<td align="right" width="300">';
 	print ajax_constantonoff('GLOBAL_SB_PREFILTERED_ON_USER_RIGHTS');
 	print '</td></tr>';
+
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("SCRUM_DISPLAY_TASKS_EXTRAFIELDS").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	$ef = new ExtraFields($db);
+	$labels = $ef->fetch_name_optionals_label('projet_task');
+	print '<form method="POST" name="display_EF">';
+	print '<input type="hidden" name="action" value="set_SCRUM_DISPLAY_TASKS_EXTRAFIELDS">';
+	print $html->multiselectarray('SCRUM_DISPLAY_TASKS_EXTRAFIELDS', $labels, explode(',', $conf->global->SCRUM_DISPLAY_TASKS_EXTRAFIELDS));
+	print '<input class="button" type="submit" value="'.$langs->trans('Save').'">';
+	print '</form>';
+	print '</td></tr>';
+
+
 
 	print '</table>';
 

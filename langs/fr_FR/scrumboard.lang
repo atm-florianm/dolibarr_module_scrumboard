@@ -61,6 +61,7 @@ FilterErrorNegativeDateRange=La plage de dates du filtre est négative (date de 
 SCRUM_SHOW_DATES=Afficher les dates de la tâche sur le kanban
 SCRUM_ADD_TIMESPENT_ON_PROJECT_DRAFT=Ajouter le temps consommé sur les projets au statut brouillon
 GLOBAL_SB_PREFILTERED_ON_USER_RIGHTS=Filtrer le kanban global sur l'utilisateur courant s'il n'a pas le droit de voir les tâches des autres
+SCRUM_DISPLAY_TASKS_EXTRAFIELDS=Champs complémentaires des tâches à afficher dans le scrumboard.
 
 ErrorInvalidSQL=Erreur : requête SQL non valide pour la colonne %s
  
