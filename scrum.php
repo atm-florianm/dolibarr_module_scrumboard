@@ -88,11 +88,6 @@
 				if ($project->fetch($obj['fk_project']) > 0) return $project->title;
 				return 'error';
 			},
-			'thirdPartyName' => function (&$obj) use ($db) {
-				$thirdParty = new Societe($db);
-				if ($thirdParty->fetch($obj['fk_soc']) > 0) return $thirdParty->name;
-				return 'error';
-			},
 			'projectStatus' => function (&$obj) use ($db) {
 				$project = new Project($db);
 				if ($project->fetch($obj['fk_project']) > 0) return $project->statut;
