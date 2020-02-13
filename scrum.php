@@ -678,25 +678,20 @@ function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileH
 	global $conf, $user, $db, $langs;
 
 	if ($csvFileHandle === null) {
-		$is_first = True;
 		$tmpName = tempnam(sys_get_temp_dir(), 'data');
 		$csvFileHandle = fopen($tmpName, 'w');
-	} else {
-		$is_first = False;
+		fputcsv($csvFileHandle, array_keys($selectedColumns), $delimiter, $enclosure, $escapeChar);
 	}
 
 	$resql = $db->query($sql);
-	if (!$resql) return null;
-	if (($num_rows = $db->num_rows($resql)) === 0) return null;
+	if (!$resql) return $csvFileHandle;
+	$num_rows = $db->num_rows($resql);
+	if ($num_rows === 0) return $csvFileHandle;
 
 	for ($i = 0; $i < $num_rows; $i++) {
 		$obj = $db->fetch_object($resql);
 		if (!$obj) continue;
 		$taskDetails = array_merge(getTaskDetailsForScrumboardCard($db, $obj->rowid) , array('story_k' => $obj->story_k, 'scrum_status' => $obj->scrum_status));
-
-		if ($is_first && $i === 0) {
-			fputcsv($csvFileHandle, array_keys($selectedColumns), $delimiter, $enclosure, $escapeChar);
-		}
 
 		$values = array();
 		foreach ($selectedColumns as $columnName => $valueGetter) {
@@ -706,6 +701,7 @@ function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileH
 				$values[] = $valueGetter($taskDetails);
 			}
 		}
+//		var_export($values);
 
 		fputcsv(
 			$csvFileHandle,
