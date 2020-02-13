@@ -269,13 +269,14 @@
 				$labelFilter,
 				$countryFilter,
 				$stateFilter);
-			$csvFileHandle = _getCSV($sql, $selectedColumns, $columnCode, 'Project_' . $projectId . '_tasks.csv', $csvFileHandle);
+			$csvFileHandle = _getCSV($sql, $selectedColumns, $columnCode, '', $csvFileHandle);
 		}
 
 		$fileName = stream_get_meta_data($csvFileHandle)['uri'];
+		$downloadFileName = 'Project_' . $projectId . '_tasks.csv';
 
 		header('Content-Type: application/csv');
-		header('Content-Disposition: attachment; filename=' . $filename);
+		header('Content-Disposition: attachment; filename=' . $downloadFileName);
 		header('Pragma: no-cache');
 		readfile($fileName);
 		exit;
