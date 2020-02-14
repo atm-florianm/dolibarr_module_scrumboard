@@ -42,7 +42,7 @@
 
 
 
-	if (GETPOST('submitAction') === 'getCSV') {
+	if (GETPOST('submitAction') === 'getCSV' && $user->rights->scrumboard->export) {
 
 		$projectId = intval(GETPOST('id', 'int'));
 		$task = new Task($db);
@@ -600,15 +600,16 @@
 		print '</table>';
 
 		$exportBtn = '<input type="submit" value="' . $langs->trans('ExportCSV') . '" class="ButAction" />';
-		if ($user->rights->scrumboard->export || true) {
 
-		}
 		echo '<div class="tabsAction">'
-			 . '<input type="submit" name="submitAction" value="' . $langs->trans('Filter') . '" class="butAction" />'
-			 . '<button type="submit" name="submitAction" value="getCSV" formtarget="_blank" title="' . $langs->trans('ExportCSVHelp') . '" class="butAction">'
-			 . $langs->trans('ExportCSV')
-			 . '</button>'
-			 . '</div>';
+			 . '<input type="submit" name="submitAction" value="' . $langs->trans('Filter') . '" class="butAction" />';
+		if ($user->rights->scrumboard->export) {
+			echo '<button type="submit" name="submitAction" value="getCSV" formtarget="_blank" title="' . $langs->trans('ExportCSVHelp') . '" class="butAction">'
+			     . $langs->trans('ExportCSV')
+			     . '</button>';
+		}
+
+		echo  '</div>';
 		echo '</form>';
 
 		print '</div>';
@@ -635,7 +636,13 @@
 
 		print '</table>';
 
-		echo '<div class="tabsAction"><input type="submit" value="'.$langs->trans('Filter').'" class="butAction" /></div>';
+		echo '<div class="tabsAction"><input type="submit" value="'.$langs->trans('Filter').'" class="butAction" />';
+		if ($user->rights->scrumboard->export) {
+			echo '<button type="submit" name="submitAction" value="getCSV" formtarget="_blank" title="' . $langs->trans('ExportCSVHelp') . '" class="butAction">'
+				 . $langs->trans('ExportCSV')
+				 . '</button>';
+		}
+		echo '</div>';
 		echo '</form>';
 	}
 

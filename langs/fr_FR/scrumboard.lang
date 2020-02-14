@@ -65,3 +65,4 @@ SCRUM_DISPLAY_TASKS_EXTRAFIELDS=Champs complémentaires des tâches à afficher 
 
 ErrorInvalidSQL=Erreur : requête SQL non valide pour la colonne %s
 RegisterSuccess=Configuration enregistrée
+scrumboard_export = Exporter les tâches du scrumboard
