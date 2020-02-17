@@ -22,3 +22,6 @@ SCRUM_USE_GLOBAL_BOARD=Activate global scrumboard (menu "Projects", submenu "Scr
 
 SB_realtimealt=Time spent
 SB_allowedtimealt=Time planned
+
+ErrorInvalidSQL=Invalid SQL query for column %s
+RegisterSuccess=Configuration saved

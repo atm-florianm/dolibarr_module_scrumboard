@@ -259,23 +259,13 @@ class modscrumboard extends DolibarrModules
         // Permissions
         $this->rights = array(); // Permission array used by this module
 
-
-        // Add here list of permission defined by
-        // an id, a label, a boolean and two constant strings.
-        // Example:
-        //// Permission id (must not be already used)
-        //$this->rights[$r][0] = 2000;
-        //// Permission label
-        //$this->rights[$r][1] = 'Permision label';
-        //// Permission by default for new user (0/1)
-        //$this->rights[$r][3] = 1;
-        //// In php code, permission will be checked by test
-        //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][4] = 'level1';
-        //// In php code, permission will be checked by test
-        //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][5] = 'level2';
-        //$r++;
+		$r = 0;
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'scrumboard_export';	// Permission label
+		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'export';			// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = '';					// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
         // Main menu entries
         $this->menus = array(); // List of menus to add
         $r = 0;
@@ -482,21 +472,21 @@ class modscrumboard extends DolibarrModules
         $sql = array();
 
 		define('INC_FROM_DOLIBARR',true);
-		
+
 		dol_include_once('/scrumboard/config.php');
 		dol_include_once('/scrumboard/script/create-maj-base.php');
-		
+
         $result = $this->loadTables();
 
 		dolibarr_set_const($this->db, 'SCRUM_DEFAULT_VELOCITY', 7,'chaine',1,'Vélocité par défaut d\'un projet',0);
-	
+
 //		dol_include_once('/core/class/extrafields.class.php');
 //		$extrafields=new ExtraFields($this->db);
 //		$res = $extrafields->addExtraField('stories', 'ProjectStories', 'varchar', 0, 255, 'projet');
-		
+
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD story_k integer NOT NULL DEFAULT \'0\'');
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'projet_task ADD scrum_status varchar(255) NOT NULL DEFAULT \'\'');
-		
+
 		$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX.'c_scrum_columns ADD CONSTRAINT unique_code UNIQUE(code)');
 
         return $this->_init($sql, $options);
