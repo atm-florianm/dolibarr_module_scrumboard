@@ -61,8 +61,8 @@
 
 
 		$scrumboardColumn = new ScrumboardColumn;
-		$TColumn = array_map(function ($c) { return $c->code; }, $scrumboardColumn->getTColumnOrder());
-		$TColumn[] = 'unknownColumn';
+		$TColumn = $scrumboardColumn->getTColumnOrder();
+		$TColumn[] = (object) array('code' => 'unknownColumn', 'label' => $TColumn[0]->label);
 		$fk_user = GETPOST('fk_user', 'int');
 		$fk_soc = GETPOST('fk_soc', 'int');
 		$soc_type = GETPOST('soc_type');
@@ -73,40 +73,41 @@
 
 		// Configure columns for the CSV export
 		$selectedColumns = array(
-			'id' => '',
-			'ref' => '',
-			'label' => '',
-			'date_start' => '',
-			'date_end' => '',
-			'projectRef' => function (&$obj) use ($db) {
+			'ID'          => 'id',
+			'Ref'         => 'ref',
+			'ScrumStatus' => 'scrum_status',
+			'Label'       => 'label',
+			'DateStart'   => 'date_start',
+			'DateEnd'     => 'date_end',
+			'ProjectRef' => function (&$obj) use ($db) {
 				$project = new Project($db);
 				if ($project->fetch($obj['fk_project']) > 0) return $project->ref;
-				return 'error';
+				return '-';
 			},
-			'projectTitle' => function (&$obj) use ($db) {
+			'ProjectTitle' => function (&$obj) use ($db) {
 				$project = new Project($db);
 				if ($project->fetch($obj['fk_project']) > 0) return $project->title;
-				return 'error';
+				return '-';
 			},
-			'projectStatus' => function (&$obj) use ($db) {
+			'ProjectStatus' => function (&$obj) use ($db) {
 				$project = new Project($db);
-				if ($project->fetch($obj['fk_project']) > 0) return $project->statut;
-				return 'error';
+				if ($project->fetch($obj['fk_project']) > 0) return $project->getLibStatut(0);
+				return '-';
 			},
-			'planned_workload' => function (&$obj) use ($db) {
-				return secondsAsHoursMinutes(intval($obj['planned_workload']));
+			'PlannedWorkload' => function (&$obj) use ($db) {
+				return secondsAsHoursMinutes(intval($obj['planned_workload']), false);
 			},
-			'duration_effective' => '',
-			'progress_calculated' => function(&$obj) {
+			'DurationEffective' => function (&$obj) use ($db) {
+				return secondsAsHoursMinutes(intval($obj['duration_effective']), false);
+			},
+			'ProgressCalculated' => function(&$obj) {
 				return round(100 * $obj['duration_effective'] / $obj['planned_workload'], 2) . '%';
 			},
-			'progress' => '',
-			'tobill' => '',
-			'billed' => '',
-			'tms' => '',
-			'description' => '',
-			'date_c' => '',
-			'fk_statut' => '',
+			'Progress'     => 'progress',
+//			'TimeToBill'   => 'tobill',
+//			'TimeBilled'   => 'billed',
+			'Description'  => 'description',
+			'DateCreation' => 'date_c',
 		);
 		// Automatically add extrafields in the CSV export
 		$extrafields = new ExtraFields($db);
@@ -254,11 +255,11 @@
 		}
 
 		$csvFileHandle = null;
-		foreach($TColumn as $columnCode) {
+		foreach($TColumn as $column) {
 			$sql = getSQLForTasks(
 				$db,
 				$projectId,
-				$columnCode,
+				$column->code,
 				$fk_user,
 				$fk_soc,
 				$soc_type,
@@ -269,7 +270,7 @@
 				$labelFilter,
 				$countryFilter,
 				$stateFilter);
-			$csvFileHandle = _getCSV($sql, $selectedColumns, $columnCode, '', $csvFileHandle);
+			$csvFileHandle = _getCSV($sql, $selectedColumns, $column->label, '', $csvFileHandle);
 		}
 
 		$fileName = stream_get_meta_data($csvFileHandle)['uri'];
@@ -683,11 +684,14 @@ td.projectDrag {
  */
 function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileHandle=null, $delimiter=';', $enclosure='"', $escapeChar="\\") {
 	global $conf, $user, $db, $langs;
+	$langs->load('scrumboard@scrumboard');
 
 	if ($csvFileHandle === null) {
 		$tmpName = tempnam(sys_get_temp_dir(), 'data');
 		$csvFileHandle = fopen($tmpName, 'w');
-		fputcsv($csvFileHandle, array_keys($selectedColumns), $delimiter, $enclosure, $escapeChar);
+		$headerRow = array_keys($selectedColumns);
+		foreach($headerRow as &$label) $label = $langs->transnoentitiesnoconv($label);
+		fputcsv($csvFileHandle, $headerRow, $delimiter, $enclosure, $escapeChar);
 	}
 
 	$resql = $db->query($sql);
@@ -698,17 +702,19 @@ function _getCSV($sql, $selectedColumns, $scrumboardColumn, $filename, $csvFileH
 	for ($i = 0; $i < $num_rows; $i++) {
 		$obj = $db->fetch_object($resql);
 		if (!$obj) continue;
-		$taskDetails = array_merge(getTaskDetailsForScrumboardCard($db, $obj->rowid) , array('story_k' => $obj->story_k, 'scrum_status' => $obj->scrum_status));
-
+		$taskDetails = array_merge(
+			getTaskDetailsForScrumboardCard($db, $obj->rowid),
+			array('story_k' => $obj->story_k, 'scrum_status' => $scrumboardColumn)
+		);
 		$values = array();
-		foreach ($selectedColumns as $columnName => $valueGetter) {
-			if (empty($valueGetter)) {
-				$values[] = $taskDetails[$columnName];
+		foreach ($selectedColumns as $columnName => $accessor) {
+			// $accessor is either a function or a property name (string)
+			if (is_callable($accessor)) {
+				$values[] = $accessor($taskDetails);
 			} else {
-				$values[] = $valueGetter($taskDetails);
+				$values[] = $taskDetails[$accessor];
 			}
 		}
-//		var_export($values);
 
 		fputcsv(
 			$csvFileHandle,

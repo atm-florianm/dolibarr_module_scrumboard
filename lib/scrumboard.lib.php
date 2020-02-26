@@ -278,7 +278,7 @@ function getSQLForTasks(
 	/**
 	 * @param DoliDB $db
 	 * @param int    $id_task
-	 * @param array  $values
+	 * @param array  $values Optional array: if set, the task will be updated with the provided associative values.
 	 * @return array  Associative array with all the task details the scrumboard card needs
 	 */
 function getTaskDetailsForScrumboardCard(&$db, $id_task, $values=array()) {
