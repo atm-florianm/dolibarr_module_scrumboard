@@ -543,7 +543,7 @@ function pop_time(id_project, id_task) {
 								jStart=jStart+11;
 								jEnd = data.indexOf('"error"', jStart) - 10;
 								message = data.substr(jStart,  jEnd - jStart).replace(/\\'/g,'\'');
-								if(message != "") { // Test on message empty. But could be jEnd > 0
+								if(message != "" && message.length < 1000) { // Test on message empty. But could be jEnd > 0
 								// ERror case
                                 					$.jnotify(message,'error');
 								}else{
