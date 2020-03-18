@@ -270,7 +270,7 @@
 				$labelFilter,
 				$countryFilter,
 				$stateFilter);
-			$csvFileHandle = _getCSV($sql, $selectedColumns, $column->label, '', $csvFileHandle);
+			$csvFileHandle = _getCSV($sql, $selectedColumns, $column->label, '', $csvFileHandle, (! empty($conf->global->EXPORT_CSV_SEPARATOR_TO_USE)?$conf->global->EXPORT_CSV_SEPARATOR_TO_USE:';'));
 		}
 
 		$fileName = stream_get_meta_data($csvFileHandle)['uri'];
