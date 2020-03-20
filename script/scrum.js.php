@@ -507,6 +507,14 @@ function pop_time(id_project, id_task) {
                                             buttonImageOnly: true
                                             });
                     <?php } ?>
+
+                    $('#saisie').on('click', 'form input[name="cancel"]', function(event)
+                    {
+                        $('#saisie').dialog('close');
+
+                        return false;
+                    });
+
 					$('#saisie form').submit(function() {
 
 						$.post( $(this).attr('action')
@@ -573,7 +581,7 @@ function pop_time(id_project, id_task) {
 					modal:true
 					,minWidth:1200
 					,minHeight:200
-					,title:$('li[task-id='+id_task+'] span[rel=label]').text()
+					,title:$('li[task-id='+id_task+'] .task-title').text()
 				});
 }
 
